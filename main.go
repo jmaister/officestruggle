@@ -1,6 +1,10 @@
 package main
 
-import tl "github.com/JoelOtter/termloop"
+import (
+	tl "github.com/JoelOtter/termloop"
+	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/state"
+)
 
 type Player struct {
 	*tl.Entity
@@ -31,11 +35,18 @@ func main() {
 		Ch: 'v',
 	})
 
-	player := Player{tl.NewEntity(10, 10, 1, 1)}
-	player.SetCell(0, 0, &tl.Cell{Fg: tl.ColorWhite, Ch: '@'})
-	level.AddEntity(&player)
+	playerCell := Player{tl.NewEntity(10, 10, 1, 1)}
+	playerCell.SetCell(0, 0, &tl.Cell{Fg: tl.ColorWhite, Ch: '@'})
+	level.AddEntity(&playerCell)
 
 	//level.AddEntity(tl.NewText(10, 10, "@", tl.ColorWhite, tl.ColorBlack))
 	game.Screen().SetLevel(level)
 	game.Start()
+
+	engine := ecs.NewEngine()
+	// engine.RegisterComponent(state.Apparence)
+
+	player := engine.NewEntity()
+	apparence := state.NewApparence("#fff", '@')
+	player.AddComponent(apparence)
 }
