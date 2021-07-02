@@ -47,6 +47,10 @@ func main() {
 	// engine.RegisterComponent(state.Apparence)
 
 	player := engine.NewEntity()
-	apparence := state.NewApparence("#fff", '@')
-	player.AddComponent(apparence)
+	player.AddComponent(&state.Apparence{
+		Color: "#fff",
+		Char:  '@',
+	})
+	player.AddComponent(&state.Position{X: 10, Y: 10})
+
 }
