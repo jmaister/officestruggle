@@ -4,6 +4,7 @@ import (
 	tl "github.com/JoelOtter/termloop"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/state"
+	"jordiburgos.com/officestruggle/systems"
 )
 
 type Player struct {
@@ -53,4 +54,5 @@ func main() {
 	})
 	player.AddComponent(&state.Position{X: 10, Y: 10})
 
+	systems.Render(engine)
 }

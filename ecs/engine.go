@@ -1,5 +1,9 @@
 package ecs
 
+import (
+	"strconv"
+)
+
 type Entity struct {
 	id         int
 	components []*Component
@@ -42,9 +46,29 @@ func (engine *Engine) NewEntity() *Entity {
 	return newEntity
 }
 
+func (engine *Engine) GetEntities(types []string) []*Entity {
+	var found []*Entity
+	for _, entity := range engine.entities {
+		if entity.HasComponents(types) {
+			found = append(found, entity)
+		}
+	}
+	return found
+}
+
 /**
  * Entity
  */
+
+func (entity *Entity) String() string {
+	var str = "Entity " + strconv.Itoa(entity.id) + "["
+	for _, c := range entity.components {
+		str += (*c).ComponentType() + ","
+	}
+	str += "]"
+	return str
+
+}
 
 func (entity *Entity) AddComponent(component Component) {
 	entity.components = append(entity.components, &component)
@@ -57,6 +81,22 @@ func (entity *Entity) HasComponent(componentType string) bool {
 		}
 	}
 	return false
+}
+
+func (entity *Entity) HasComponents(componentTypes []string) bool {
+	// Check to see if the entity has the given components
+	containsAll := true
+	if entity != nil {
+		for i := 0; i < len(componentTypes); i++ {
+			if !entity.HasComponent(componentTypes[i]) {
+				containsAll = false
+				break
+			}
+		}
+	} else {
+		return false
+	}
+	return containsAll
 }
 
 func (entity *Entity) GetComponent(componentType string) *Component {
