@@ -1,11 +1,16 @@
 package state
 
 const (
+	Player    = "player"
 	Apparence = "apparence"
 	Position  = "position"
 )
 
 type PlayerComponent struct {
+}
+
+func (a PlayerComponent) ComponentType() string {
+	return Player
 }
 
 type ApparenceComponent struct {
