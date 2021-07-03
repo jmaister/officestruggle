@@ -48,11 +48,11 @@ func main() {
 	// engine.RegisterComponent(state.Apparence)
 
 	player := engine.NewEntity()
-	player.AddComponent(&state.Apparence{
+	player.AddComponent(state.Apparence, state.ApparenceComponent{
 		Color: "#fff",
 		Char:  '@',
 	})
-	player.AddComponent(&state.Position{X: 10, Y: 10})
+	player.AddComponent(state.Position, state.PositionComponent{X: 10, Y: 10})
 
 	systems.Render(engine)
 }

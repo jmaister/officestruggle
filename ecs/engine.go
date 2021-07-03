@@ -6,7 +6,7 @@ import (
 
 type Entity struct {
 	id         int
-	components []*Component
+	components map[string]Component
 }
 
 type Component interface {
@@ -18,9 +18,8 @@ type System interface {
 }
 
 type Engine struct {
-	currentId  int
-	components []*Component
-	entities   []*Entity
+	currentId int
+	entities  []*Entity
 }
 
 /**
@@ -33,13 +32,10 @@ func NewEngine() *Engine {
 	}
 }
 
-func (engine *Engine) RegisterComponent(component *Component) {
-	engine.components = append(engine.components, component)
-}
-
 func (engine *Engine) NewEntity() *Entity {
 	newEntity := &Entity{
-		id: engine.currentId,
+		id:         engine.currentId,
+		components: make(map[string]Component),
 	}
 	engine.currentId = engine.currentId + 1
 	engine.entities = append(engine.entities, newEntity)
@@ -63,24 +59,30 @@ func (engine *Engine) GetEntities(types []string) []*Entity {
 func (entity *Entity) String() string {
 	var str = "Entity " + strconv.Itoa(entity.id) + "["
 	for _, c := range entity.components {
-		str += (*c).ComponentType() + ","
+		str += c.ComponentType() + ","
 	}
 	str += "]"
 	return str
 
 }
 
-func (entity *Entity) AddComponent(component Component) {
-	entity.components = append(entity.components, &component)
+func (entity *Entity) AddComponent(componentType string, component Component) {
+	entity.components[componentType] = component
+}
+
+func (entity *Entity) RemoveComponent(componentType string) {
+	_, ok := entity.components[componentType]
+	if ok {
+		delete(entity.components, componentType)
+	}
 }
 
 func (entity *Entity) HasComponent(componentType string) bool {
-	for _, cmp := range entity.components {
-		if (*cmp).ComponentType() == componentType {
-			return true
-		}
+	if _, ok := entity.components[componentType]; ok {
+		return true
+	} else {
+		return false
 	}
-	return false
 }
 
 func (entity *Entity) HasComponents(componentTypes []string) bool {
@@ -99,24 +101,12 @@ func (entity *Entity) HasComponents(componentTypes []string) bool {
 	return containsAll
 }
 
-func (entity *Entity) GetComponent(componentType string) *Component {
-	for _, cmp := range entity.components {
-		if (*cmp).ComponentType() == componentType {
-			return cmp
-		}
+func (entity *Entity) GetComponent(componentType string) Component {
+	if cmp, ok := entity.components[componentType]; ok {
+		return cmp
+	} else {
+		return nil
 	}
-	return nil
-}
-
-func (entity *Entity) GetComponents(componentType string) []*Component {
-	var found []*Component
-
-	for _, cmp := range entity.components {
-		if (*cmp).ComponentType() == componentType {
-			found = append(found, cmp)
-		}
-	}
-	return found
 }
 
 /**
