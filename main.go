@@ -1,8 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	tl "github.com/JoelOtter/termloop"
+	"jordiburgos.com/officestruggle/dungeon"
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 	"jordiburgos.com/officestruggle/systems"
 )
@@ -64,6 +68,19 @@ func main() {
 	player.AddComponent(state.Player, state.PlayerComponent{})
 	player.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#fff", Char: '@'})
 	player.AddComponent(state.Position, state.PositionComponent{X: 10, Y: 10})
+
+	g := grid.Grid{
+		Width:  100,
+		Height: 34,
+		Map: grid.Map{
+			Width:  79,
+			Height: 29,
+			X:      21,
+			Y:      3,
+		},
+	}
+	dungeon.CreateDungeon(engine, g)
+	fmt.Println("Grid", g)
 
 	game := tl.NewGame()
 	level := tl.NewBaseLevel(tl.Cell{
