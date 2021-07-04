@@ -49,13 +49,7 @@ func (ctl *Controller) Tick(event tl.Event) {
 }
 
 func (ctl *Controller) Draw(screen *tl.Screen) {
-	renderable := []string{"position", "apparence"}
-	for _, entity := range ctl.Engine.GetEntities(renderable) {
-		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
-		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
-
-		screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: systems.CssToAttr(apparence.Color), Ch: apparence.Char})
-	}
+	systems.Render(ctl.Engine, screen)
 }
 
 func main() {
@@ -63,12 +57,7 @@ func main() {
 	// ECS engine
 	engine := ecs.NewEngine()
 
-	// Player
-	player := engine.NewEntity()
-	player.AddComponent(state.Player, state.PlayerComponent{})
-	player.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#fff", Char: '@'})
-	player.AddComponent(state.Position, state.PositionComponent{X: 10, Y: 10})
-
+	// Dungeon
 	g := grid.Grid{
 		Width:  100,
 		Height: 34,
@@ -79,8 +68,14 @@ func main() {
 			Y:      3,
 		},
 	}
-	dungeon.CreateDungeon(engine, g)
+	dungeonRectangle := dungeon.CreateDungeon(engine, g)
 	fmt.Println("Grid", g)
+
+	// Player
+	player := engine.NewEntity()
+	player.AddComponent(state.Player, state.PlayerComponent{})
+	player.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#fff", Char: '@'})
+	player.AddComponent(state.Position, state.PositionComponent{X: dungeonRectangle.Center.X, Y: dungeonRectangle.Center.Y})
 
 	game := tl.NewGame()
 	level := tl.NewBaseLevel(tl.Cell{
