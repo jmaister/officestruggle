@@ -42,7 +42,7 @@ func (engine *Engine) NewEntity() *Entity {
 	return newEntity
 }
 
-func (engine *Engine) GetEntities(types []string) []*Entity {
+func (engine Engine) GetEntities(types []string) []*Entity {
 	var found []*Entity
 	for _, entity := range engine.entities {
 		if entity.HasComponents(types) {
@@ -63,18 +63,19 @@ func (entity *Entity) String() string {
 	}
 	str += "]"
 	return str
-
 }
 
 func (entity *Entity) AddComponent(componentType string, component Component) {
 	entity.components[componentType] = component
 }
 
-func (entity *Entity) RemoveComponent(componentType string) {
-	_, ok := entity.components[componentType]
+func (entity *Entity) RemoveComponent(componentType string) Component {
+	cmp, ok := entity.components[componentType]
 	if ok {
 		delete(entity.components, componentType)
+		return cmp
 	}
+	return nil
 }
 
 func (entity *Entity) HasComponent(componentType string) bool {

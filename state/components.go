@@ -4,6 +4,7 @@ const (
 	Player    = "player"
 	Apparence = "apparence"
 	Position  = "position"
+	Move      = "move"
 )
 
 type PlayerComponent struct {
@@ -29,4 +30,13 @@ type PositionComponent struct {
 
 func (a PositionComponent) ComponentType() string {
 	return Position
+}
+
+type MoveComponent struct {
+	X int
+	Y int
+}
+
+func (a MoveComponent) ComponentType() string {
+	return Move
 }
