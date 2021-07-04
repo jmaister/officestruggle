@@ -14,6 +14,7 @@ import (
 type Controller struct {
 	*tl.Entity
 	Engine *ecs.Engine
+	Grid   *grid.Grid
 }
 
 func (ctl *Controller) Tick(event tl.Event) {
@@ -45,7 +46,7 @@ func (ctl *Controller) Tick(event tl.Event) {
 
 	// This is what defines a turn step
 	// systems.Render not needed, done in Draw(...) func
-	systems.Movement(ctl.Engine)
+	systems.Movement(ctl.Engine, ctl.Grid)
 }
 
 func (ctl *Controller) Draw(screen *tl.Screen) {
@@ -86,6 +87,7 @@ func main() {
 
 	ctl := Controller{
 		Engine: engine,
+		Grid:   &g,
 	}
 	level.AddEntity(&ctl)
 
