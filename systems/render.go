@@ -21,7 +21,12 @@ func Render(engine *ecs.Engine, screen *tl.Screen) {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
 		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
 
-		screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr(apparence.Color), Ch: apparence.Char})
+		bg := apparence.Bg
+		if bg == "" {
+			bg = "#000"
+		}
+
+		screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr(apparence.Color), Bg: CssToAttr(bg), Ch: apparence.Char})
 	}
 
 }

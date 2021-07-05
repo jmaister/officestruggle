@@ -17,6 +17,7 @@ func (a PlayerComponent) ComponentType() string {
 
 type ApparenceComponent struct {
 	Color string
+	Bg    string
 	Char  rune
 }
 
