@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"math/rand"
 
 	tl "github.com/JoelOtter/termloop"
 	"jordiburgos.com/officestruggle/dungeon"
@@ -54,6 +54,7 @@ func (ctl *Controller) Draw(screen *tl.Screen) {
 }
 
 func main() {
+	rand.Seed(99)
 
 	// ECS engine
 	engine := ecs.NewEngine()
@@ -69,8 +70,11 @@ func main() {
 			Y:      3,
 		},
 	}
-	dungeonRectangle := dungeon.CreateDungeon(engine, g)
-	fmt.Println("Grid", g)
+	dungeonRectangle := dungeon.CreateDungeon(engine, g, dungeon.DungeonOptions{
+		MinRoomSize:  6,
+		MaxRoomSize:  12,
+		MaxRoomCount: 30,
+	})
 
 	// Player
 	player := engine.NewEntity()

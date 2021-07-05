@@ -27,8 +27,9 @@ var Diagonal = []Direction{
 var AllDirection = append(Cardinal, Diagonal...)
 
 type Tile struct {
-	X int
-	Y int
+	X      int
+	Y      int
+	Sprite TileType
 }
 
 func IsInsideCircle(center Tile, tile Tile, radius int) bool {
@@ -63,7 +64,18 @@ func GetCircle(center Tile, radius int) []Tile {
 
 }
 
-func GetRectangle(x int, y int, width int, height int, hasWalls bool) (Rectangle, []Tile) {
+type TileType string
+
+const (
+	Wall  TileType = "Wall"
+	Floor TileType = "Floor"
+)
+
+type RectangleOptions struct {
+	Sprite TileType
+}
+
+func GetRectangle(x int, y int, width int, height int, hasWalls bool, opts RectangleOptions) (Rectangle, []Tile) {
 	var tiles []Tile
 
 	x1 := x
@@ -74,14 +86,14 @@ func GetRectangle(x int, y int, width int, height int, hasWalls bool) (Rectangle
 	if hasWalls {
 		for yi := y1 + 1; yi <= y2-1; yi++ {
 			for xi := x1 + 1; xi <= x2-1; xi++ {
-				thisTile := Tile{X: xi, Y: yi}
+				thisTile := Tile{X: xi, Y: yi, Sprite: opts.Sprite}
 				tiles = append(tiles, thisTile)
 			}
 		}
 	} else {
 		for yi := y1; yi <= y2; yi++ {
 			for xi := x1; xi <= x2; xi++ {
-				thisTile := Tile{X: xi, Y: yi}
+				thisTile := Tile{X: xi, Y: yi, Sprite: opts.Sprite}
 				tiles = append(tiles, thisTile)
 			}
 		}
