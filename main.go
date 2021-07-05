@@ -1,8 +1,12 @@
 package main
 
 import (
+	"math/rand"
+
 	tl "github.com/JoelOtter/termloop"
+	"jordiburgos.com/officestruggle/dungeon"
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 	"jordiburgos.com/officestruggle/systems"
 )
@@ -10,6 +14,7 @@ import (
 type Controller struct {
 	*tl.Entity
 	Engine *ecs.Engine
+	Grid   *grid.Grid
 }
 
 func (ctl *Controller) Tick(event tl.Event) {
@@ -41,29 +46,41 @@ func (ctl *Controller) Tick(event tl.Event) {
 
 	// This is what defines a turn step
 	// systems.Render not needed, done in Draw(...) func
-	systems.Movement(ctl.Engine)
+	systems.Movement(ctl.Engine, ctl.Grid)
 }
 
 func (ctl *Controller) Draw(screen *tl.Screen) {
-	renderable := []string{"position", "apparence"}
-	for _, entity := range ctl.Engine.GetEntities(renderable) {
-		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
-		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
-
-		screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: systems.CssToAttr(apparence.Color), Ch: apparence.Char})
-	}
+	systems.Render(ctl.Engine, screen)
 }
 
 func main() {
+	rand.Seed(99)
 
 	// ECS engine
 	engine := ecs.NewEngine()
+
+	// Dungeon
+	g := grid.Grid{
+		Width:  100,
+		Height: 34,
+		Map: grid.Map{
+			Width:  79,
+			Height: 29,
+			X:      21,
+			Y:      3,
+		},
+	}
+	dungeonRectangle := dungeon.CreateDungeon(engine, g, dungeon.DungeonOptions{
+		MinRoomSize:  6,
+		MaxRoomSize:  12,
+		MaxRoomCount: 30,
+	})
 
 	// Player
 	player := engine.NewEntity()
 	player.AddComponent(state.Player, state.PlayerComponent{})
 	player.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#fff", Char: '@'})
-	player.AddComponent(state.Position, state.PositionComponent{X: 10, Y: 10})
+	player.AddComponent(state.Position, state.PositionComponent{X: dungeonRectangle.Center.X, Y: dungeonRectangle.Center.Y})
 
 	game := tl.NewGame()
 	level := tl.NewBaseLevel(tl.Cell{
@@ -74,6 +91,7 @@ func main() {
 
 	ctl := Controller{
 		Engine: engine,
+		Grid:   &g,
 	}
 	level.AddEntity(&ctl)
 

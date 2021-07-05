@@ -52,6 +52,10 @@ func (engine Engine) GetEntities(types []string) []*Entity {
 	return found
 }
 
+func (engine Engine) GetAllEntities() []*Entity {
+	return engine.entities
+}
+
 /**
  * Entity
  */

@@ -1,10 +1,11 @@
 package state
 
 const (
-	Player    = "player"
-	Apparence = "apparence"
-	Position  = "position"
-	Move      = "move"
+	Player     = "player"
+	Apparence  = "apparence"
+	Position   = "position"
+	Move       = "move"
+	IsBlocking = "isBlocking"
 )
 
 type PlayerComponent struct {
@@ -39,4 +40,10 @@ type MoveComponent struct {
 
 func (a MoveComponent) ComponentType() string {
 	return Move
+}
+
+type IsBlockingComponent struct{}
+
+func (a IsBlockingComponent) ComponentType() string {
+	return IsBlocking
 }
