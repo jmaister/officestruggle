@@ -16,8 +16,17 @@ func CssToAttr(cssColor string) tl.Attr {
 }
 
 func Render(engine *ecs.Engine, screen *tl.Screen) {
-	renderable := []string{"position", "apparence"}
-	for _, entity := range engine.GetEntities(renderable) {
+	layers := []string{state.Layer100, state.Layer300, state.Layer400}
+
+	for _, layer := range layers {
+		renderable := []string{state.Position, state.Apparence, layer}
+		entities := engine.GetEntities(renderable)
+		renderEntities(entities, screen)
+	}
+}
+
+func renderEntities(entities []*ecs.Entity, screen *tl.Screen) {
+	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
 		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
 
@@ -28,5 +37,4 @@ func Render(engine *ecs.Engine, screen *tl.Screen) {
 
 		screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr(apparence.Color), Bg: CssToAttr(bg), Ch: apparence.Char})
 	}
-
 }

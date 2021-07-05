@@ -81,6 +81,7 @@ func main() {
 	player.AddComponent(state.Player, state.PlayerComponent{})
 	player.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#fff", Char: '@'})
 	player.AddComponent(state.Position, state.PositionComponent{X: dungeonRectangle.Center.X, Y: dungeonRectangle.Center.Y})
+	player.AddComponent(state.Layer400, state.Layer400Component{})
 
 	game := tl.NewGame()
 	level := tl.NewBaseLevel(tl.Cell{

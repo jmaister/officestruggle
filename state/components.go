@@ -6,6 +6,9 @@ const (
 	Position   = "position"
 	Move       = "move"
 	IsBlocking = "isBlocking"
+	Layer100   = "layer100"
+	Layer300   = "layer300"
+	Layer400   = "layer400"
 )
 
 type PlayerComponent struct {
@@ -47,4 +50,22 @@ type IsBlockingComponent struct{}
 
 func (a IsBlockingComponent) ComponentType() string {
 	return IsBlocking
+}
+
+type Layer100Component struct{}
+
+func (a Layer100Component) ComponentType() string {
+	return Layer100
+}
+
+type Layer300Component struct{}
+
+func (a Layer300Component) ComponentType() string {
+	return Layer300
+}
+
+type Layer400Component struct{}
+
+func (a Layer400Component) ComponentType() string {
+	return Layer300
 }

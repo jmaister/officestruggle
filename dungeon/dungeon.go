@@ -75,6 +75,7 @@ func CreateDungeon(engine *ecs.Engine, g grid.Grid, opts DungeonOptions) grid.Re
 
 	for _, tile := range tiles {
 		tileEntity := engine.NewEntity()
+		tileEntity.AddComponent(state.Layer100, state.Layer100Component{})
 		tileEntity.AddComponent(state.Position, state.PositionComponent{X: tile.X, Y: tile.Y})
 		if tile.Sprite == grid.Wall {
 			tileEntity.AddComponent(state.IsBlocking, state.IsBlockingComponent{})
