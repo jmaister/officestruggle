@@ -1,5 +1,11 @@
 package state
 
+import (
+	"strconv"
+
+	"jordiburgos.com/officestruggle/ecs"
+)
+
 const (
 	Player     = "player"
 	Apparence  = "apparence"
@@ -35,6 +41,18 @@ type PositionComponent struct {
 
 func (a PositionComponent) ComponentType() string {
 	return Position
+}
+
+func (a PositionComponent) GetKey() string {
+	return strconv.Itoa(a.X) + "," + strconv.Itoa(a.Y)
+}
+
+func (a PositionComponent) OnAdd(engine *ecs.Engine, entity *ecs.Entity) {
+	engine.PosCache.Add(a.GetKey(), entity)
+}
+
+func (a PositionComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
+	engine.PosCache.Delete(a.GetKey())
 }
 
 type MoveComponent struct {
