@@ -26,10 +26,12 @@ func CreateDungeon(engine *ecs.Engine, g grid.Grid, opts DungeonOptions) grid.Re
 		Sprite: grid.Wall,
 	})
 
-	var tiles []grid.Tile
+	var tiles map[string]grid.Tile = make(map[string]grid.Tile)
 	var rooms []grid.Rectangle
 
-	tiles = append(tiles, dungeonTiles...)
+	for _, tile := range dungeonTiles {
+		tiles[tile.GetKey()] = tile
+	}
 
 	for i := 0; i < opts.MaxRoomCount; i++ {
 		rw := randBetween(opts.MinRoomSize, opts.MaxRoomSize)
@@ -53,7 +55,9 @@ func CreateDungeon(engine *ecs.Engine, g grid.Grid, opts DungeonOptions) grid.Re
 		}
 		if !existIntersection {
 			rooms = append(rooms, candidate)
-			tiles = append(tiles, candidateTiles...)
+			for _, tile := range candidateTiles {
+				tiles[tile.GetKey()] = tile
+			}
 		}
 	}
 
@@ -61,12 +65,17 @@ func CreateDungeon(engine *ecs.Engine, g grid.Grid, opts DungeonOptions) grid.Re
 		prev := rooms[r-1].Center
 		curr := rooms[r].Center
 
-		tiles = append(tiles, digHorizontalPassage(prev.X, curr.X, curr.Y)...)
-		tiles = append(tiles, digVerticalPassage(prev.Y, curr.Y, prev.X)...)
+		for _, tile := range digHorizontalPassage(prev.X, curr.X, curr.Y) {
+			tiles[tile.GetKey()] = tile
+		}
+		for _, tile := range digVerticalPassage(prev.Y, curr.Y, prev.X) {
+			tiles[tile.GetKey()] = tile
+		}
 	}
 
 	for _, tile := range tiles {
 		tileEntity := engine.NewEntity()
+		tileEntity.AddComponent(state.Position, state.PositionComponent{X: tile.X, Y: tile.Y})
 		if tile.Sprite == grid.Wall {
 			tileEntity.AddComponent(state.IsBlocking, state.IsBlockingComponent{})
 			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#555", Char: '#'})
@@ -75,7 +84,6 @@ func CreateDungeon(engine *ecs.Engine, g grid.Grid, opts DungeonOptions) grid.Re
 		} else {
 			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#999", Char: '.'})
 		}
-		tileEntity.AddComponent(state.Position, state.PositionComponent{X: tile.X, Y: tile.Y})
 	}
 
 	dungeon.Center = rooms[0].Center

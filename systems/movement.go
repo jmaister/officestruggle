@@ -30,7 +30,6 @@ func Movement(engine *ecs.Engine, g *grid.Grid) {
 		my = int(math.Min(float64(m.Height+m.Y-1), math.Max(3, float64(my))))
 
 		// Check for blockers
-		// TODO: there is always a blocker, as the new rooms do not remove the dungeon walls
 		isBlocked := false
 		for _, e := range engine.GetEntities(blockers) {
 			pos, _ := getPosition(e)

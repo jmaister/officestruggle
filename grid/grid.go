@@ -3,6 +3,7 @@ package grid
 import (
 	"math"
 	"math/rand"
+	"strconv"
 )
 
 type Direction struct {
@@ -30,6 +31,10 @@ type Tile struct {
 	X      int
 	Y      int
 	Sprite TileType
+}
+
+func (t Tile) GetKey() string {
+	return strconv.Itoa(t.X) + "," + strconv.Itoa(t.Y)
 }
 
 func IsInsideCircle(center Tile, tile Tile, radius int) bool {
