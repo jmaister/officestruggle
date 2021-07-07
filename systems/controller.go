@@ -37,7 +37,8 @@ func (ctl *Controller) Tick(event tl.Event) {
 			}
 		}
 
-		player := ctl.Engine.Entities.GetEntities([]string{state.Player})[0]
+		// player := ctl.Engine.Entities.GetEntities([]string{state.Player})[0]
+		player := ctl.GameState.Player
 		player.AddComponent(state.Move, move)
 	}
 

@@ -35,15 +35,15 @@ func main() {
 		MaxRoomCount: 7,
 	})
 
-	// Game state
-	gameState := state.NewGameState(&g)
-
 	// Player
 	player := engine.NewEntity()
 	player.AddComponent(state.Player, state.PlayerComponent{})
 	player.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#0000FF", Char: '@'})
 	player.AddComponent(state.Position, state.PositionComponent{X: dungeonRectangle.Center.X, Y: dungeonRectangle.Center.Y})
 	player.AddComponent(state.Layer400, state.Layer400Component{})
+
+	// Game state
+	gameState := state.NewGameState(&g, player)
 
 	game := tl.NewGame()
 	game.Screen().SetFps(30)

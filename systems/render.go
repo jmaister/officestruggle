@@ -23,7 +23,7 @@ func Render(engine *ecs.Engine, gameState *state.GameState, screen *tl.Screen) {
 	state.SetVisibleEntities(visitables, false)
 
 	// Update visibility
-	player := engine.Entities.GetEntity([]string{state.Player})
+	player := gameState.Player
 	position := state.GetPosition(player)
 	gameState.Fov.RayCast(engine, position.X, position.Y, &gameState.Grid.Map)
 
