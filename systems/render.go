@@ -18,18 +18,18 @@ func CssToAttr(cssColor string) tl.Attr {
 func Render(engine *ecs.Engine, gameState *state.GameState, screen *tl.Screen) {
 	layers := []string{state.Layer100, state.Layer300, state.Layer400}
 
+	// Reset visibility
+	visitables := engine.Entities.GetEntities([]string{state.Visitable})
+	state.SetVisibleEntities(visitables, false)
+
+	// Update visibility
+	player := engine.Entities.GetEntity([]string{state.Player})
+	position := state.GetPosition(player)
+	gameState.Fov.RayCast(engine, position.X, position.Y, &gameState.Grid.Map)
+
 	for _, layer := range layers {
 		renderable := []string{state.Position, state.Apparence, layer}
 		entities := engine.Entities.GetEntities(renderable)
-
-		// Reset visibility
-		visitables := engine.Entities.GetEntities([]string{state.Visitable})
-		state.SetVisibleEntities(visitables, false)
-
-		// Update visibility
-		player := engine.Entities.GetEntity([]string{state.Player})
-		position := state.GetPosition(player)
-		gameState.Fov.RayCast(engine, position.X, position.Y, &gameState.Grid.Map)
 
 		renderEntities(entities, screen)
 	}
