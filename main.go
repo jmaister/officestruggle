@@ -32,8 +32,11 @@ func main() {
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
-		MaxRoomCount: 5,
+		MaxRoomCount: 7,
 	})
+
+	// Game state
+	gameState := state.NewGameState(&g)
 
 	// Player
 	player := engine.NewEntity()
@@ -51,8 +54,9 @@ func main() {
 	})
 
 	ctl := systems.Controller{
-		Engine: engine,
-		Grid:   &g,
+		Engine:    engine,
+		GameState: gameState,
+		Grid:      &g,
 	}
 	level.AddEntity(&ctl)
 

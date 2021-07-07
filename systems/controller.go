@@ -9,8 +9,9 @@ import (
 
 type Controller struct {
 	*tl.Entity
-	Engine *ecs.Engine
-	Grid   *grid.Grid
+	Engine    *ecs.Engine
+	Grid      *grid.Grid
+	GameState *state.GameState
 }
 
 func (ctl *Controller) Tick(event tl.Event) {
@@ -47,5 +48,5 @@ func (ctl *Controller) Tick(event tl.Event) {
 }
 
 func (ctl *Controller) Draw(screen *tl.Screen) {
-	Render(ctl.Engine, screen)
+	Render(ctl.Engine, ctl.GameState, screen)
 }
