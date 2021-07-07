@@ -15,6 +15,7 @@ const (
 	Layer100   = "layer100"
 	Layer300   = "layer300"
 	Layer400   = "layer400"
+	Visitable  = "visitable"
 )
 
 type PlayerComponent struct {
@@ -43,6 +44,10 @@ func (a PositionComponent) ComponentType() string {
 	return Position
 }
 
+func GetPosition(entity *ecs.Entity) PositionComponent {
+	return entity.GetComponent(Position).(PositionComponent)
+}
+
 func (a PositionComponent) GetKey() string {
 	return strconv.Itoa(a.X) + "," + strconv.Itoa(a.Y)
 }
@@ -52,7 +57,7 @@ func (a PositionComponent) OnAdd(engine *ecs.Engine, entity *ecs.Entity) {
 }
 
 func (a PositionComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
-	engine.PosCache.Delete(a.GetKey())
+	engine.PosCache.Delete(a.GetKey(), entity)
 }
 
 type MoveComponent struct {
@@ -86,4 +91,15 @@ type Layer400Component struct{}
 
 func (a Layer400Component) ComponentType() string {
 	return Layer300
+}
+
+type VisitableComponent struct {
+	// You already know this tile
+	Explored bool
+	// It is reachable from your sight, depends on current position of the player
+	Visible bool
+}
+
+func (a VisitableComponent) ComponentType() string {
+	return Visitable
 }

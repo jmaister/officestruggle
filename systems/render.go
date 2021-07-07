@@ -20,7 +20,7 @@ func Render(engine *ecs.Engine, screen *tl.Screen) {
 
 	for _, layer := range layers {
 		renderable := []string{state.Position, state.Apparence, layer}
-		entities := engine.GetEntities(renderable)
+		entities := engine.Entities.GetEntities(renderable)
 		renderEntities(entities, screen)
 	}
 }
@@ -31,7 +31,7 @@ func renderEntities(entities []*ecs.Entity, screen *tl.Screen) {
 		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
 
 		bg := apparence.Bg
-		if bg == "" {
+		if bg == "" || len(bg) == 0 {
 			bg = "#000"
 		}
 

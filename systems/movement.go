@@ -8,16 +8,18 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
+/*
 func getPosition(entity *ecs.Entity) (state.PositionComponent, bool) {
 	position, ok := entity.GetComponent(state.Position).(state.PositionComponent)
 	return position, ok
 }
+*/
 
 func Movement(engine *ecs.Engine, g *grid.Grid) {
 	movable := []string{state.Move}
 	// blockers := []string{state.IsBlocking, state.Position}
 
-	for _, entity := range engine.GetEntities(movable) {
+	for _, entity := range engine.Entities.GetEntities(movable) {
 		move := entity.RemoveComponent(state.Move).(state.MoveComponent)
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
 
@@ -34,15 +36,16 @@ func Movement(engine *ecs.Engine, g *grid.Grid) {
 			X: mx,
 			Y: my,
 		}
-		targetEntity, found := engine.PosCache.Get(newPosition.GetKey())
-		isBlocked := found && targetEntity.HasComponent(state.IsBlocking)
-
-		//fmt.Println("ca", engine.PosCache.Entities)
+		entitiesOnPosition, found := engine.PosCache.Get(newPosition.GetKey())
+		isBlocked := found
+		for _, entity := range entitiesOnPosition {
+			isBlocked = isBlocked && entity.HasComponent(state.IsBlocking)
+		}
 
 		if !isBlocked {
 			entity.AddComponent(state.Position, newPosition)
 
-			engine.PosCache.Delete(position.GetKey())
+			engine.PosCache.Delete(position.GetKey(), entity)
 			engine.PosCache.Add(position.GetKey(), entity)
 		}
 	}
