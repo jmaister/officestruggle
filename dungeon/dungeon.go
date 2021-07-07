@@ -78,9 +78,12 @@ func CreateDungeon(engine *ecs.Engine, m grid.Map, opts DungeonOptions) grid.Rec
 		tileEntity.AddComponent(state.Position, state.PositionComponent{X: tile.X, Y: tile.Y})
 		tileEntity.AddComponent(state.Visitable, state.VisitableComponent{Explored: false, Visible: false})
 		if tile.Sprite == grid.Wall {
+			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Wall"})
 			tileEntity.AddComponent(state.IsBlocking, state.IsBlockingComponent{})
 			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#555", Char: '#'})
 		} else if tile.Sprite == grid.Floor {
+			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Floor"})
+			tileEntity.AddComponent(state.IsFloor, state.IsFloorComponent{})
 			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#555", Char: '•'})
 		} else {
 			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#999", Char: '.'})

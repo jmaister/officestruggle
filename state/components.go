@@ -7,15 +7,17 @@ import (
 )
 
 const (
-	Player     = "player"
-	Apparence  = "apparence"
-	Position   = "position"
-	Move       = "move"
-	IsBlocking = "isBlocking"
-	Layer100   = "layer100"
-	Layer300   = "layer300"
-	Layer400   = "layer400"
-	Visitable  = "visitable"
+	Player      = "player"
+	Apparence   = "apparence"
+	Position    = "position"
+	Move        = "move"
+	IsBlocking  = "isBlocking"
+	IsFloor     = "isFloor"
+	Layer100    = "layer100"
+	Layer300    = "layer300"
+	Layer400    = "layer400"
+	Visitable   = "visitable"
+	Description = "description"
 )
 
 type PlayerComponent struct {
@@ -75,6 +77,12 @@ func (a IsBlockingComponent) ComponentType() string {
 	return IsBlocking
 }
 
+type IsFloorComponent struct{}
+
+func (a IsFloorComponent) ComponentType() string {
+	return IsFloor
+}
+
 type Layer100Component struct{}
 
 func (a Layer100Component) ComponentType() string {
@@ -102,4 +110,20 @@ type VisitableComponent struct {
 
 func (a VisitableComponent) ComponentType() string {
 	return Visitable
+}
+
+type DescriptionComponent struct {
+	Name string
+}
+
+func (a DescriptionComponent) ComponentType() string {
+	return Description
+}
+
+func GetDescription(entity *ecs.Entity) string {
+	cmp, ok := entity.GetComponent(Description).(DescriptionComponent)
+	if ok {
+		return cmp.Name
+	}
+	return "something"
 }
