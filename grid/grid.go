@@ -72,8 +72,9 @@ func GetCircle(center Tile, radius int) []Tile {
 type TileType string
 
 const (
-	Wall  TileType = "Wall"
-	Floor TileType = "Floor"
+	Wall      TileType = "Wall"
+	Floor     TileType = "Floor"
+	Undefined TileType = "Undef"
 )
 
 type RectangleOptions struct {
@@ -146,19 +147,18 @@ type Grid struct {
 	Map    Map
 }
 
-func IsOnMapEdge(x int, y int, grid Grid) bool {
-	aMap := grid.Map
+func IsOnMapEdge(x int, y int, theMap Map) bool {
 
-	if x == aMap.X {
+	if x == theMap.X {
 		return true
 	}
-	if y == aMap.Y {
+	if y == theMap.Y {
 		return true
 	}
-	if x == aMap.X+aMap.Width-1 {
+	if x == theMap.X+theMap.Width-1 {
 		return true
 	}
-	if x == aMap.Y+aMap.Height-1 {
+	if x == theMap.Y+theMap.Height-1 {
 		return true
 	}
 	return false

@@ -19,8 +19,7 @@ func randBetween(min int, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func CreateDungeon(engine *ecs.Engine, g grid.Grid, opts DungeonOptions) grid.Rectangle {
-	m := g.Map
+func CreateDungeon(engine *ecs.Engine, m grid.Map, opts DungeonOptions) grid.Rectangle {
 
 	dungeon, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
 		Sprite: grid.Wall,
@@ -75,7 +74,9 @@ func CreateDungeon(engine *ecs.Engine, g grid.Grid, opts DungeonOptions) grid.Re
 
 	for _, tile := range tiles {
 		tileEntity := engine.NewEntity()
+		tileEntity.AddComponent(state.Layer100, state.Layer100Component{})
 		tileEntity.AddComponent(state.Position, state.PositionComponent{X: tile.X, Y: tile.Y})
+		tileEntity.AddComponent(state.Visitable, state.VisitableComponent{Explored: false, Visible: false})
 		if tile.Sprite == grid.Wall {
 			tileEntity.AddComponent(state.IsBlocking, state.IsBlockingComponent{})
 			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#555", Char: '#'})

@@ -1,16 +1,29 @@
 package ecs
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Entity struct {
 	id         int
 	components map[string]Component
+	engine     *Engine
 }
+
+type EntityList []*Entity
 
 type Component interface {
 	ComponentType() string
+}
+
+type OnAddComponent interface {
+	OnAdd(engine *Engine, entity *Entity)
+}
+
+type OnRemoveComponent interface {
+	OnRemove(engine *Engine, entity *Entity)
 }
 
 type System interface {
@@ -19,7 +32,8 @@ type System interface {
 
 type Engine struct {
 	currentId int
-	entities  []*Entity
+	Entities  EntityList
+	PosCache  PositionCache
 }
 
 /**
@@ -29,6 +43,9 @@ type Engine struct {
 func NewEngine() *Engine {
 	return &Engine{
 		currentId: 1,
+		PosCache: PositionCache{
+			Entities: map[string]EntitySet{},
+		},
 	}
 }
 
@@ -36,24 +53,11 @@ func (engine *Engine) NewEntity() *Entity {
 	newEntity := &Entity{
 		id:         engine.currentId,
 		components: make(map[string]Component),
+		engine:     engine,
 	}
 	engine.currentId = engine.currentId + 1
-	engine.entities = append(engine.entities, newEntity)
+	engine.Entities = append(engine.Entities, newEntity)
 	return newEntity
-}
-
-func (engine Engine) GetEntities(types []string) []*Entity {
-	var found []*Entity
-	for _, entity := range engine.entities {
-		if entity.HasComponents(types) {
-			found = append(found, entity)
-		}
-	}
-	return found
-}
-
-func (engine Engine) GetAllEntities() []*Entity {
-	return engine.entities
 }
 
 /**
@@ -71,15 +75,32 @@ func (entity *Entity) String() string {
 
 func (entity *Entity) AddComponent(componentType string, component Component) {
 	entity.components[componentType] = component
+
+	// Call event if possible
+	cmp, ok := component.(OnAddComponent)
+	if ok {
+		cmp.OnAdd(entity.engine, entity)
+	}
 }
 
 func (entity *Entity) RemoveComponent(componentType string) Component {
-	cmp, ok := entity.components[componentType]
+	component, ok := entity.components[componentType]
 	if ok {
 		delete(entity.components, componentType)
-		return cmp
+
+		// Call event if possible
+		cmp, ok := component.(OnRemoveComponent)
+		if ok {
+			cmp.OnRemove(entity.engine, entity)
+		}
+		return component
 	}
 	return nil
+}
+
+func (entity *Entity) ReplaceComponent(componentType string, newComponent Component) {
+	entity.RemoveComponent(componentType)
+	entity.AddComponent(componentType, newComponent)
 }
 
 func (entity *Entity) HasComponent(componentType string) bool {
@@ -115,9 +136,100 @@ func (entity *Entity) GetComponent(componentType string) Component {
 }
 
 /**
+ * EntityList
+ */
+
+func (entityList *EntityList) GetEntities(types []string) EntityList {
+	var found EntityList
+	for _, entity := range *entityList {
+		if entity.HasComponents(types) {
+			found = append(found, entity)
+		}
+	}
+	return found
+}
+
+// Only one Entity expected, nil if not
+func (entityList *EntityList) GetEntity(types []string) *Entity {
+	found := entityList.GetEntities(types)
+	if len(found) == 1 {
+		return found[0]
+	}
+	fmt.Println("Warning, more than one entity found for types: " + strings.Join(types, ","))
+	return nil
+}
+
+/**
  * Component
  */
 
 /**
  * System
  */
+
+/**
+ * Position cache
+ */
+
+type EntitySet map[*Entity]bool
+
+type PositionCache struct {
+	Entities map[string]EntitySet
+}
+
+func (c *PositionCache) Add(key string, value *Entity) {
+	_, ok := c.Entities[key]
+	if !ok {
+		c.Entities[key] = make(EntitySet)
+	}
+	c.Entities[key][value] = true
+}
+
+func (c *PositionCache) Delete(key string, value *Entity) {
+	set, ok := c.Entities[key]
+	if ok {
+		delete(set, value)
+		if len(set) == 0 {
+			delete(c.Entities, key)
+		}
+	}
+	delete(c.Entities, key)
+}
+
+func (c *PositionCache) GetByCoord(x int, y int) (EntityList, bool) {
+	key := strconv.Itoa(x) + "," + strconv.Itoa(y)
+	return c.Get(key)
+}
+
+func (c *PositionCache) GetByCoordAndComponents(x int, y int, cmpTypes []string) (EntityList, bool) {
+	key := strconv.Itoa(x) + "," + strconv.Itoa(y)
+	entityList, ok := c.Get(key)
+	if ok {
+		return entityList.GetEntities(cmpTypes), true
+	}
+	return EntityList{}, false
+}
+
+func (c *PositionCache) GetOneByCoordAndComponents(x int, y int, cmpTypes []string) (*Entity, bool) {
+	key := strconv.Itoa(x) + "," + strconv.Itoa(y)
+	entityList, ok := c.Get(key)
+	if ok {
+		found := entityList.GetEntities(cmpTypes)
+		if len(found) == 1 {
+			return found[0], true
+		}
+	}
+	return &Entity{}, false
+}
+
+func (c *PositionCache) Get(key string) (EntityList, bool) {
+	set, ok := c.Entities[key]
+	entities := make([]*Entity, 0, len(set))
+	if ok {
+		for entity := range set {
+			entities = append(entities, entity)
+		}
+
+	}
+	return entities, ok
+}
