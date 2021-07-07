@@ -18,6 +18,7 @@ const (
 	Layer400    = "layer400"
 	Visitable   = "visitable"
 	Description = "description"
+	AI          = "ai"
 )
 
 type PlayerComponent struct {
@@ -126,4 +127,11 @@ func GetDescription(entity *ecs.Entity) string {
 		return cmp.Name
 	}
 	return "something"
+}
+
+type AIComponent struct {
+}
+
+func (a AIComponent) ComponentType() string {
+	return AI
 }

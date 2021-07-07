@@ -6,9 +6,10 @@ import (
 )
 
 type GameState struct {
-	Fov    *FieldOfVision
-	Grid   *grid.Grid
-	Player *ecs.Entity
+	Fov          *FieldOfVision
+	Grid         *grid.Grid
+	Player       *ecs.Entity
+	IsPlayerTurn bool
 }
 
 func NewGameState(grid *grid.Grid, player *ecs.Entity) *GameState {
@@ -16,8 +17,9 @@ func NewGameState(grid *grid.Grid, player *ecs.Entity) *GameState {
 	fov.SetTorchRadius(6)
 
 	return &GameState{
-		Fov:    &fov,
-		Grid:   grid,
-		Player: player,
+		Fov:          &fov,
+		Grid:         grid,
+		Player:       player,
+		IsPlayerTurn: true,
 	}
 }
