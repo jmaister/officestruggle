@@ -36,10 +36,6 @@ func (f *FieldOfVision) SetTorchRadius(radius int) {
 	}
 }
 
-func GetPlayer(engine *ecs.Engine) *ecs.Entity {
-	return engine.Entities.GetEntities([]string{Player})[0]
-}
-
 func SetVisibleComponent(engine *ecs.Engine, x int, y int, isVisible bool) (*ecs.Entity, bool) {
 	visitableEntity, ok := engine.PosCache.GetOneByCoordAndComponents(x, y, []string{Visitable})
 	if ok {

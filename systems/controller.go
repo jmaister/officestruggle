@@ -15,8 +15,7 @@ type Controller struct {
 }
 
 func (ctl *Controller) Tick(event tl.Event) {
-	if event.Type == tl.EventKey {
-
+	if event.Type == tl.EventKey && ctl.GameState.IsPlayerTurn {
 		var move state.MoveComponent
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyArrowRight:
@@ -37,13 +36,18 @@ func (ctl *Controller) Tick(event tl.Event) {
 			}
 		}
 
-		// player := ctl.Engine.Entities.GetEntities([]string{state.Player})[0]
 		player := ctl.GameState.Player
 		player.AddComponent(state.Move, move)
+
+		ctl.GameState.IsPlayerTurn = false
 	}
 
 	// This is what defines a turn step
 	// systems.Render not needed, done in Draw(...) func
+	if !ctl.GameState.IsPlayerTurn {
+		AI(ctl.Engine, ctl.GameState)
+		ctl.GameState.IsPlayerTurn = true
+	}
 	Movement(ctl.Engine, ctl.Grid)
 
 }
