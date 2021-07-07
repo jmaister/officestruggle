@@ -42,6 +42,8 @@ func (ctl *Controller) Tick(event tl.Event) {
 		ctl.GameState.IsPlayerTurn = false
 	}
 
+	// TODO: show description when clicking on a tile
+
 	// This is what defines a turn step
 	// systems.Render not needed, done in Draw(...) func
 	if !ctl.GameState.IsPlayerTurn {

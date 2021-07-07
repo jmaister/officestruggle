@@ -19,6 +19,9 @@ const (
 	Visitable   = "visitable"
 	Description = "description"
 	AI          = "ai"
+	Defense     = "defense"
+	Health      = "health"
+	Power       = "power"
 )
 
 type PlayerComponent struct {
@@ -134,4 +137,31 @@ type AIComponent struct {
 
 func (a AIComponent) ComponentType() string {
 	return AI
+}
+
+type DefenseComponent struct {
+	Value int
+	Max   int
+}
+
+func (a DefenseComponent) ComponentType() string {
+	return Defense
+}
+
+type HealthComponent struct {
+	Value int
+	Max   int
+}
+
+func (a HealthComponent) ComponentType() string {
+	return Health
+}
+
+type PowerComponent struct {
+	Value int
+	Max   int
+}
+
+func (a PowerComponent) ComponentType() string {
+	return Defense
 }
