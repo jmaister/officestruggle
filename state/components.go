@@ -7,21 +7,20 @@ import (
 )
 
 const (
-	Player      = "player"
-	Apparence   = "apparence"
-	Position    = "position"
-	Move        = "move"
-	IsBlocking  = "isBlocking"
-	IsFloor     = "isFloor"
-	Layer100    = "layer100"
-	Layer300    = "layer300"
-	Layer400    = "layer400"
-	Visitable   = "visitable"
-	Description = "description"
-	AI          = "ai"
-	Defense     = "defense"
-	Health      = "health"
-	Power       = "power"
+	Player        = "player"
+	Apparence     = "apparence"
+	Position      = "position"
+	Move          = "move"
+	IsBlocking    = "isBlocking"
+	IsFloor       = "isFloor"
+	Layer100      = "layer100"
+	Layer300      = "layer300"
+	Layer400      = "layer400"
+	Visitable     = "visitable"
+	Description   = "description"
+	AI            = "ai"
+	Stats         = "stats"
+	StatsModifier = "statsModifier"
 )
 
 type PlayerComponent struct {
@@ -139,29 +138,43 @@ func (a AIComponent) ComponentType() string {
 	return AI
 }
 
-type DefenseComponent struct {
-	Value int
-	Max   int
+type statsValues struct {
+	Health     int
+	MaxHealth  int
+	Defense    int
+	MaxDefense int
+	Power      int
+	MaxPower   int
 }
 
-func (a DefenseComponent) ComponentType() string {
-	return Defense
+type StatsComponent struct {
+	*statsValues
 }
 
-type HealthComponent struct {
-	Value int
-	Max   int
+func toStr(i int) string {
+	return strconv.Itoa(i)
 }
 
-func (a HealthComponent) ComponentType() string {
-	return Health
+func st(name string, value int, max int) string {
+	return name + ": " + toStr(value) + "/" + toStr(max)
 }
 
-type PowerComponent struct {
-	Value int
-	Max   int
+func (s StatsComponent) String() string {
+	return st("HP", s.Health, s.MaxHealth) + " " +
+		st("Def", s.Defense, s.MaxDefense) + " " +
+		st("Pow", s.Power, s.MaxPower)
 }
 
-func (a PowerComponent) ComponentType() string {
-	return Defense
+func (a StatsComponent) ComponentType() string {
+	return Stats
 }
+
+/*
+type StatsModifierComponent struct {
+	*statsValues
+}
+
+func (a StatsModifierComponent) ComponentType() string {
+	return StatsModifier
+}
+*/

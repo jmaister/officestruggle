@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"math"
 
 	"jordiburgos.com/officestruggle/ecs"
@@ -32,13 +31,10 @@ func Movement(engine *ecs.Engine, g *grid.Grid) {
 		entitiesOnPosition, _ := engine.PosCache.Get(newPosition.GetKey())
 		blockersOnPosition := entitiesOnPosition.GetEntities([]string{state.IsBlocking})
 		isBlocked := len(blockersOnPosition) > 0
-		for _, blocker := range blockersOnPosition {
-			attackerStr := state.GetDescription(entity)
-			blockerStr := state.GetDescription(blocker)
-			fmt.Println(attackerStr + " kicked a " + blockerStr)
-		}
 
-		if !isBlocked {
+		if isBlocked {
+			Attack(entity, blockersOnPosition)
+		} else {
 			entity.AddComponent(state.Position, newPosition)
 
 			// Update cache
