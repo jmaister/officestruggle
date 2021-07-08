@@ -7,18 +7,20 @@ import (
 )
 
 const (
-	Player      = "player"
-	Apparence   = "apparence"
-	Position    = "position"
-	Move        = "move"
-	IsBlocking  = "isBlocking"
-	IsFloor     = "isFloor"
-	Layer100    = "layer100"
-	Layer300    = "layer300"
-	Layer400    = "layer400"
-	Visitable   = "visitable"
-	Description = "description"
-	AI          = "ai"
+	Player        = "player"
+	Apparence     = "apparence"
+	Position      = "position"
+	Move          = "move"
+	IsBlocking    = "isBlocking"
+	IsFloor       = "isFloor"
+	Layer100      = "layer100"
+	Layer300      = "layer300"
+	Layer400      = "layer400"
+	Visitable     = "visitable"
+	Description   = "description"
+	AI            = "ai"
+	Stats         = "stats"
+	StatsModifier = "statsModifier"
 )
 
 type PlayerComponent struct {
@@ -135,3 +137,44 @@ type AIComponent struct {
 func (a AIComponent) ComponentType() string {
 	return AI
 }
+
+type statsValues struct {
+	Health     int
+	MaxHealth  int
+	Defense    int
+	MaxDefense int
+	Power      int
+	MaxPower   int
+}
+
+type StatsComponent struct {
+	*statsValues
+}
+
+func toStr(i int) string {
+	return strconv.Itoa(i)
+}
+
+func st(name string, value int, max int) string {
+	return name + ": " + toStr(value) + "/" + toStr(max)
+}
+
+func (s StatsComponent) String() string {
+	return st("HP", s.Health, s.MaxHealth) + " " +
+		st("Def", s.Defense, s.MaxDefense) + " " +
+		st("Pow", s.Power, s.MaxPower)
+}
+
+func (a StatsComponent) ComponentType() string {
+	return Stats
+}
+
+/*
+type StatsModifierComponent struct {
+	*statsValues
+}
+
+func (a StatsModifierComponent) ComponentType() string {
+	return StatsModifier
+}
+*/
