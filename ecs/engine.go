@@ -9,7 +9,7 @@ import (
 type Entity struct {
 	id         int
 	components map[string]Component
-	engine     *Engine
+	Engine     *Engine
 }
 
 type EntityList []*Entity
@@ -53,7 +53,7 @@ func (engine *Engine) NewEntity() *Entity {
 	newEntity := &Entity{
 		id:         engine.currentId,
 		components: make(map[string]Component),
-		engine:     engine,
+		Engine:     engine,
 	}
 	engine.currentId = engine.currentId + 1
 	engine.Entities = append(engine.Entities, newEntity)
@@ -79,7 +79,7 @@ func (entity *Entity) AddComponent(componentType string, component Component) {
 	// Call event if possible
 	cmp, ok := component.(OnAddComponent)
 	if ok {
-		cmp.OnAdd(entity.engine, entity)
+		cmp.OnAdd(entity.Engine, entity)
 	}
 }
 
@@ -91,7 +91,7 @@ func (entity *Entity) RemoveComponent(componentType string) Component {
 		// Call event if possible
 		cmp, ok := component.(OnRemoveComponent)
 		if ok {
-			cmp.OnRemove(entity.engine, entity)
+			cmp.OnRemove(entity.Engine, entity)
 		}
 		return component
 	}

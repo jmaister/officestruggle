@@ -1,5 +1,7 @@
 github.com/JoelOtter/termloop v0.0.0-20201118115657-7fa23b4da654 h1:pQt338SARhakABQ3KbycsnuKSg3XRDA5sF5RHl/v9WQ=
 github.com/JoelOtter/termloop v0.0.0-20201118115657-7fa23b4da654/go.mod h1:Tie7OOEgasw91JpzA8UywemPyGehxZ06Gqtl5B1/vXI=
+github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482 h1:p4g4uok3+r6Tg6fxXEQUAcMAX/WdK6WhkQW9s0jaT7k=
+github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482/go.mod h1:Cu3t5VeqE8kXjUBeNXWQprfuaP5UCIc5ggGjgMx9KFc=
 github.com/mattn/go-runewidth v0.0.9 h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/QdE+0=
 github.com/mattn/go-runewidth v0.0.9/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/nsf/termbox-go v1.1.1 h1:nksUPLCb73Q++DwbYUBEglYBRPZyoXJdrj5L+TkjyZY=
