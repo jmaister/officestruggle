@@ -3,6 +3,7 @@ package systems
 import (
 	"fmt"
 	"math"
+	"math/rand"
 
 	"github.com/beefsack/go-astar"
 	"jordiburgos.com/officestruggle/ecs"
@@ -39,11 +40,10 @@ func (t *Tile) PathNeighbors() []astar.Pather {
 		x := t.X + d.X
 		y := t.Y + d.Y
 		visitable, ok := eng.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
-		if ok {
-			if !visitable.HasComponent(state.IsBlocking) {
-				n := (*t.tiles)[visitable.Id]
-				neighbors = append(neighbors, &n)
-			}
+		if ok && !visitable.HasComponent(state.IsBlocking) {
+			n := (*t.tiles)[visitable.Id]
+			neighbors = append(neighbors, &n)
+
 		}
 	}
 	return neighbors
@@ -86,10 +86,7 @@ func AI(engine *ecs.Engine, gameState *game.GameState) {
 	to := tiles[toTile.Id]
 
 	aiEntities := engine.Entities.GetEntities([]string{state.AI})
-	for i, enemy := range aiEntities {
-		if i > 0 {
-			break
-		}
+	for _, enemy := range aiEntities {
 		fromTile := getTileOfEntity(enemy)
 		from := tiles[fromTile.Id]
 
@@ -103,4 +100,36 @@ func getTileOfEntity(entity *ecs.Entity) *ecs.Entity {
 	playerPos := state.GetPosition(entity)
 	toTile, _ := entity.Engine.PosCache.GetOneByCoordAndComponents(playerPos.X, playerPos.Y, []string{state.Visitable})
 	return toTile
+}
+
+func SimpleAI(engine *ecs.Engine, gameState *game.GameState) {
+	aiEntities := engine.Entities.GetEntities([]string{state.AI})
+	for _, enemy := range aiEntities {
+		walkable := getWalkableNeighbor(enemy)
+		selected := walkable[rand.Intn(len(walkable))]
+
+		enemy.AddComponent(state.Move, state.MoveComponent{X: selected.X, Y: selected.Y})
+	}
+}
+
+type Point struct {
+	X int
+	Y int
+}
+
+func getWalkableNeighbor(enemy *ecs.Entity) []Point {
+	fromTile := getTileOfEntity(enemy)
+	fromPos := state.GetPosition(fromTile)
+	points := []Point{}
+	for _, d := range DIRECTIONS {
+		x := fromPos.X + d.X
+		y := fromPos.Y + d.Y
+		visitable, ok := enemy.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
+		if ok && !visitable.HasComponent(state.IsBlocking) {
+			point := Point{x, y}
+			points = append(points, point)
+
+		}
+	}
+	return points
 }
