@@ -4,6 +4,7 @@ import (
 	tl "github.com/JoelOtter/termloop"
 
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/game"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -15,7 +16,7 @@ func CssToAttr(cssColor string) tl.Attr {
 	return tl.RgbTo256Color(int(c.R), int(c.G), int(c.B))
 }
 
-func Render(engine *ecs.Engine, gameState *state.GameState, screen *tl.Screen) {
+func Render(engine *ecs.Engine, gameState *game.GameState, screen *tl.Screen) {
 	layers := []string{state.Layer100, state.Layer300, state.Layer400}
 
 	// Reset visibility

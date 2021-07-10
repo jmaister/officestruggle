@@ -6,7 +6,7 @@ build:
 	go build -o ${BINARY_NAME} main.go
 
 test:
-	go test -v main.go
+	go test -v ./...
 
 run:
 	go run -race main.go

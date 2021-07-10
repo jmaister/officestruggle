@@ -7,7 +7,7 @@ import (
 )
 
 type Entity struct {
-	id         int
+	Id         int
 	components map[string]Component
 	Engine     *Engine
 }
@@ -51,7 +51,7 @@ func NewEngine() *Engine {
 
 func (engine *Engine) NewEntity() *Entity {
 	newEntity := &Entity{
-		id:         engine.currentId,
+		Id:         engine.currentId,
 		components: make(map[string]Component),
 		Engine:     engine,
 	}
@@ -65,7 +65,7 @@ func (engine *Engine) NewEntity() *Entity {
  */
 
 func (entity *Entity) String() string {
-	var str = "Entity " + strconv.Itoa(entity.id) + "["
+	var str = "Entity " + strconv.Itoa(entity.Id) + "["
 	for _, c := range entity.components {
 		str += c.ComponentType() + ","
 	}

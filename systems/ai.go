@@ -6,13 +6,15 @@ import (
 
 	"github.com/beefsack/go-astar"
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/game"
 	"jordiburgos.com/officestruggle/state"
 )
 
 type Tile struct {
-	E *ecs.Entity
-	X int
-	Y int
+	Ent   *ecs.Entity
+	X     int
+	Y     int
+	tiles *map[int]Tile
 }
 
 type Dir struct {
@@ -30,62 +32,75 @@ var DIRECTIONS = []Dir{
 
 // Entity implementation for a-star
 func (t *Tile) PathNeighbors() []astar.Pather {
-	eng := t.E.Engine
 	neighbors := []astar.Pather{}
+	eng := t.Ent.Engine
 
 	for _, d := range DIRECTIONS {
 		x := t.X + d.X
 		y := t.Y + d.Y
 		visitable, ok := eng.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
-		fmt.Println("visitable", visitable, ok)
-		if ok && !visitable.HasComponent(state.IsBlocking) {
-			n := &Tile{
-				E: visitable,
-				X: x,
-				Y: y,
+		if ok {
+			if !visitable.HasComponent(state.IsBlocking) {
+				n := (*t.tiles)[visitable.Id]
+				neighbors = append(neighbors, &n)
 			}
-			neighbors = append(neighbors, n)
 		}
 	}
-	fmt.Println("returing neigbors", len(neighbors))
 	return neighbors
 }
 
 func (t *Tile) PathNeighborCost(to astar.Pather) float64 {
-	fmt.Println()
-	return 1
+	return 1.0
 }
 
 func (t *Tile) PathEstimatedCost(to astar.Pather) float64 {
-	posFrom := state.GetPosition(t.E)
+	posFrom := state.GetPosition(t.Ent)
 
 	toTile := to.(*Tile)
-	posTo := state.GetPosition(toTile.E)
+	posTo := state.GetPosition(toTile.Ent)
 
-	return math.Abs(float64(posTo.X-posFrom.X)) + math.Abs(float64(posTo.Y-posFrom.Y))
+	cost := math.Abs(float64(posTo.X-posFrom.X)) + math.Abs(float64(posTo.Y-posFrom.Y))
+	return cost
 }
 
-func AI(engine *ecs.Engine, gameState *state.GameState) {
+func AI(engine *ecs.Engine, gameState *game.GameState) {
+
+	visitables := engine.Entities.GetEntities([]string{state.Visitable})
+	tiles := map[int]Tile{}
+	for _, visitable := range visitables {
+		if !visitable.HasComponent(state.IsBlocking) {
+			pos := state.GetPosition(visitable)
+			t := Tile{
+				Ent:   visitable,
+				X:     pos.X,
+				Y:     pos.Y,
+				tiles: &tiles,
+			}
+			tiles[visitable.Id] = t
+		}
+	}
+
+	// Go to the tile where the Player is located
+	player := engine.Entities.GetEntity([]string{state.Player})
+	toTile := getTileOfEntity(player)
+	to := tiles[toTile.Id]
 
 	aiEntities := engine.Entities.GetEntities([]string{state.AI})
-	fmt.Println("enemies", len(aiEntities))
 	for i, enemy := range aiEntities {
 		if i > 0 {
-			return
+			break
 		}
-		enemyPos := state.GetPosition(enemy)
-		from := Tile{
-			enemy, enemyPos.X, enemyPos.Y,
-		}
-
-		player := engine.Entities.GetEntity([]string{state.Player})
-		playerPos := state.GetPosition(player)
-		to := Tile{
-			player, playerPos.X, playerPos.Y,
-		}
+		fromTile := getTileOfEntity(enemy)
+		from := tiles[fromTile.Id]
 
 		path, distance, found := astar.Path(&from, &to)
 		fmt.Println(path, distance, found)
 	}
 
+}
+
+func getTileOfEntity(entity *ecs.Entity) *ecs.Entity {
+	playerPos := state.GetPosition(entity)
+	toTile, _ := entity.Engine.PosCache.GetOneByCoordAndComponents(playerPos.X, playerPos.Y, []string{state.Visitable})
+	return toTile
 }
