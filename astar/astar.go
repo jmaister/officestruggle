@@ -1,6 +1,9 @@
 package astar
 
-import "math"
+import (
+	"math"
+	"reflect"
+)
 
 type Node interface {
 	GetNeighbors() []Node
@@ -11,13 +14,13 @@ type Node interface {
 type NodeSet map[Node]bool
 type GScore map[Node]int
 type FScore map[Node]int
-type CameFrom map[Node]Node
+type CameFrom map[Node]*Node
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 //
 // h(n) - Heuristic - estimates the cost to reach goal from node n
 // d(n, n) - Is the weight of the edge from current to neighbor
-func AStar(start Node, goal Node) ([]Node, bool) {
+func AStar(start Node, goal Node) ([]*Node, bool) {
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
 	// This is usually implemented as a min-heap or priority queue rather than a hash-set.
@@ -41,8 +44,8 @@ func AStar(start Node, goal Node) ([]Node, bool) {
 	for len(openSet) > 0 {
 		current := lowestFScore(openSet, fScore)
 
-		if current == goal {
-			return reconstructPath(cameFrom, current), true
+		if reflect.DeepEqual(current, goal) {
+			return reconstructPath(cameFrom, &current), true
 		}
 
 		delete(openSet, current)
@@ -50,9 +53,10 @@ func AStar(start Node, goal Node) ([]Node, bool) {
 		for _, neighbor := range current.GetNeighbors() {
 			// tentative_gScore is the distance from start to the neighbor through current
 			tentativeGScore := gScore[current] + current.D(neighbor)
-			if tentativeGScore < gScore[neighbor] {
+			gScoreNeighbor, gScoreFound := gScore[neighbor]
+			if tentativeGScore < gScoreNeighbor || !gScoreFound {
 				// This path to neighbor is better than any previous one. Record it!
-				cameFrom[neighbor] = current
+				cameFrom[neighbor] = &current
 				gScore[neighbor] = tentativeGScore
 				fScore[neighbor] = gScore[neighbor] + neighbor.H(goal)
 				if _, ok := openSet[neighbor]; !ok {
@@ -62,15 +66,22 @@ func AStar(start Node, goal Node) ([]Node, bool) {
 		}
 	}
 
-	return []Node{}, false
+	return []*Node{}, false
 }
 
-func reconstructPath(cameFrom CameFrom, current Node) []Node {
-	totalPath := []Node{current}
+func reconstructPath(cameFrom CameFrom, current *Node) []*Node {
+	totalPath := []*Node{current}
 
-	for current, ok := cameFrom[current]; ok; {
-		totalPath = append([]Node{current}, totalPath...)
+	var temp *Node
+	var ok bool
+
+	temp, ok = cameFrom[*current]
+	for ok {
+		totalPath = append([]*Node{temp}, totalPath...)
+		current = temp
+		temp, ok = cameFrom[*current]
 	}
+
 	return totalPath
 }
 

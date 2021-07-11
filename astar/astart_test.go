@@ -3,6 +3,7 @@ package astar_test
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"testing"
 
 	"gotest.tools/assert"
@@ -13,11 +14,11 @@ type Tile struct {
 	X       int
 	Y       int
 	Blocked bool
-	TheMap  TheMap
+	TheMap  *TheMap
 }
 
 type TheMap struct {
-	Tiles []Tile
+	Tiles []*Tile
 }
 
 type Dir struct {
@@ -34,25 +35,17 @@ var DIRECTIONS = []Dir{
 }
 
 func (t *Tile) GetNeighbors() []astar.Node {
-
 	neighbors := []astar.Node{}
 
 	for _, d := range DIRECTIONS {
 		x := t.X + d.X
 		y := t.Y + d.Y
-		fmt.Println(x, ",", y)
-
 		for _, n := range t.TheMap.Tiles {
-			fmt.Println("trying tile", x, n.X, y, n.Y, n.X == x && n.Y == y)
-
 			if n.X == x && n.Y == y && !n.Blocked {
-				fmt.Println("found")
-				neighbors = append(neighbors, &n)
+				neighbors = append(neighbors, n)
 			}
 		}
 	}
-
-	fmt.Println("neighbors", t, len(neighbors), neighbors)
 	return neighbors
 }
 
@@ -65,10 +58,14 @@ func (t *Tile) D(neighbor astar.Node) int {
 	return 1
 }
 
+func (t *Tile) String() string {
+	return strconv.Itoa(t.X) + "," + strconv.Itoa(t.Y)
+}
+
 func TestAStar(t *testing.T) {
 
 	theMap := TheMap{
-		Tiles: []Tile{},
+		Tiles: []*Tile{},
 	}
 
 	var from Tile
@@ -76,9 +73,8 @@ func TestAStar(t *testing.T) {
 
 	for x := 0; x < 5; x++ {
 		for y := 0; y < 5; y++ {
-			tile := Tile{x, y, false, theMap}
-			fmt.Println("tile", tile.X, tile.Y)
-			theMap.Tiles = append(theMap.Tiles, tile)
+			tile := Tile{x, y, false, &theMap}
+			theMap.Tiles = append(theMap.Tiles, &tile)
 			if x == 1 && y == 1 {
 				from = tile
 			}
@@ -87,11 +83,50 @@ func TestAStar(t *testing.T) {
 			}
 		}
 	}
-	fmt.Println("map", len(theMap.Tiles))
-	fmt.Println("from", from.X, from.Y)
-	fmt.Println("to", to.X, to.Y)
 
 	path, found := astar.AStar(&from, &to)
 	assert.Equal(t, true, found)
-	assert.Equal(t, 4, len(path))
+	assert.Equal(t, 7, len(path))
+	fmt.Println("path", path)
+	for _, p := range path {
+		fmt.Println("step", *p)
+	}
+}
+
+func TestAStarWithBlock(t *testing.T) {
+
+	theMap := TheMap{
+		Tiles: []*Tile{},
+	}
+
+	var from Tile
+	var to Tile
+
+	for x := 0; x < 5; x++ {
+		for y := 0; y < 5; y++ {
+			blocked := false
+			if x == y && x > 2 && x < 4 {
+				blocked = true
+			}
+			if x == 2 && y == 3 {
+				blocked = true
+			}
+			tile := Tile{x, y, blocked, &theMap}
+			theMap.Tiles = append(theMap.Tiles, &tile)
+			if x == 1 && y == 1 {
+				from = tile
+			}
+			if x == 4 && y == 4 {
+				to = tile
+			}
+		}
+	}
+
+	path, found := astar.AStar(&from, &to)
+	assert.Equal(t, true, found)
+	assert.Equal(t, 7, len(path))
+	fmt.Println("path", path)
+	for _, p := range path {
+		fmt.Println("step", *p)
+	}
 }
