@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 
@@ -15,7 +14,7 @@ type Tile struct {
 	Ent   *ecs.Entity
 	X     int
 	Y     int
-	tiles *map[int]Tile
+	tiles map[int]*Tile
 }
 
 type Dir struct {
@@ -41,8 +40,8 @@ func (t *Tile) GetNeighbors() []astar.Node {
 		y := t.Y + d.Y
 		visitable, ok := eng.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
 		if ok && !visitable.HasComponent(state.IsBlocking) {
-			n := (*t.tiles)[visitable.Id]
-			neighbors = append(neighbors, &n)
+			n := (t.tiles)[visitable.Id]
+			neighbors = append(neighbors, n)
 
 		}
 	}
@@ -66,7 +65,7 @@ func (t *Tile) H(to astar.Node) int {
 func AI(engine *ecs.Engine, gameState *game.GameState) {
 
 	visitables := engine.Entities.GetEntities([]string{state.Visitable})
-	tiles := map[int]Tile{}
+	tiles := map[int]*Tile{}
 	for _, visitable := range visitables {
 		if !visitable.HasComponent(state.IsBlocking) {
 			pos := state.GetPosition(visitable)
@@ -74,9 +73,9 @@ func AI(engine *ecs.Engine, gameState *game.GameState) {
 				Ent:   visitable,
 				X:     pos.X,
 				Y:     pos.Y,
-				tiles: &tiles,
+				tiles: tiles,
 			}
-			tiles[visitable.Id] = t
+			tiles[visitable.Id] = &t
 		}
 	}
 
@@ -93,8 +92,7 @@ func AI(engine *ecs.Engine, gameState *game.GameState) {
 		fromTileEntity := getTileOfEntity(enemy)
 		from := tiles[fromTileEntity.Id]
 
-		path, found := astar.AStar(&from, &to)
-		fmt.Println(enemy, len(path), found)
+		path, found := astar.AStar(from, to)
 		if found {
 			nextStep := (*path[1]).(*Tile)
 			enemy.ReplaceComponent(state.Move, state.MoveComponent{X: nextStep.X, Y: nextStep.Y})
