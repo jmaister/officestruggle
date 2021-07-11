@@ -58,7 +58,7 @@ func (ctl *Controller) Tick(event tl.Event) {
 	// This is what defines a turn step
 	// systems.Render not needed, done in Draw(...) func
 	if !ctl.GameState.IsPlayerTurn {
-		SimpleAI(ctl.Engine, ctl.GameState)
+		AI(ctl.Engine, ctl.GameState)
 		Movement(ctl.Engine, ctl.Grid)
 
 		ctl.GameState.IsPlayerTurn = true

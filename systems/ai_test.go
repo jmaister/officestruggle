@@ -1,14 +1,13 @@
 package systems_test
 
 import (
-	"fmt"
 	"testing"
 
 	"jordiburgos.com/officestruggle/game"
+	"jordiburgos.com/officestruggle/systems"
 )
 
 func TestAi(t *testing.T) {
 	gameState := game.NewGameState()
-	// systems.AI(gameState.Engine, gameState)
-	fmt.Println(gameState)
+	systems.AI(gameState.Engine, gameState)
 }

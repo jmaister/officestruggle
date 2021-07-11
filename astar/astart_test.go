@@ -130,3 +130,41 @@ func TestAStarWithBlock(t *testing.T) {
 		fmt.Println("step", *p)
 	}
 }
+
+func TestAStarBig(t *testing.T) {
+
+	theMap := TheMap{
+		Tiles: []*Tile{},
+	}
+
+	var from Tile
+	var to Tile
+
+	for x := 0; x < 50; x++ {
+		for y := 0; y < 50; y++ {
+			blocked := false
+			if x == y && x > 2 && x < 4 {
+				blocked = true
+			}
+			if x == 2 && y == 3 {
+				blocked = true
+			}
+			tile := Tile{x, y, blocked, &theMap}
+			theMap.Tiles = append(theMap.Tiles, &tile)
+			if x == 1 && y == 1 {
+				from = tile
+			}
+			if x == 4 && y == 4 {
+				to = tile
+			}
+		}
+	}
+
+	path, found := astar.AStar(&from, &to)
+	assert.Equal(t, true, found)
+	assert.Equal(t, 7, len(path))
+	fmt.Println("path", path)
+	for _, p := range path {
+		fmt.Println("step", *p)
+	}
+}

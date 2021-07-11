@@ -5,7 +5,7 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/beefsack/go-astar"
+	"jordiburgos.com/officestruggle/astar"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/game"
 	"jordiburgos.com/officestruggle/state"
@@ -32,8 +32,8 @@ var DIRECTIONS = []Dir{
 }
 
 // Entity implementation for a-star
-func (t *Tile) PathNeighbors() []astar.Pather {
-	neighbors := []astar.Pather{}
+func (t *Tile) GetNeighbors() []astar.Node {
+	neighbors := []astar.Node{}
 	eng := t.Ent.Engine
 
 	for _, d := range DIRECTIONS {
@@ -49,18 +49,18 @@ func (t *Tile) PathNeighbors() []astar.Pather {
 	return neighbors
 }
 
-func (t *Tile) PathNeighborCost(to astar.Pather) float64 {
-	return 1.0
+func (t *Tile) D(to astar.Node) int {
+	return 1
 }
 
-func (t *Tile) PathEstimatedCost(to astar.Pather) float64 {
+func (t *Tile) H(to astar.Node) int {
 	posFrom := state.GetPosition(t.Ent)
 
 	toTile := to.(*Tile)
 	posTo := state.GetPosition(toTile.Ent)
 
 	cost := math.Abs(float64(posTo.X-posFrom.X)) + math.Abs(float64(posTo.Y-posFrom.Y))
-	return cost
+	return int(cost)
 }
 
 func AI(engine *ecs.Engine, gameState *game.GameState) {
@@ -82,16 +82,23 @@ func AI(engine *ecs.Engine, gameState *game.GameState) {
 
 	// Go to the tile where the Player is located
 	player := engine.Entities.GetEntity([]string{state.Player})
-	toTile := getTileOfEntity(player)
-	to := tiles[toTile.Id]
+	toTileEntity := getTileOfEntity(player)
+	to := tiles[toTileEntity.Id]
 
 	aiEntities := engine.Entities.GetEntities([]string{state.AI})
-	for _, enemy := range aiEntities {
-		fromTile := getTileOfEntity(enemy)
-		from := tiles[fromTile.Id]
+	for i, enemy := range aiEntities {
+		if i > 0 {
+			return
+		}
+		fromTileEntity := getTileOfEntity(enemy)
+		from := tiles[fromTileEntity.Id]
 
-		path, distance, found := astar.Path(&from, &to)
-		fmt.Println(path, distance, found)
+		path, found := astar.AStar(&from, &to)
+		fmt.Println(enemy, len(path), found)
+		if found {
+			nextStep := (*path[1]).(*Tile)
+			enemy.ReplaceComponent(state.Move, state.MoveComponent{X: nextStep.X, Y: nextStep.Y})
+		}
 	}
 
 }
