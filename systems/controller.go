@@ -3,6 +3,7 @@ package systems
 import (
 	tl "github.com/JoelOtter/termloop"
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/game"
 	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 )
@@ -11,13 +12,22 @@ type Controller struct {
 	*tl.Entity
 	Engine    *ecs.Engine
 	Grid      *grid.Grid
-	GameState *state.GameState
+	GameState *game.GameState
+}
+
+func NewController(gs *game.GameState) *Controller {
+	return &Controller{
+		Engine:    gs.Engine,
+		GameState: gs,
+		Grid:      gs.Grid,
+	}
 }
 
 func (ctl *Controller) Tick(event tl.Event) {
+
 	if event.Type == tl.EventKey && ctl.GameState.IsPlayerTurn {
 		var move state.MoveComponent
-		switch event.Key { // If so, switch on the pressed key.
+		switch event.Key {
 		case tl.KeyArrowRight:
 			move = state.MoveComponent{
 				X: 1, Y: 0,
@@ -38,6 +48,7 @@ func (ctl *Controller) Tick(event tl.Event) {
 
 		player := ctl.GameState.Player
 		player.AddComponent(state.Move, move)
+		Movement(ctl.GameState, ctl.Engine, ctl.Grid)
 
 		ctl.GameState.IsPlayerTurn = false
 	}
@@ -48,10 +59,10 @@ func (ctl *Controller) Tick(event tl.Event) {
 	// systems.Render not needed, done in Draw(...) func
 	if !ctl.GameState.IsPlayerTurn {
 		AI(ctl.Engine, ctl.GameState)
+		Movement(ctl.GameState, ctl.Engine, ctl.Grid)
+
 		ctl.GameState.IsPlayerTurn = true
 	}
-	Movement(ctl.Engine, ctl.Grid)
-
 }
 
 func (ctl *Controller) Draw(screen *tl.Screen) {

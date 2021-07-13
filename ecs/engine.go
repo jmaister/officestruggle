@@ -7,9 +7,9 @@ import (
 )
 
 type Entity struct {
-	id         int
+	Id         int
 	components map[string]Component
-	engine     *Engine
+	Engine     *Engine
 }
 
 type EntityList []*Entity
@@ -51,9 +51,9 @@ func NewEngine() *Engine {
 
 func (engine *Engine) NewEntity() *Entity {
 	newEntity := &Entity{
-		id:         engine.currentId,
+		Id:         engine.currentId,
 		components: make(map[string]Component),
-		engine:     engine,
+		Engine:     engine,
 	}
 	engine.currentId = engine.currentId + 1
 	engine.Entities = append(engine.Entities, newEntity)
@@ -65,7 +65,7 @@ func (engine *Engine) NewEntity() *Entity {
  */
 
 func (entity *Entity) String() string {
-	var str = "Entity " + strconv.Itoa(entity.id) + "["
+	var str = "Entity " + strconv.Itoa(entity.Id) + "["
 	for _, c := range entity.components {
 		str += c.ComponentType() + ","
 	}
@@ -79,7 +79,7 @@ func (entity *Entity) AddComponent(componentType string, component Component) {
 	// Call event if possible
 	cmp, ok := component.(OnAddComponent)
 	if ok {
-		cmp.OnAdd(entity.engine, entity)
+		cmp.OnAdd(entity.Engine, entity)
 	}
 }
 
@@ -91,7 +91,7 @@ func (entity *Entity) RemoveComponent(componentType string) Component {
 		// Call event if possible
 		cmp, ok := component.(OnRemoveComponent)
 		if ok {
-			cmp.OnRemove(entity.engine, entity)
+			cmp.OnRemove(entity.Engine, entity)
 		}
 		return component
 	}
@@ -193,7 +193,6 @@ func (c *PositionCache) Delete(key string, value *Entity) {
 			delete(c.Entities, key)
 		}
 	}
-	delete(c.Entities, key)
 }
 
 func (c *PositionCache) GetByCoord(x int, y int) (EntityList, bool) {

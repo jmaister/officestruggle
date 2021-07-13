@@ -2,21 +2,27 @@ package systems
 
 import (
 	"math"
+	"strconv"
 
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/game"
 	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 )
 
-func Movement(engine *ecs.Engine, g *grid.Grid) {
+func Movement(gs *game.GameState, engine *ecs.Engine, g *grid.Grid) {
 	movable := []string{state.Move}
 
 	for _, entity := range engine.Entities.GetEntities(movable) {
+		gs.L.Println("Movement Entity " + entity.String())
 		move := entity.RemoveComponent(state.Move).(state.MoveComponent)
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
 
+		gs.L.Println("from position " + position.String())
 		mx := position.X + move.X
 		my := position.Y + move.Y
+
+		gs.L.Println("to position " + strconv.Itoa(mx) + " " + strconv.Itoa(my))
 
 		// Check map boundaries
 		m := g.Map
@@ -33,7 +39,7 @@ func Movement(engine *ecs.Engine, g *grid.Grid) {
 		isBlocked := len(blockersOnPosition) > 0
 
 		if isBlocked {
-			Attack(entity, blockersOnPosition)
+			Attack(gs, entity, blockersOnPosition)
 		} else {
 			entity.AddComponent(state.Position, newPosition)
 
