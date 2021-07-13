@@ -193,7 +193,6 @@ func (c *PositionCache) Delete(key string, value *Entity) {
 			delete(c.Entities, key)
 		}
 	}
-	delete(c.Entities, key)
 }
 
 func (c *PositionCache) GetByCoord(x int, y int) (EntityList, bool) {
