@@ -57,6 +57,10 @@ func (a PositionComponent) GetKey() string {
 	return strconv.Itoa(a.X) + "," + strconv.Itoa(a.Y)
 }
 
+func (a PositionComponent) String() string {
+	return a.GetKey()
+}
+
 func (a PositionComponent) OnAdd(engine *ecs.Engine, entity *ecs.Entity) {
 	engine.PosCache.Add(a.GetKey(), entity)
 }

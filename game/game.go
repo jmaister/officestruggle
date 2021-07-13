@@ -1,7 +1,9 @@
 package game
 
 import (
+	"log"
 	"math/rand"
+	"os"
 
 	"jordiburgos.com/officestruggle/dungeon"
 	"jordiburgos.com/officestruggle/ecs"
@@ -15,6 +17,7 @@ type GameState struct {
 	Grid         *grid.Grid
 	Player       *ecs.Entity
 	IsPlayerTurn bool
+	L            *log.Logger
 }
 
 func NewGameState() *GameState {
@@ -60,5 +63,6 @@ func NewGameState() *GameState {
 		Grid:         &g,
 		Player:       player,
 		IsPlayerTurn: true,
+		L:            log.New(os.Stderr, "", 0),
 	}
 }

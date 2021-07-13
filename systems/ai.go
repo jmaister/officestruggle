@@ -3,6 +3,7 @@ package systems
 import (
 	"math"
 	"math/rand"
+	"strconv"
 
 	"jordiburgos.com/officestruggle/astar"
 	"jordiburgos.com/officestruggle/ecs"
@@ -62,6 +63,10 @@ func (t *Tile) H(to astar.Node) int {
 	return int(cost)
 }
 
+func (t *Tile) String() string {
+	return strconv.Itoa(t.X) + "," + strconv.Itoa(t.Y)
+}
+
 func AI(engine *ecs.Engine, gameState *game.GameState) {
 
 	visitables := engine.Entities.GetEntities([]string{state.Visitable})
@@ -89,12 +94,21 @@ func AI(engine *ecs.Engine, gameState *game.GameState) {
 		if i > 0 {
 			return
 		}
+		gameState.L.Println("enemy AI", enemy)
 		fromTileEntity := getTileOfEntity(enemy)
 		from := tiles[fromTileEntity.Id]
 
 		path, found := astar.AStar(from, to)
-		if found {
+		if found && len(path) > 0 {
+			gameState.L.Println("enemy current", from)
+			for _, p := range path {
+				t := (*p).(*Tile)
+				gameState.L.Println("path", strconv.Itoa(t.X)+" "+strconv.Itoa(t.Y))
+
+			}
+
 			nextStep := (*path[1]).(*Tile)
+			gameState.L.Println("enemy to", strconv.Itoa(nextStep.X)+" "+strconv.Itoa(nextStep.Y))
 			enemy.ReplaceComponent(state.Move, state.MoveComponent{X: nextStep.X, Y: nextStep.Y})
 		}
 	}

@@ -40,7 +40,7 @@ func renderEntities(entities []*ecs.Entity, screen *tl.Screen) {
 	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
 		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
-		visitable, _ := entity.GetComponent(state.Visitable).(state.VisitableComponent)
+		visitable, isVisitable := entity.GetComponent(state.Visitable).(state.VisitableComponent)
 
 		fg := apparence.Color
 		if fg == "" || len(fg) == 0 {
@@ -52,10 +52,12 @@ func renderEntities(entities []*ecs.Entity, screen *tl.Screen) {
 		}
 		ch := apparence.Char
 
-		if visitable.Visible {
-			screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr(fg), Bg: CssToAttr(bg), Ch: ch})
-		} else if visitable.Explored {
-			screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr("#CCC"), Bg: CssToAttr(bg), Ch: ch})
+		if isVisitable {
+			if visitable.Visible {
+				screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr(fg), Bg: CssToAttr(bg), Ch: ch})
+			} else if visitable.Explored {
+				screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr("#CCC"), Bg: CssToAttr(bg), Ch: ch})
+			}
 		} else {
 			screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr("#F00"), Bg: CssToAttr(bg), Ch: ch})
 		}
