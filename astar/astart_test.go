@@ -1,7 +1,6 @@
 package astar_test
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 	"testing"
@@ -87,10 +86,6 @@ func TestAStar(t *testing.T) {
 	path, found := astar.AStar(&from, &to)
 	assert.Equal(t, true, found)
 	assert.Equal(t, 7, len(path))
-	fmt.Println("path", path)
-	for _, p := range path {
-		fmt.Println("step", *p)
-	}
 }
 
 func TestAStarWithBlock(t *testing.T) {
@@ -125,10 +120,6 @@ func TestAStarWithBlock(t *testing.T) {
 	path, found := astar.AStar(&from, &to)
 	assert.Equal(t, true, found)
 	assert.Equal(t, 7, len(path))
-	fmt.Println("path", path)
-	for _, p := range path {
-		fmt.Println("step", *p)
-	}
 }
 
 func TestAStarBig(t *testing.T) {
@@ -163,8 +154,4 @@ func TestAStarBig(t *testing.T) {
 	path, found := astar.AStar(&from, &to)
 	assert.Equal(t, true, found)
 	assert.Equal(t, 7, len(path))
-	fmt.Println("path", path)
-	for _, p := range path {
-		fmt.Println("step", *p)
-	}
 }

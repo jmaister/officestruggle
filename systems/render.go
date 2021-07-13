@@ -59,7 +59,7 @@ func renderEntities(entities []*ecs.Entity, screen *tl.Screen) {
 				screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr("#CCC"), Bg: CssToAttr(bg), Ch: ch})
 			}
 		} else {
-			screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr("#F00"), Bg: CssToAttr(bg), Ch: ch})
+			screen.RenderCell(position.X, position.Y, &tl.Cell{Fg: CssToAttr("#FFF"), Bg: CssToAttr(bg), Ch: ch})
 		}
 	}
 }

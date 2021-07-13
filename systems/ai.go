@@ -68,7 +68,6 @@ func (t *Tile) String() string {
 }
 
 func AI(engine *ecs.Engine, gameState *game.GameState) {
-
 	visitables := engine.Entities.GetEntities([]string{state.Visitable})
 	tiles := map[int]*Tile{}
 	for _, visitable := range visitables {
@@ -90,27 +89,32 @@ func AI(engine *ecs.Engine, gameState *game.GameState) {
 	to := tiles[toTileEntity.Id]
 
 	aiEntities := engine.Entities.GetEntities([]string{state.AI})
-	for i, enemy := range aiEntities {
-		if i > 0 {
-			return
-		}
-		gameState.L.Println("enemy AI", enemy)
+	for _, enemy := range aiEntities {
 		fromTileEntity := getTileOfEntity(enemy)
 		from := tiles[fromTileEntity.Id]
 
-		path, found := astar.AStar(from, to)
-		if found && len(path) > 0 {
-			gameState.L.Println("enemy current", from)
-			for _, p := range path {
-				t := (*p).(*Tile)
-				gameState.L.Println("path", strconv.Itoa(t.X)+" "+strconv.Itoa(t.Y))
+		distance := from.H(to)
 
+		// If enemy is far from player
+		if distance == 1 {
+			// Attack to the player
+			Attack(gameState, enemy, []*ecs.Entity{player})
+		} else if distance > 6 {
+			// TODO: change to enemy.fov
+			// Wander
+			wander(enemy)
+		} else {
+			// Follow the player
+			path, found := astar.AStar(from, to)
+			if found && len(path) > 0 {
+				currStep := (*path[0]).(*Tile)
+				nextStep := (*path[1]).(*Tile)
+				dx := nextStep.X - currStep.X
+				dy := nextStep.Y - currStep.Y
+				enemy.ReplaceComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
 			}
-
-			nextStep := (*path[1]).(*Tile)
-			gameState.L.Println("enemy to", strconv.Itoa(nextStep.X)+" "+strconv.Itoa(nextStep.Y))
-			enemy.ReplaceComponent(state.Move, state.MoveComponent{X: nextStep.X, Y: nextStep.Y})
 		}
+
 	}
 
 }
@@ -124,28 +128,27 @@ func getTileOfEntity(entity *ecs.Entity) *ecs.Entity {
 func SimpleAI(engine *ecs.Engine, gameState *game.GameState) {
 	aiEntities := engine.Entities.GetEntities([]string{state.AI})
 	for _, enemy := range aiEntities {
-		walkable := getWalkableNeighbor(enemy)
-		selected := walkable[rand.Intn(len(walkable))]
-
-		enemy.AddComponent(state.Move, state.MoveComponent{X: selected.X, Y: selected.Y})
+		wander(enemy)
 	}
 }
 
-type Point struct {
-	X int
-	Y int
+func wander(entity *ecs.Entity) {
+	walkable := getWalkableNeighbors(entity)
+	selected := walkable[rand.Intn(len(walkable))]
+
+	entity.AddComponent(state.Move, state.MoveComponent{X: selected.X, Y: selected.Y})
 }
 
-func getWalkableNeighbor(enemy *ecs.Entity) []Point {
+func getWalkableNeighbors(enemy *ecs.Entity) []Dir {
 	fromTile := getTileOfEntity(enemy)
 	fromPos := state.GetPosition(fromTile)
-	points := []Point{}
+	points := []Dir{}
 	for _, d := range DIRECTIONS {
 		x := fromPos.X + d.X
 		y := fromPos.Y + d.Y
 		visitable, ok := enemy.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
 		if ok && !visitable.HasComponent(state.IsBlocking) {
-			point := Point{x, y}
+			point := Dir{d.X, d.Y}
 			points = append(points, point)
 
 		}

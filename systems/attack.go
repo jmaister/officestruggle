@@ -1,29 +1,29 @@
 package systems
 
 import (
-	"fmt"
+	"strconv"
 
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/game"
 	"jordiburgos.com/officestruggle/state"
 )
 
-func Attack(attacker *ecs.Entity, blockers ecs.EntityList) {
+func Attack(gs *game.GameState, attacker *ecs.Entity, blockers ecs.EntityList) {
 
 	// Try if attacker has Stats
 	if attacker.HasComponent(state.Stats) {
 		aStats := attacker.GetComponent(state.Stats).(state.StatsComponent)
-		// fmt.Println("pl stats", aStats)
+		gs.L.Println("pl stats", aStats)
 
 		// Check every blocker if it has Stats
 		for _, blocker := range blockers {
 			if blocker.HasComponent(state.Stats) {
 				bStats := blocker.GetComponent(state.Stats).(state.StatsComponent)
-				// fmt.Println(state.GetDescription(blocker)+" stats", bStats)
 
 				// Damage calculation and attack
 				damage := aStats.Power - bStats.Defense
 				if damage >= 0 {
-					// fmt.Println(state.GetDescription(attacker) + " hit " + state.GetDescription(blocker) + " with " + strconv.Itoa(damage) + " points.")
+					gs.L.Println(state.GetDescription(attacker) + " hit " + state.GetDescription(blocker) + " with " + strconv.Itoa(damage) + " points.")
 					newHealth := bStats.Health - damage
 					if newHealth <= 0 {
 						Kill(blocker)
@@ -32,7 +32,7 @@ func Attack(attacker *ecs.Entity, blockers ecs.EntityList) {
 						blocker.ReplaceComponent(state.Stats, bStats)
 					}
 				} else {
-					fmt.Println(state.GetDescription(blocker) + " blocked attack from " + state.GetDescription(attacker) + ".")
+					gs.L.Println(state.GetDescription(blocker) + " blocked attack from " + state.GetDescription(attacker) + ".")
 				}
 			}
 		}

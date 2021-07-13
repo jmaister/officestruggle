@@ -48,7 +48,7 @@ func (ctl *Controller) Tick(event tl.Event) {
 
 		player := ctl.GameState.Player
 		player.AddComponent(state.Move, move)
-		Movement(ctl.Engine, ctl.Grid)
+		Movement(ctl.GameState, ctl.Engine, ctl.Grid)
 
 		ctl.GameState.IsPlayerTurn = false
 	}
@@ -59,7 +59,7 @@ func (ctl *Controller) Tick(event tl.Event) {
 	// systems.Render not needed, done in Draw(...) func
 	if !ctl.GameState.IsPlayerTurn {
 		AI(ctl.Engine, ctl.GameState)
-		Movement(ctl.Engine, ctl.Grid)
+		Movement(ctl.GameState, ctl.Engine, ctl.Grid)
 
 		ctl.GameState.IsPlayerTurn = true
 	}

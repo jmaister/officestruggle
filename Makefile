@@ -9,7 +9,7 @@ test:
 	go test -v ./...
 
 run:
-	go run -race main.go
+	go run -race main.go 2> err.log
  
 clean:
 	go clean
