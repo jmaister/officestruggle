@@ -149,6 +149,7 @@ type statsValues struct {
 	MaxDefense int
 	Power      int
 	MaxPower   int
+	Fov        int
 }
 
 type StatsComponent struct {

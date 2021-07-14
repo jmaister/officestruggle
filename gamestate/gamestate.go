@@ -57,7 +57,8 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	}
 
 	fov := state.FieldOfVision{}
-	fov.SetTorchRadius(6)
+	stats, _ := player.GetComponent(state.Stats).(state.StatsComponent)
+	fov.SetTorchRadius(stats.Fov)
 
 	return &GameState{
 		Engine:       engine,

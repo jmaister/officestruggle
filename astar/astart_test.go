@@ -122,8 +122,7 @@ func TestAStarWithBlock(t *testing.T) {
 	assert.Equal(t, 7, len(path))
 }
 
-func TestAStarBig(t *testing.T) {
-
+func constructMap(width int, height int) (TheMap, Tile, Tile) {
 	theMap := TheMap{
 		Tiles: []*Tile{},
 	}
@@ -131,8 +130,8 @@ func TestAStarBig(t *testing.T) {
 	var from Tile
 	var to Tile
 
-	for x := 0; x < 50; x++ {
-		for y := 0; y < 50; y++ {
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
 			blocked := false
 			if x == y && x > 2 && x < 4 {
 				blocked = true
@@ -145,13 +144,31 @@ func TestAStarBig(t *testing.T) {
 			if x == 1 && y == 1 {
 				from = tile
 			}
-			if x == 4 && y == 4 {
+			if x == width-1 && y == height-1 {
 				to = tile
 			}
 		}
 	}
 
+	return theMap, from, to
+}
+
+func TestAStarBig(t *testing.T) {
+
+	_, from, to := constructMap(50, 50)
+
 	path, found := astar.AStar(&from, &to)
 	assert.Equal(t, true, found)
-	assert.Equal(t, 7, len(path))
+	assert.Equal(t, 97, len(path))
+}
+
+func calculate() {
+	_, from, to := constructMap(50, 50)
+	astar.AStar(&from, &to)
+}
+
+func Benchmark(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		calculate()
+	}
 }

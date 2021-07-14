@@ -15,6 +15,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 			MaxDefense: 10,
 			Power:      2,
 			MaxPower:   10,
+			Fov:        10,
 		},
 	})
 	return entity
@@ -37,8 +38,9 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 			MaxHealth:  10,
 			Defense:    1,
 			MaxDefense: 10,
-			Power:      1,
+			Power:      4,
 			MaxPower:   10,
+			Fov:        6,
 		},
 	})
 	return entity

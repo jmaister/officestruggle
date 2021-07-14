@@ -46,7 +46,7 @@ func showDebug(screen *ebiten.Image) {
 	// Draw info
 	fnt := mplusFont(10)
 	msg := fmt.Sprintf("TPS: %0.2f, FPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS())
-	text.Draw(screen, msg, fnt, 20, 20, color.White)
+	text.Draw(screen, msg, fnt, 5, 5, color.White)
 }
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) {
@@ -75,7 +75,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				fgColor, _ := ecs.ParseHexColorFast(fg)
+				fgColor, _ := ParseHexColorFast(fg)
 				text.Draw(screen, ch, font, px, py, fgColor)
 			} else if visitable.Explored {
 				fgColor := color.RGBA{
@@ -87,7 +87,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 				text.Draw(screen, ch, font, px, py, fgColor)
 			}
 		} else {
-			fgColor, _ := ecs.ParseHexColorFast(fg)
+			fgColor, _ := ParseHexColorFast(fg)
 			text.Draw(screen, ch, font, px, py, fgColor)
 		}
 	}
