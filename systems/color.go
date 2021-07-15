@@ -43,7 +43,7 @@ func ParseHexColorFast(s string) (c color.RGBA, err error) {
 	return
 }
 
-// Calculate lighter or darker color
+// Calculate lighter or darker color.
 // luminosity goes from -1 (darker) to +1 (lighter)
 func Lighten(c color.Color, luminosity float64) color.Color {
 
@@ -59,10 +59,8 @@ func Lighten(c color.Color, luminosity float64) color.Color {
 }
 
 func calcLighteness(c uint32, luminosity float64) uint8 {
-	black := 0.0
-	white := 255.0
-
-	cl := math.Round(math.Min(math.Max(black, float64(c)+(luminosity*white)), white))
+	fc := float64(c) + float64(c)*luminosity
+	cl := math.Round(math.Max(math.Min(255, fc), 0))
 	return uint8(cl)
 
 }

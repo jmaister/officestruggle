@@ -90,6 +90,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		px := position.X * tw
 		py := position.Y * th
 
+		lum := 1.0
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
@@ -100,19 +101,18 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 				vsComponent.Explored = true
 				entity.AddComponent(state.Visitable, vsComponent)
 
+				lum = lum - 0.1
+
 			} else if visitable.Explored {
-				fgColor := color.RGBA{
-					R: 90,
-					G: 90,
-					B: 90,
-					A: 255,
-				}
+				fgColor, _ := ParseHexColorFast("#555555")
 				text.Draw(screen, ch, font, px, py, fgColor)
 			}
 		} else {
-			drawBackground(screen, bg, tw, th, px, py)
-			fgColor, _ := ParseHexColorFast(fg)
-			text.Draw(screen, ch, font, px, py, fgColor)
+			if gameState.Fov.IsVisible(position.X, position.Y) {
+				drawBackground(screen, bg, tw, th, px, py)
+				fgColor, _ := ParseHexColorFast(fg)
+				text.Draw(screen, ch, font, px, py, fgColor)
+			}
 		}
 	}
 }

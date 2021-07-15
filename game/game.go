@@ -34,9 +34,10 @@ func (g *Game) Update() error {
 	g.GameState.Fov.Compute(g.GameState, position.X, position.Y, stats.Fov)
 
 	// Update the logical state
-
 	keys := inpututil.PressedKeys()
 	hasPressedKeys := len(keys) > 0 && inpututil.IsKeyJustPressed(keys[0])
+
+	// TODO: https://github.com/hajimehoshi/ebiten/issues/648
 
 	if g.GameState.IsPlayerTurn && hasPressedKeys {
 		fmt.Println(keys)
