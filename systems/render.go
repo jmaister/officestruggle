@@ -19,6 +19,14 @@ var (
 	mplusFontCached map[float64]font.Face
 )
 
+func setVisibleEntities(entities ecs.EntityList, isVisible bool) {
+	for _, e := range entities {
+		visitable, _ := e.RemoveComponent(state.Visitable).(state.VisitableComponent)
+		visitable.Visible = isVisible
+		e.AddComponent(state.Visitable, visitable)
+	}
+}
+
 func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.Image) {
 
 	showDebug(screen)
@@ -27,12 +35,17 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	// Reset visibility
 	visitables := engine.Entities.GetEntities([]string{state.Visitable})
-	state.SetVisibleEntities(visitables, false)
+	setVisibleEntities(visitables, false)
 
 	// Update visibility
-	player := gameState.Player
-	position := state.GetPosition(player)
-	gameState.Fov.RayCast(engine, position.X, position.Y, &gameState.Grid.Map)
+	for _, visitable := range visitables {
+		pos := state.GetPosition(visitable)
+		if gameState.Fov.IsVisible(pos.X, pos.Y) {
+			vsComponent, _ := visitable.RemoveComponent(state.Visitable).(state.VisitableComponent)
+			vsComponent.Visible = true
+			visitable.AddComponent(state.Visitable, vsComponent)
+		}
+	}
 
 	for _, layer := range layers {
 		renderable := []string{state.Position, state.Apparence, layer}
@@ -46,12 +59,17 @@ func showDebug(screen *ebiten.Image) {
 	// Draw info
 	fnt := mplusFont(10)
 	msg := fmt.Sprintf("TPS: %0.2f, FPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS())
-	text.Draw(screen, msg, fnt, 5, 5, color.White)
+	text.Draw(screen, msg, fnt, 20, 20, color.White)
 }
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) {
 
-	font := mplusFont(16)
+	w := gameState.ScreenWidth
+	h := gameState.ScreenHeight
+	tw := w / gameState.Grid.Width
+	th := h / gameState.Grid.Height
+
+	font := mplusFont(float64(th))
 
 	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
@@ -60,37 +78,64 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 
 		fg := apparence.Color
 		if fg == "" || len(fg) == 0 {
-			fg = "#FFF"
+			fg = "#FFFFFF"
 		}
 		bg := apparence.Bg
 		if bg == "" || len(bg) == 0 {
-			bg = "#000"
+			bg = "#000000"
 		}
 		ch := string(apparence.Char)
 
 		// Pixel positions
-		px := position.X * gameState.TileWidth
-		py := position.Y * gameState.TileHeight
+		px := position.X * tw
+		py := position.Y * th
 
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
 				fgColor, _ := ParseHexColorFast(fg)
 				text.Draw(screen, ch, font, px, py, fgColor)
+
+				vsComponent, _ := entity.RemoveComponent(state.Visitable).(state.VisitableComponent)
+				vsComponent.Explored = true
+				entity.AddComponent(state.Visitable, vsComponent)
+
 			} else if visitable.Explored {
 				fgColor := color.RGBA{
-					R: 128,
-					G: 128,
-					B: 128,
-					A: 128,
+					R: 90,
+					G: 90,
+					B: 90,
+					A: 255,
 				}
 				text.Draw(screen, ch, font, px, py, fgColor)
 			}
 		} else {
+			drawBackground(screen, bg, tw, th, px, py)
 			fgColor, _ := ParseHexColorFast(fg)
 			text.Draw(screen, ch, font, px, py, fgColor)
 		}
 	}
+}
+
+var backgroundImageCache = map[string]*ebiten.Image{}
+
+func drawBackground(screen *ebiten.Image, color string, width int, height int, x int, y int) {
+	img, ok := backgroundImageCache[color]
+	if !ok {
+		bgColor, _ := ParseHexColorFast(color)
+
+		img = ebiten.NewImage(width, height)
+		img.Fill(bgColor)
+		backgroundImageCache[color] = img
+	}
+
+	geom := ebiten.GeoM{}
+	// geom.Translate(float64(x)-(float64(width)/2), float64(y)-float64(height)/2)
+	geom.Translate(float64(x)+(float64(width)/2.0), float64(y)-(float64(height)/2.0))
+	opts := &ebiten.DrawImageOptions{
+		GeoM: geom,
+	}
+	screen.DrawImage(img, opts)
 }
 
 func mplusFont(size float64) font.Face {

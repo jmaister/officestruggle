@@ -5,7 +5,7 @@ import "jordiburgos.com/officestruggle/ecs"
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Player, PlayerComponent{})
 	entity.AddComponent(Description, DescriptionComponent{Name: "You"})
-	entity.AddComponent(Apparence, ApparenceComponent{Color: "#0000FF", Char: '@'})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#ffffff", Bg: "#FF0000", Char: '@'})
 	entity.AddComponent(Layer400, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
 		statsValues: &statsValues{

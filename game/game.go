@@ -27,32 +27,45 @@ func NewGame() *Game {
 }
 
 func (g *Game) Update() error {
+
+	player := g.GameState.Player
+	position := state.GetPosition(player)
+	stats, _ := player.GetComponent(state.Stats).(state.StatsComponent)
+	g.GameState.Fov.Compute(g.GameState, position.X, position.Y, stats.Fov)
+
 	// Update the logical state
 
 	keys := inpututil.PressedKeys()
-	hasPressedKeys := len(keys) > 0
+	hasPressedKeys := len(keys) > 0 && inpututil.IsKeyJustPressed(keys[0])
 
 	if g.GameState.IsPlayerTurn && hasPressedKeys {
 		fmt.Println(keys)
 
+		actionedKey := false
 		dx := 0
 		dy := 0
 		switch keys[0] {
 		case ebiten.KeyArrowRight:
 			dx = 1
+			actionedKey = true
 		case ebiten.KeyArrowLeft:
 			dx = -1
+			actionedKey = true
 		case ebiten.KeyArrowUp:
 			dy = -1
+			actionedKey = true
 		case ebiten.KeyArrowDown:
 			dy = 1
+			actionedKey = true
 		}
 
-		player := g.GameState.Player
-		player.AddComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
-		systems.Movement(g.GameState, g.Engine, g.GameState.Grid)
+		if actionedKey {
+			player.AddComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
+			systems.Movement(g.GameState, g.Engine, g.GameState.Grid)
 
-		g.GameState.IsPlayerTurn = false
+			g.GameState.IsPlayerTurn = false
+		}
+
 	}
 
 	if !g.GameState.IsPlayerTurn {

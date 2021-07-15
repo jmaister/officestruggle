@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 
+	"github.com/norendren/go-fov/fov"
 	"jordiburgos.com/officestruggle/dungeon"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/grid"
@@ -13,7 +14,7 @@ import (
 
 type GameState struct {
 	Engine       *ecs.Engine
-	Fov          *state.FieldOfVision
+	Fov          *fov.View
 	Grid         *grid.Grid
 	Player       *ecs.Entity
 	IsPlayerTurn bool
@@ -56,13 +57,9 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		state.ApplyPosition(goblin, pos.X, pos.Y)
 	}
 
-	fov := state.FieldOfVision{}
-	stats, _ := player.GetComponent(state.Stats).(state.StatsComponent)
-	fov.SetTorchRadius(stats.Fov)
-
 	return &GameState{
 		Engine:       engine,
-		Fov:          &fov,
+		Fov:          fov.New(),
 		Grid:         &g,
 		Player:       player,
 		IsPlayerTurn: true,
@@ -72,4 +69,20 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		TileWidth:    16,
 		TileHeight:   16,
 	}
+}
+
+// Implement the GridMap interface for the Fov.
+
+func (gs *GameState) InBounds(x int, y int) bool {
+	gm := gs.Grid.Map
+	return x >= gm.X || x <= gm.X+gm.Width || y >= gm.Y || y <= gm.Y+gm.Height
+}
+
+func (gs *GameState) IsOpaque(x int, y int) bool {
+	visitableEntity, ok := gs.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
+	if ok {
+		_, ok2 := visitableEntity.GetComponent(state.IsBlocking).(state.IsBlockingComponent)
+		return ok2
+	}
+	return false
 }
