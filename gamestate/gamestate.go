@@ -48,13 +48,20 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	player := state.NewPlayer(engine.NewEntity())
 	state.ApplyPosition(player, dungeonRectangle.Center.X, dungeonRectangle.Center.Y)
 
-	// Enemies
 	visitables := engine.Entities.GetEntities([]string{state.IsFloor})
+	// Enemies
 	for i := 0; i < 5; i++ {
 		v := visitables[rand.Intn(len(visitables))]
 		pos := state.GetPosition(v)
 		goblin := state.NewGlobin(engine.NewEntity())
 		state.ApplyPosition(goblin, pos.X, pos.Y)
+	}
+	// Health potions
+	for i := 0; i < 5; i++ {
+		v := visitables[rand.Intn(len(visitables))]
+		pos := state.GetPosition(v)
+		potion := state.NewHealthPotion(engine.NewEntity())
+		state.ApplyPosition(potion, pos.X, pos.Y)
 	}
 
 	return &GameState{

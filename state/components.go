@@ -7,20 +7,20 @@ import (
 )
 
 const (
-	Player        = "player"
-	Apparence     = "apparence"
-	Position      = "position"
-	Move          = "move"
-	IsBlocking    = "isBlocking"
-	IsFloor       = "isFloor"
-	Layer100      = "layer100"
-	Layer300      = "layer300"
-	Layer400      = "layer400"
-	Visitable     = "visitable"
-	Description   = "description"
-	AI            = "ai"
-	Stats         = "stats"
-	StatsModifier = "statsModifier"
+	Player      = "player"
+	Apparence   = "apparence"
+	Position    = "position"
+	Move        = "move"
+	IsBlocking  = "isBlocking"
+	IsFloor     = "isFloor"
+	Layer100    = "layer100"
+	Layer300    = "layer300"
+	Layer400    = "layer400"
+	Visitable   = "visitable"
+	Description = "description"
+	AI          = "ai"
+	Stats       = "stats"
+	Consumable  = "consumable"
 )
 
 type PlayerComponent struct {
@@ -174,12 +174,9 @@ func (a StatsComponent) ComponentType() string {
 	return Stats
 }
 
-/*
-type StatsModifierComponent struct {
-	*statsValues
+type ConsumableComponent struct {
 }
 
-func (a StatsModifierComponent) ComponentType() string {
-	return StatsModifier
+func (a ConsumableComponent) ComponentType() string {
+	return Consumable
 }
-*/

@@ -45,3 +45,22 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 	})
 	return entity
 }
+
+func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
+	entity.AddComponent(Consumable, ConsumableComponent{})
+	entity.AddComponent(Description, DescriptionComponent{Name: "Health Potion"})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#FF0000", Char: 'o'})
+	entity.AddComponent(Layer300, Layer400Component{})
+	entity.AddComponent(Stats, StatsComponent{
+		statsValues: &statsValues{
+			Health:     5,
+			MaxHealth:  1,
+			Defense:    0,
+			MaxDefense: 0,
+			Power:      0,
+			MaxPower:   0,
+			Fov:        0,
+		},
+	})
+	return entity
+}
