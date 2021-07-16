@@ -4,28 +4,22 @@ import (
 	"math/rand"
 	"time"
 
-	tl "github.com/JoelOtter/termloop"
+	"github.com/hajimehoshi/ebiten/v2"
 	"jordiburgos.com/officestruggle/game"
-	"jordiburgos.com/officestruggle/systems"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	// Game state
-	gameState := game.NewGameState()
+	game := game.NewGame()
 
-	tlGame := tl.NewGame()
-	tlGame.Screen().SetFps(30)
-	level := tl.NewBaseLevel(tl.Cell{
-		Bg: tl.ColorGreen,
-		Fg: tl.ColorBlack,
-		Ch: 'v',
-	})
+	ebiten.SetWindowSize(game.GameState.ScreenWidth, game.GameState.ScreenHeight)
+	ebiten.SetWindowTitle("Office Struggle")
+	ebiten.SetWindowResizable(true)
 
-	ctl := systems.NewController(gameState)
-	level.AddEntity(ctl)
+	if err := ebiten.RunGame(game); err != nil {
+		panic(err)
+	}
 
-	tlGame.Screen().SetLevel(level)
-	tlGame.Start()
 }

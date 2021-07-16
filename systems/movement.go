@@ -5,12 +5,12 @@ import (
 	"strconv"
 
 	"jordiburgos.com/officestruggle/ecs"
-	"jordiburgos.com/officestruggle/game"
+	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 )
 
-func Movement(gs *game.GameState, engine *ecs.Engine, g *grid.Grid) {
+func Movement(gs *gamestate.GameState, engine *ecs.Engine, g *grid.Grid) {
 	movable := []string{state.Move}
 
 	for _, entity := range engine.Entities.GetEntities(movable) {

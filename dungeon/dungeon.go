@@ -72,6 +72,7 @@ func CreateDungeon(engine *ecs.Engine, m grid.Map, opts DungeonOptions) grid.Rec
 		}
 	}
 
+	// TODO: move tiles to entities.go
 	for _, tile := range tiles {
 		tileEntity := engine.NewEntity()
 		tileEntity.AddComponent(state.Layer100, state.Layer100Component{})
@@ -80,13 +81,13 @@ func CreateDungeon(engine *ecs.Engine, m grid.Map, opts DungeonOptions) grid.Rec
 		if tile.Sprite == grid.Wall {
 			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Wall"})
 			tileEntity.AddComponent(state.IsBlocking, state.IsBlockingComponent{})
-			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#555", Char: '#'})
+			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#1a1aff", Bg: "#00FFFF", Char: '#'})
 		} else if tile.Sprite == grid.Floor {
 			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Floor"})
 			tileEntity.AddComponent(state.IsFloor, state.IsFloorComponent{})
-			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#555", Char: '•'})
+			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#e3e3e3", Char: '•'})
 		} else {
-			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#999", Char: '.'})
+			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#FF66FF", Char: '.'})
 		}
 	}
 

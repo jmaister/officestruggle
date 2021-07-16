@@ -4,11 +4,11 @@ import (
 	"strconv"
 
 	"jordiburgos.com/officestruggle/ecs"
-	"jordiburgos.com/officestruggle/game"
+	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
 )
 
-func Attack(gs *game.GameState, attacker *ecs.Entity, blockers ecs.EntityList) {
+func Attack(gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityList) {
 
 	// Try if attacker has Stats
 	if attacker.HasComponent(state.Stats) {

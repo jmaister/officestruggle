@@ -7,7 +7,7 @@ import (
 
 	"jordiburgos.com/officestruggle/astar"
 	"jordiburgos.com/officestruggle/ecs"
-	"jordiburgos.com/officestruggle/game"
+	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -67,7 +67,7 @@ func (t *Tile) String() string {
 	return strconv.Itoa(t.X) + "," + strconv.Itoa(t.Y)
 }
 
-func AI(engine *ecs.Engine, gameState *game.GameState) {
+func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 	visitables := engine.Entities.GetEntities([]string{state.Visitable})
 	tiles := map[int]*Tile{}
 	for _, visitable := range visitables {
@@ -125,7 +125,7 @@ func getTileOfEntity(entity *ecs.Entity) *ecs.Entity {
 	return toTile
 }
 
-func SimpleAI(engine *ecs.Engine, gameState *game.GameState) {
+func SimpleAI(engine *ecs.Engine, gameState *gamestate.GameState) {
 	aiEntities := engine.Entities.GetEntities([]string{state.AI})
 	for _, enemy := range aiEntities {
 		wander(enemy)

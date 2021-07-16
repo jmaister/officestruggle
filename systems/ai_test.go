@@ -3,11 +3,13 @@ package systems_test
 import (
 	"testing"
 
-	"jordiburgos.com/officestruggle/game"
+	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/systems"
 )
 
 func TestAi(t *testing.T) {
-	gameState := game.NewGameState()
+	engine := ecs.NewEngine()
+	gameState := gamestate.NewGameState(engine)
 	systems.AI(gameState.Engine, gameState)
 }

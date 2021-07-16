@@ -1,68 +1,89 @@
 package game
 
 import (
-	"log"
-	"math/rand"
-	"os"
+	"fmt"
 
-	"jordiburgos.com/officestruggle/dungeon"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"jordiburgos.com/officestruggle/ecs"
-	"jordiburgos.com/officestruggle/grid"
+	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
+	"jordiburgos.com/officestruggle/systems"
 )
 
-type GameState struct {
-	Engine       *ecs.Engine
-	Fov          *state.FieldOfVision
-	Grid         *grid.Grid
-	Player       *ecs.Entity
-	IsPlayerTurn bool
-	L            *log.Logger
+type Game struct {
+	Engine    *ecs.Engine
+	GameState *gamestate.GameState
 }
 
-func NewGameState() *GameState {
-	// ECS engine
+func NewGame() *Game {
 	engine := ecs.NewEngine()
 
-	// Dungeon
-	g := grid.Grid{
-		Width:  100,
-		Height: 34,
-		Map: grid.Map{
-			X:      21,
-			Y:      3,
-			Width:  79,
-			Height: 29,
-		},
+	return &Game{
+		// ECS engine
+		Engine:    engine,
+		GameState: gamestate.NewGameState(engine),
 	}
-	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
-		MinRoomSize:  6,
-		MaxRoomSize:  12,
-		MaxRoomCount: 7,
-	})
+}
 
-	// Player
-	player := state.NewPlayer(engine.NewEntity())
-	state.ApplyPosition(player, dungeonRectangle.Center.X, dungeonRectangle.Center.Y)
+func (g *Game) Update() error {
 
-	// Enemies
-	visitables := engine.Entities.GetEntities([]string{state.IsFloor})
-	for i := 0; i < 5; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		goblin := state.NewGlobin(engine.NewEntity())
-		state.ApplyPosition(goblin, pos.X, pos.Y)
+	player := g.GameState.Player
+	position := state.GetPosition(player)
+	stats, _ := player.GetComponent(state.Stats).(state.StatsComponent)
+	g.GameState.Fov.Compute(g.GameState, position.X, position.Y, stats.Fov)
+
+	// Update the logical state
+	keys := inpututil.PressedKeys()
+	hasPressedKeys := len(keys) > 0 && inpututil.IsKeyJustPressed(keys[0])
+
+	// TODO: https://github.com/hajimehoshi/ebiten/issues/648
+
+	if g.GameState.IsPlayerTurn && hasPressedKeys {
+		fmt.Println(keys)
+
+		actionedKey := false
+		dx := 0
+		dy := 0
+		switch keys[0] {
+		case ebiten.KeyArrowRight:
+			dx = 1
+			actionedKey = true
+		case ebiten.KeyArrowLeft:
+			dx = -1
+			actionedKey = true
+		case ebiten.KeyArrowUp:
+			dy = -1
+			actionedKey = true
+		case ebiten.KeyArrowDown:
+			dy = 1
+			actionedKey = true
+		}
+
+		if actionedKey {
+			player.AddComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
+			systems.Movement(g.GameState, g.Engine, g.GameState.Grid)
+
+			g.GameState.IsPlayerTurn = false
+		}
+
 	}
 
-	fov := state.FieldOfVision{}
-	fov.SetTorchRadius(6)
+	if !g.GameState.IsPlayerTurn {
+		systems.AI(g.Engine, g.GameState)
+		systems.Movement(g.GameState, g.Engine, g.GameState.Grid)
 
-	return &GameState{
-		Engine:       engine,
-		Fov:          &fov,
-		Grid:         &g,
-		Player:       player,
-		IsPlayerTurn: true,
-		L:            log.New(os.Stderr, "", 0),
+		g.GameState.IsPlayerTurn = true
 	}
+
+	return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	// Render the screen
+	systems.Render(g.Engine, g.GameState, screen)
+}
+
+func (g *Game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, screenHeight int) {
+	return g.GameState.ScreenWidth, g.GameState.ScreenHeight
 }

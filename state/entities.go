@@ -5,8 +5,8 @@ import "jordiburgos.com/officestruggle/ecs"
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Player, PlayerComponent{})
 	entity.AddComponent(Description, DescriptionComponent{Name: "You"})
-	entity.AddComponent(Apparence, ApparenceComponent{Color: "#0000FF", Char: '@'})
-	entity.AddComponent(Layer400, Layer400Component{})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#ffffff", Bg: "#FF0000", Char: '@'})
+	entity.AddComponent(Layer500, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
 		statsValues: &statsValues{
 			Health:     10,
@@ -15,6 +15,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 			MaxDefense: 10,
 			Power:      2,
 			MaxPower:   10,
+			Fov:        10,
 		},
 	})
 	return entity
@@ -37,8 +38,28 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 			MaxHealth:  10,
 			Defense:    1,
 			MaxDefense: 10,
-			Power:      1,
+			Power:      4,
 			MaxPower:   10,
+			Fov:        6,
+		},
+	})
+	return entity
+}
+
+func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
+	entity.AddComponent(Consumable, ConsumableComponent{})
+	entity.AddComponent(Description, DescriptionComponent{Name: "Health Potion"})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#FF0000", Char: 'o'})
+	entity.AddComponent(Layer300, Layer400Component{})
+	entity.AddComponent(Stats, StatsComponent{
+		statsValues: &statsValues{
+			Health:     5,
+			MaxHealth:  1,
+			Defense:    0,
+			MaxDefense: 0,
+			Power:      0,
+			MaxPower:   0,
+			Fov:        0,
 		},
 	})
 	return entity

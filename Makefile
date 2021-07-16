@@ -8,6 +8,9 @@ build:
 test:
 	go test -v ./...
 
+benchmark:
+	go test -v -bench=.
+
 run:
 	go run -race main.go 2> err.log
  

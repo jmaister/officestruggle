@@ -89,7 +89,7 @@ func lowestFScore(set NodeSet, fScore FScore) Node {
 	lowestScore := math.MaxInt32
 	var lowestNode Node
 	for node := range set {
-		score, _ := fScore[node]
+		score := fScore[node]
 		if score < lowestScore {
 			lowestScore = score
 			lowestNode = node

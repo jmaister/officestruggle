@@ -1,8 +1,9 @@
-package ecs
+package systems
 
 import (
 	"errors"
 	"image/color"
+	"math"
 )
 
 var errInvalidFormat = errors.New("invalid format")
@@ -40,4 +41,26 @@ func ParseHexColorFast(s string) (c color.RGBA, err error) {
 		err = errInvalidFormat
 	}
 	return
+}
+
+// Calculate lighter or darker color.
+// luminosity goes from -1 (darker) to +1 (lighter)
+func Lighten(c color.Color, luminosity float64) color.Color {
+
+	r, g, b, a := c.RGBA()
+
+	newColor := color.RGBA{
+		R: calcLighteness(r, luminosity),
+		G: calcLighteness(g, luminosity),
+		B: calcLighteness(b, luminosity),
+		A: uint8(a),
+	}
+	return newColor
+}
+
+func calcLighteness(c uint32, luminosity float64) uint8 {
+	fc := float64(c) + float64(c)*luminosity
+	cl := math.Round(math.Max(math.Min(255, fc), 0))
+	return uint8(cl)
+
 }

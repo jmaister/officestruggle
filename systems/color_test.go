@@ -1,4 +1,4 @@
-package ecs_test
+package systems_test
 
 import (
 	"encoding/hex"
@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"gotest.tools/assert"
-	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/systems"
 )
 
 func TestWhite(t *testing.T) {
-	thisColor, err := ecs.ParseHexColorFast("#FFFFFF")
+	thisColor, err := systems.ParseHexColorFast("#FFFFFF")
 	if err != nil {
 		t.Fail()
 	}
@@ -21,7 +21,7 @@ func TestWhite(t *testing.T) {
 }
 
 func TestBlack(t *testing.T) {
-	thisColor, err := ecs.ParseHexColorFast("#000000")
+	thisColor, err := systems.ParseHexColorFast("#000000")
 	if err != nil {
 		t.Fail()
 	}
@@ -36,7 +36,7 @@ func TestRandom(t *testing.T) {
 	g := rand.Int63n(255)
 	b := rand.Int63n(255)
 	colorStr := "#" + toHex(r) + toHex(g) + toHex(b)
-	thisColor, err := ecs.ParseHexColorFast(colorStr)
+	thisColor, err := systems.ParseHexColorFast(colorStr)
 	if err != nil {
 		t.Fail()
 	}

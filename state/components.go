@@ -7,20 +7,21 @@ import (
 )
 
 const (
-	Player        = "player"
-	Apparence     = "apparence"
-	Position      = "position"
-	Move          = "move"
-	IsBlocking    = "isBlocking"
-	IsFloor       = "isFloor"
-	Layer100      = "layer100"
-	Layer300      = "layer300"
-	Layer400      = "layer400"
-	Visitable     = "visitable"
-	Description   = "description"
-	AI            = "ai"
-	Stats         = "stats"
-	StatsModifier = "statsModifier"
+	Player      = "player"
+	Apparence   = "apparence"
+	Position    = "position"
+	Move        = "move"
+	IsBlocking  = "isBlocking"
+	IsFloor     = "isFloor"
+	Layer100    = "layer100"
+	Layer300    = "layer300"
+	Layer400    = "layer400"
+	Layer500    = "layer500"
+	Visitable   = "visitable"
+	Description = "description"
+	AI          = "ai"
+	Stats       = "stats"
+	Consumable  = "consumable"
 )
 
 type PlayerComponent struct {
@@ -105,7 +106,13 @@ func (a Layer300Component) ComponentType() string {
 type Layer400Component struct{}
 
 func (a Layer400Component) ComponentType() string {
-	return Layer300
+	return Layer400
+}
+
+type Layer500Component struct{}
+
+func (a Layer500Component) ComponentType() string {
+	return Layer500
 }
 
 type VisitableComponent struct {
@@ -149,6 +156,7 @@ type statsValues struct {
 	MaxDefense int
 	Power      int
 	MaxPower   int
+	Fov        int
 }
 
 type StatsComponent struct {
@@ -173,12 +181,9 @@ func (a StatsComponent) ComponentType() string {
 	return Stats
 }
 
-/*
-type StatsModifierComponent struct {
-	*statsValues
+type ConsumableComponent struct {
 }
 
-func (a StatsModifierComponent) ComponentType() string {
-	return StatsModifier
+func (a ConsumableComponent) ComponentType() string {
+	return Consumable
 }
-*/
