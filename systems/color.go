@@ -8,11 +8,12 @@ import (
 
 var errInvalidFormat = errors.New("invalid format")
 
-func ParseHexColorFast(s string) (c color.RGBA, err error) {
+func ParseHexColorFast(s string) color.RGBA {
+	c := color.RGBA{}
 	c.A = 0xff
 
 	if s[0] != '#' {
-		return c, errInvalidFormat
+		panic("Invalid color [" + s + "]")
 	}
 
 	hexToByte := func(b byte) byte {
@@ -24,7 +25,7 @@ func ParseHexColorFast(s string) (c color.RGBA, err error) {
 		case b >= 'A' && b <= 'F':
 			return b - 'A' + 10
 		}
-		err = errInvalidFormat
+		panic("Invalid color [" + s + "]")
 		return 0
 	}
 
@@ -38,9 +39,10 @@ func ParseHexColorFast(s string) (c color.RGBA, err error) {
 		c.G = hexToByte(s[2]) * 17
 		c.B = hexToByte(s[3]) * 17
 	default:
-		err = errInvalidFormat
+		panic("Invalid color [" + s + "]")
+
 	}
-	return
+	return c
 }
 
 // Calculate lighter or darker color.

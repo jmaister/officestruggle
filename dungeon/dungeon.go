@@ -19,7 +19,7 @@ func randBetween(min int, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func CreateDungeon(engine *ecs.Engine, m grid.Map, opts DungeonOptions) grid.Rectangle {
+func CreateDungeon(engine *ecs.Engine, m grid.Rect, opts DungeonOptions) grid.Rectangle {
 
 	dungeon, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
 		Sprite: grid.Wall,

@@ -54,13 +54,16 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 		renderEntities(entities, gameState, screen)
 	}
+
+	drawMessageLog(screen, gameState)
 }
 
 func showDebug(screen *ebiten.Image) {
+	w, _ := screen.Size()
 	// Draw info
 	fnt := mplusFont(10)
 	msg := fmt.Sprintf("TPS: %0.2f, FPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS())
-	text.Draw(screen, msg, fnt, 20, 20, color.White)
+	text.Draw(screen, msg, fnt, w-100, 20, color.White)
 }
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) {
@@ -94,8 +97,8 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				bgColor, _ := ParseHexColorFast(bg)
-				fgColor, _ := ParseHexColorFast(fg)
+				bgColor := ParseHexColorFast(bg)
+				fgColor := ParseHexColorFast(fg)
 				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 
 				// Mark as explored
@@ -104,14 +107,14 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 				entity.AddComponent(state.Visitable, vsComponent)
 
 			} else if visitable.Explored {
-				bgColor, _ := ParseHexColorFast("#000000")
-				fgColor, _ := ParseHexColorFast("#555555")
+				bgColor := ParseHexColorFast("#000000")
+				fgColor := ParseHexColorFast("#555555")
 				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
-				bgColor, _ := ParseHexColorFast(bg)
-				fgColor, _ := ParseHexColorFast(fg)
+				bgColor := ParseHexColorFast(bg)
+				fgColor := ParseHexColorFast(fg)
 				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		}
@@ -150,4 +153,28 @@ func mplusFont(size float64) font.Face {
 		mplusFontCached[size] = fnt
 	}
 	return fnt
+}
+
+var messageLogColors = [5]color.RGBA{
+	ParseHexColorFast("#A9A9A9"),
+	ParseHexColorFast("#C0C0C0"),
+	ParseHexColorFast("#D3D3D3"),
+	ParseHexColorFast("#DCDCDC"),
+	ParseHexColorFast("#FFFFFF"),
+}
+
+func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
+
+	fontSize := 15
+	font := mplusFont(float64(fontSize))
+
+	position := gs.Grid.MessageLog
+
+	lines := gs.GetLog(5)
+	n := len(lines)
+	for i, line := range lines {
+		fgColor := messageLogColors[5-n+i]
+		text.Draw(screen, line, font, (position.X)*fontSize, (position.Y+i+1)*fontSize, fgColor)
+	}
+
 }

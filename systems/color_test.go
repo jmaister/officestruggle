@@ -10,10 +10,7 @@ import (
 )
 
 func TestWhite(t *testing.T) {
-	thisColor, err := systems.ParseHexColorFast("#FFFFFF")
-	if err != nil {
-		t.Fail()
-	}
+	thisColor := systems.ParseHexColorFast("#FFFFFF")
 
 	assert.Equal(t, uint8(255), thisColor.R)
 	assert.Equal(t, uint8(255), thisColor.G)
@@ -21,10 +18,7 @@ func TestWhite(t *testing.T) {
 }
 
 func TestBlack(t *testing.T) {
-	thisColor, err := systems.ParseHexColorFast("#000000")
-	if err != nil {
-		t.Fail()
-	}
+	thisColor := systems.ParseHexColorFast("#000000")
 
 	assert.Equal(t, uint8(0), thisColor.R)
 	assert.Equal(t, uint8(0), thisColor.G)
@@ -36,10 +30,7 @@ func TestRandom(t *testing.T) {
 	g := rand.Int63n(255)
 	b := rand.Int63n(255)
 	colorStr := "#" + toHex(r) + toHex(g) + toHex(b)
-	thisColor, err := systems.ParseHexColorFast(colorStr)
-	if err != nil {
-		t.Fail()
-	}
+	thisColor := systems.ParseHexColorFast(colorStr)
 
 	assert.Equal(t, uint8(r), thisColor.R)
 	assert.Equal(t, uint8(g), thisColor.G)

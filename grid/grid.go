@@ -134,7 +134,7 @@ func Distance(t1 Tile, t2 Tile) int {
 	return int(math.Floor(math.Sqrt(x + y)))
 }
 
-type Map struct {
+type Rect struct {
 	Width  int
 	Height int
 	X      int
@@ -142,23 +142,26 @@ type Map struct {
 }
 
 type Grid struct {
-	Width  int
-	Height int
-	Map    Map
+	Width      int
+	Height     int
+	Map        Rect
+	MessageLog Rect
+	PlayerHud  Rect
+	InfoBar    Rect
 }
 
-func IsOnMapEdge(x int, y int, theMap Map) bool {
+func IsOnMapEdge(x int, y int, rect Rect) bool {
 
-	if x == theMap.X {
+	if x == rect.X {
 		return true
 	}
-	if y == theMap.Y {
+	if y == rect.Y {
 		return true
 	}
-	if x == theMap.X+theMap.Width-1 {
+	if x == rect.X+rect.Width-1 {
 		return true
 	}
-	if x == theMap.Y+theMap.Height-1 {
+	if x == rect.Y+rect.Height-1 {
 		return true
 	}
 	return false
