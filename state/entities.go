@@ -6,7 +6,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Player, PlayerComponent{})
 	entity.AddComponent(Description, DescriptionComponent{Name: "You"})
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#ffffff", Bg: "#FF0000", Char: '@'})
-	entity.AddComponent(Layer400, Layer400Component{})
+	entity.AddComponent(Layer500, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
 		statsValues: &statsValues{
 			Health:     10,

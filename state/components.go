@@ -16,6 +16,7 @@ const (
 	Layer100    = "layer100"
 	Layer300    = "layer300"
 	Layer400    = "layer400"
+	Layer500    = "layer500"
 	Visitable   = "visitable"
 	Description = "description"
 	AI          = "ai"
@@ -105,7 +106,13 @@ func (a Layer300Component) ComponentType() string {
 type Layer400Component struct{}
 
 func (a Layer400Component) ComponentType() string {
-	return Layer300
+	return Layer400
+}
+
+type Layer500Component struct{}
+
+func (a Layer500Component) ComponentType() string {
+	return Layer500
 }
 
 type VisitableComponent struct {

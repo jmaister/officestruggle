@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
@@ -31,7 +32,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	showDebug(screen)
 
-	layers := []string{state.Layer100, state.Layer300, state.Layer400}
+	layers := []string{state.Layer100, state.Layer300, state.Layer400, state.Layer500}
 
 	// Reset visibility
 	visitables := engine.Entities.GetEntities([]string{state.Visitable})
@@ -90,52 +91,41 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		px := position.X * tw
 		py := position.Y * th
 
-		lum := 1.0
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
+				bgColor, _ := ParseHexColorFast(bg)
 				fgColor, _ := ParseHexColorFast(fg)
-				text.Draw(screen, ch, font, px, py, fgColor)
+				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 
+				// Mark as explored
 				vsComponent, _ := entity.RemoveComponent(state.Visitable).(state.VisitableComponent)
 				vsComponent.Explored = true
 				entity.AddComponent(state.Visitable, vsComponent)
 
-				lum = lum - 0.1
-
 			} else if visitable.Explored {
+				bgColor, _ := ParseHexColorFast("#000000")
 				fgColor, _ := ParseHexColorFast("#555555")
-				text.Draw(screen, ch, font, px, py, fgColor)
+				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
-				drawBackground(screen, bg, tw, th, px, py)
+				bgColor, _ := ParseHexColorFast(bg)
 				fgColor, _ := ParseHexColorFast(fg)
-				text.Draw(screen, ch, font, px, py, fgColor)
+				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		}
 	}
 }
 
-var backgroundImageCache = map[string]*ebiten.Image{}
+func drawChar(screen *ebiten.Image, str string, x int, y int, font font.Face, fgColor color.Color, bgColor color.Color) {
+	drawBackground(screen, str, x, y, font, bgColor)
+	text.Draw(screen, str, font, x, y, fgColor)
+}
 
-func drawBackground(screen *ebiten.Image, color string, width int, height int, x int, y int) {
-	img, ok := backgroundImageCache[color]
-	if !ok {
-		bgColor, _ := ParseHexColorFast(color)
-
-		img = ebiten.NewImage(width, height)
-		img.Fill(bgColor)
-		backgroundImageCache[color] = img
-	}
-
-	geom := ebiten.GeoM{}
-	// geom.Translate(float64(x)-(float64(width)/2), float64(y)-float64(height)/2)
-	geom.Translate(float64(x)+(float64(width)/2.0), float64(y)-(float64(height)/2.0))
-	opts := &ebiten.DrawImageOptions{
-		GeoM: geom,
-	}
-	screen.DrawImage(img, opts)
+func drawBackground(screen *ebiten.Image, str string, x int, y int, face font.Face, bgColor color.Color) {
+	rect := text.BoundString(face, str)
+	ebitenutil.DrawRect(screen, float64(x+rect.Min.X), float64(y+rect.Min.Y), float64(rect.Max.X-rect.Min.X), float64(rect.Max.Y-rect.Min.Y), bgColor)
 }
 
 func mplusFont(size float64) font.Face {
