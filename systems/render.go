@@ -53,6 +53,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 	}
 
 	drawMessageLog(screen, gameState)
+	drawPlayerHud(screen, gameState)
 }
 
 func showDebug(screen *ebiten.Image) {
@@ -149,7 +150,22 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 	n := len(lines)
 	for i, line := range lines {
 		fgColor := messageLogColors[5-n+i]
-		text.Draw(screen, line, font, (position.X)*fontSize, (position.Y+i+1)*fontSize, fgColor)
+		logStr := line.Msg
+		if line.Count > 1 {
+			logStr = strconv.Itoa(line.Count) + "x " + line.Msg
+		}
+		text.Draw(screen, logStr, font, (position.X)*fontSize, (position.Y+i+1)*fontSize, fgColor)
 	}
 
+}
+
+func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
+	fontSize := 15
+	font := assets.MplusFont(float64(fontSize))
+
+	position := gs.Grid.PlayerHud
+
+	player := gs.Player
+	stats := player.GetComponent(state.Stats).(state.StatsComponent)
+	text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#FFFFFF"))
 }

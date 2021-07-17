@@ -23,7 +23,12 @@ type GameState struct {
 	ScreenHeight int
 	TileWidth    int
 	TileHeight   int
-	logLines     []string
+	logLines     []LogLine
+}
+
+type LogLine struct {
+	Msg   string
+	Count int
 }
 
 func NewGameState(engine *ecs.Engine) *GameState {
@@ -43,6 +48,19 @@ func NewGameState(engine *ecs.Engine) *GameState {
 			Height: 5,
 			X:      0,
 			Y:      0,
+		},
+		PlayerHud: grid.Rect{
+			Width:  20,
+			Height: 34,
+			X:      0,
+			Y:      8,
+		},
+
+		InfoBar: grid.Rect{
+			Width:  79,
+			Height: 3,
+			X:      21,
+			Y:      32,
 		},
 	}
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
@@ -86,10 +104,18 @@ func NewGameState(engine *ecs.Engine) *GameState {
 }
 
 func (gs *GameState) Log(s string) {
-	gs.logLines = append(gs.logLines, s)
+	n := len(gs.logLines)
+	if n > 0 {
+		if gs.logLines[n-1].Msg == s {
+			gs.logLines[n-1].Count++
+			return
+		}
+	}
+	gs.logLines = append(gs.logLines, LogLine{Msg: s, Count: 1})
+
 }
 
-func (gs *GameState) GetLog(lineNumber int) []string {
+func (gs *GameState) GetLog(lineNumber int) []LogLine {
 	n := len(gs.logLines)
 	if lineNumber <= n {
 		return gs.logLines[n-lineNumber : n]

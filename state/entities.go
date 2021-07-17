@@ -13,7 +13,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 			MaxHealth:  10,
 			Defense:    3,
 			MaxDefense: 10,
-			Power:      2,
+			Power:      4,
 			MaxPower:   10,
 			Fov:        10,
 		},
