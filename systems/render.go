@@ -132,10 +132,10 @@ func drawBackground(screen *ebiten.Image, str string, x int, y int, face font.Fa
 }
 
 var messageLogColors = [5]color.RGBA{
-	ParseHexColorFast("#A9A9A9"),
-	ParseHexColorFast("#C0C0C0"),
-	ParseHexColorFast("#D3D3D3"),
-	ParseHexColorFast("#DCDCDC"),
+	ParseHexColorFast("#333333"),
+	ParseHexColorFast("#555555"),
+	ParseHexColorFast("#777777"),
+	ParseHexColorFast("#AAAAAA"),
 	ParseHexColorFast("#FFFFFF"),
 }
 
@@ -167,5 +167,5 @@ func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 
 	player := gs.Player
 	stats := player.GetComponent(state.Stats).(state.StatsComponent)
-	text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#FFFFFF"))
+	text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#00AA00"))
 }
