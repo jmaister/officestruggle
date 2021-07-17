@@ -26,7 +26,6 @@ func ParseHexColorFast(s string) color.RGBA {
 			return b - 'A' + 10
 		}
 		panic("Invalid color [" + s + "]")
-		return 0
 	}
 
 	switch len(s) {

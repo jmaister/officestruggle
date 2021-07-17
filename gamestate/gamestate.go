@@ -30,17 +30,17 @@ func NewGameState(engine *ecs.Engine) *GameState {
 
 	// Dungeon
 	g := grid.Grid{
-		Width:  100,
+		Width:  80,
 		Height: 34,
 		Map: grid.Rect{
-			X:      21,
-			Y:      3,
+			X:      2,
+			Y:      6,
 			Width:  79,
 			Height: 29,
 		},
 		MessageLog: grid.Rect{
 			Width:  79,
-			Height: 3,
+			Height: 5,
 			X:      0,
 			Y:      0,
 		},
@@ -48,7 +48,7 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
-		MaxRoomCount: 7,
+		MaxRoomCount: 8,
 	})
 
 	// Player
