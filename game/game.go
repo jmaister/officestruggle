@@ -35,9 +35,7 @@ func (g *Game) Update() error {
 
 	// Update the logical state
 	keys := inpututil.PressedKeys()
-	hasPressedKeys := len(keys) > 0 && inpututil.IsKeyJustPressed(keys[0])
-
-	// TODO: https://github.com/hajimehoshi/ebiten/issues/648
+	hasPressedKeys := len(keys) > 0 && repeatingKeyPressed(keys[0])
 
 	if g.GameState.IsPlayerTurn && hasPressedKeys {
 		fmt.Println(keys)
@@ -58,6 +56,9 @@ func (g *Game) Update() error {
 		case ebiten.KeyArrowDown:
 			dy = 1
 			actionedKey = true
+		case ebiten.KeyEscape:
+			// Just for debug
+			panic("ESCAPE !!!")
 		}
 
 		if actionedKey {
@@ -86,4 +87,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func (g *Game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, screenHeight int) {
 	return g.GameState.ScreenWidth, g.GameState.ScreenHeight
+}
+
+// repeatingKeyPressed return true when key is pressed considering the repeat state.
+// https://github.com/hajimehoshi/ebiten/issues/648
+func repeatingKeyPressed(key ebiten.Key) bool {
+	const (
+		delay    = 30
+		interval = 5
+	)
+	d := inpututil.KeyPressDuration(key)
+	if d == 1 {
+		return true
+	}
+	if d >= delay && (d-delay)%interval == 0 {
+		return true
+	}
+	return false
 }

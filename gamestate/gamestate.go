@@ -23,25 +23,32 @@ type GameState struct {
 	ScreenHeight int
 	TileWidth    int
 	TileHeight   int
+	logLines     []string
 }
 
 func NewGameState(engine *ecs.Engine) *GameState {
 
 	// Dungeon
 	g := grid.Grid{
-		Width:  100,
+		Width:  80,
 		Height: 34,
-		Map: grid.Map{
-			X:      21,
-			Y:      3,
+		Map: grid.Rect{
+			X:      2,
+			Y:      6,
 			Width:  79,
 			Height: 29,
+		},
+		MessageLog: grid.Rect{
+			Width:  79,
+			Height: 5,
+			X:      0,
+			Y:      0,
 		},
 	}
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
-		MaxRoomCount: 7,
+		MaxRoomCount: 8,
 	})
 
 	// Player
@@ -76,6 +83,18 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		TileWidth:    16,
 		TileHeight:   16,
 	}
+}
+
+func (gs *GameState) Log(s string) {
+	gs.logLines = append(gs.logLines, s)
+}
+
+func (gs *GameState) GetLog(lineNumber int) []string {
+	n := len(gs.logLines)
+	if lineNumber <= n {
+		return gs.logLines[n-lineNumber : n]
+	}
+	return gs.logLines
 }
 
 // Implement the GridMap interface for the Fov.

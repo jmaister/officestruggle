@@ -2,7 +2,6 @@ package systems
 
 import (
 	"math"
-	"strconv"
 
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -14,15 +13,11 @@ func Movement(gs *gamestate.GameState, engine *ecs.Engine, g *grid.Grid) {
 	movable := []string{state.Move}
 
 	for _, entity := range engine.Entities.GetEntities(movable) {
-		gs.L.Println("Movement Entity " + entity.String())
 		move := entity.RemoveComponent(state.Move).(state.MoveComponent)
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
 
-		gs.L.Println("from position " + position.String())
 		mx := position.X + move.X
 		my := position.Y + move.Y
-
-		gs.L.Println("to position " + strconv.Itoa(mx) + " " + strconv.Itoa(my))
 
 		// Check map boundaries
 		m := g.Map

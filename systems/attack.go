@@ -13,7 +13,6 @@ func Attack(gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityLi
 	// Try if attacker has Stats
 	if attacker.HasComponent(state.Stats) {
 		aStats := attacker.GetComponent(state.Stats).(state.StatsComponent)
-		gs.L.Println("pl stats", aStats)
 
 		// Check every blocker if it has Stats
 		for _, blocker := range blockers {
@@ -23,23 +22,26 @@ func Attack(gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityLi
 				// Damage calculation and attack
 				damage := aStats.Power - bStats.Defense
 				if damage >= 0 {
-					gs.L.Println(state.GetDescription(attacker) + " hit " + state.GetDescription(blocker) + " with " + strconv.Itoa(damage) + " points.")
+					gs.Log(state.GetDescription(attacker) + " attacks " + state.GetDescription(blocker) + " with " + strconv.Itoa(damage) + " damage points.")
 					newHealth := bStats.Health - damage
 					if newHealth <= 0 {
-						Kill(blocker)
+						Kill(gs, blocker)
 					} else {
 						bStats.Health = newHealth
 						blocker.ReplaceComponent(state.Stats, bStats)
 					}
 				} else {
-					gs.L.Println(state.GetDescription(blocker) + " blocked attack from " + state.GetDescription(attacker) + ".")
+					gs.Log(state.GetDescription(blocker) + " blocked attack from " + state.GetDescription(attacker) + ".")
 				}
+			} else if blocker.HasComponent(state.Visitable) {
+				gs.Log(state.GetDescription(attacker) + " hits a " + state.GetDescription(blocker))
 			}
 		}
 	}
 }
 
-func Kill(entity *ecs.Entity) {
+func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
+	gs.Log(state.GetDescription(entity) + " is dead.")
 	entity.RemoveComponent(state.AI)
 	entity.RemoveComponent(state.IsBlocking)
 	entity.RemoveComponent(state.Layer400)

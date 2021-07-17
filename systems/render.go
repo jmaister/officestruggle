@@ -3,21 +3,17 @@ package systems
 import (
 	"fmt"
 	"image/color"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
 
+	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
-)
-
-var (
-	mplusFontCached map[float64]font.Face
 )
 
 func setVisibleEntities(entities ecs.EntityList, isVisible bool) {
@@ -44,6 +40,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 		if gameState.Fov.IsVisible(pos.X, pos.Y) {
 			vsComponent, _ := visitable.RemoveComponent(state.Visitable).(state.VisitableComponent)
 			vsComponent.Visible = true
+			vsComponent.Explored = true
 			visitable.AddComponent(state.Visitable, vsComponent)
 		}
 	}
@@ -54,13 +51,22 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 		renderEntities(entities, gameState, screen)
 	}
+
+	drawMessageLog(screen, gameState)
 }
 
 func showDebug(screen *ebiten.Image) {
+	w, _ := screen.Size()
 	// Draw info
-	fnt := mplusFont(10)
+	fnt := assets.MplusFont(10)
 	msg := fmt.Sprintf("TPS: %0.2f, FPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS())
-	text.Draw(screen, msg, fnt, 20, 20, color.White)
+	text.Draw(screen, msg, fnt, w-150, 20, color.White)
+
+	// Mouse info
+	x, y := ebiten.CursorPosition()
+	cursorStr := strconv.Itoa(x) + " " + strconv.Itoa(y)
+	text.Draw(screen, cursorStr, fnt, w-150, 35, color.White)
+
 }
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) {
@@ -70,7 +76,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 	tw := w / gameState.Grid.Width
 	th := h / gameState.Grid.Height
 
-	font := mplusFont(float64(th))
+	font := assets.LoadFontCached(float64(20))
 
 	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
@@ -94,24 +100,19 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				bgColor, _ := ParseHexColorFast(bg)
-				fgColor, _ := ParseHexColorFast(fg)
+				bgColor := ParseHexColorFast(bg)
+				fgColor := ParseHexColorFast(fg)
 				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 
-				// Mark as explored
-				vsComponent, _ := entity.RemoveComponent(state.Visitable).(state.VisitableComponent)
-				vsComponent.Explored = true
-				entity.AddComponent(state.Visitable, vsComponent)
-
 			} else if visitable.Explored {
-				bgColor, _ := ParseHexColorFast("#000000")
-				fgColor, _ := ParseHexColorFast("#555555")
+				bgColor := ParseHexColorFast("#000000")
+				fgColor := ParseHexColorFast("#555555")
 				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
-				bgColor, _ := ParseHexColorFast(bg)
-				fgColor, _ := ParseHexColorFast(fg)
+				bgColor := ParseHexColorFast(bg)
+				fgColor := ParseHexColorFast(fg)
 				drawChar(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		}
@@ -125,29 +126,30 @@ func drawChar(screen *ebiten.Image, str string, x int, y int, font font.Face, fg
 
 func drawBackground(screen *ebiten.Image, str string, x int, y int, face font.Face, bgColor color.Color) {
 	rect := text.BoundString(face, str)
-	ebitenutil.DrawRect(screen, float64(x+rect.Min.X), float64(y+rect.Min.Y), float64(rect.Max.X-rect.Min.X), float64(rect.Max.Y-rect.Min.Y), bgColor)
+	pad := 0
+	ebitenutil.DrawRect(screen, float64(x+rect.Min.X-pad), float64(y+rect.Min.Y-pad), float64(rect.Max.X-rect.Min.X+pad), float64(rect.Max.Y-rect.Min.Y+pad), bgColor)
 }
 
-func mplusFont(size float64) font.Face {
-	if mplusFontCached == nil {
-		mplusFontCached = map[float64]font.Face{}
-	}
-	fnt, ok := mplusFontCached[size]
-	if !ok {
-		tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-		if err != nil {
-			panic(err)
-		}
+var messageLogColors = [5]color.RGBA{
+	ParseHexColorFast("#A9A9A9"),
+	ParseHexColorFast("#C0C0C0"),
+	ParseHexColorFast("#D3D3D3"),
+	ParseHexColorFast("#DCDCDC"),
+	ParseHexColorFast("#FFFFFF"),
+}
 
-		fnt, err = opentype.NewFace(tt, &opentype.FaceOptions{
-			Size:    size,
-			DPI:     72,
-			Hinting: font.HintingFull,
-		})
-		if err != nil {
-			panic(err)
-		}
-		mplusFontCached[size] = fnt
+func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
+
+	fontSize := 15
+	font := assets.MplusFont(float64(fontSize))
+
+	position := gs.Grid.MessageLog
+
+	lines := gs.GetLog(position.Height)
+	n := len(lines)
+	for i, line := range lines {
+		fgColor := messageLogColors[5-n+i]
+		text.Draw(screen, line, font, (position.X)*fontSize, (position.Y+i+1)*fontSize, fgColor)
 	}
-	return fnt
+
 }
