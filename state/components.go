@@ -2,6 +2,7 @@ package state
 
 import (
 	"strconv"
+	"strings"
 
 	"jordiburgos.com/officestruggle/ecs"
 )
@@ -151,10 +152,15 @@ func GetLongDescription(entity *ecs.Entity) string {
 		str := cmp.Name
 
 		if entity.HasComponent(Dead) {
-			str = str + " (Dead)"
-		} else if entity.HasComponent(Stats) {
+			str = str + " corpse"
+		}
+
+		if entity.HasComponent(Stats) {
 			stats := entity.GetComponent(Stats).(StatsComponent)
 			str = str + " (" + stats.String() + ")"
+		} else if entity.HasComponent(Consumable) {
+			cons := entity.GetComponent(Consumable).(ConsumableComponent)
+			str = str + " (" + cons.String() + ")"
 		}
 		return str
 	}
@@ -202,6 +208,30 @@ func (a StatsComponent) ComponentType() string {
 
 type ConsumableComponent struct {
 	*StatsValues
+}
+
+func incr(i int) string {
+	if i >= 0 {
+		return "+" + strconv.Itoa(i)
+	}
+	return strconv.Itoa(i)
+}
+
+func stIncr(name string, value int, max int) string {
+	if value != 0 || max != 0 {
+		return name + " " + incr(value) + "/" + incr(max) + " "
+	}
+	return ""
+}
+
+func (a ConsumableComponent) String() string {
+	s := ""
+
+	s += stIncr("Health", a.Health, a.MaxHealth)
+	s += stIncr("Def", a.Defense, a.MaxDefense)
+	s += stIncr("Pow", a.Power, a.MaxPower)
+
+	return strings.Trim(s, " ")
 }
 
 func (a ConsumableComponent) ComponentType() string {

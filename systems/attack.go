@@ -45,6 +45,7 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 	entity.RemoveComponent(state.AI)
 	entity.RemoveComponent(state.IsBlocking)
 	entity.RemoveComponent(state.Layer400)
+	entity.RemoveComponent(state.Stats)
 	entity.AddComponent(state.Layer300, state.Layer300Component{})
 	entity.AddComponent(state.Dead, state.DeadComponent{})
 	entity.AddComponent(state.IsPickup, state.IsPickupComponent{})

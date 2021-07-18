@@ -197,7 +197,7 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 }
 
 func drawInventory(screen *ebiten.Image, gs *gamestate.GameState) {
-	fontSize := 15
+	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.Inventory
