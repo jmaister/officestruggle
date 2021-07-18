@@ -148,6 +148,7 @@ type Grid struct {
 	MessageLog Rect
 	PlayerHud  Rect
 	InfoBar    Rect
+	Inventory  Rect
 }
 
 func IsOnMapEdge(x int, y int, rect Rect) bool {

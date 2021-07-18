@@ -40,30 +40,38 @@ func (g *Game) Update() error {
 	if g.GameState.IsPlayerTurn && hasPressedKeys {
 		fmt.Println(keys)
 
-		actionedKey := false
+		movementKey := false
+		inventoryKey := false
+
 		dx := 0
 		dy := 0
 		switch keys[0] {
 		case ebiten.KeyArrowRight:
 			dx = 1
-			actionedKey = true
+			movementKey = true
 		case ebiten.KeyArrowLeft:
 			dx = -1
-			actionedKey = true
+			movementKey = true
 		case ebiten.KeyArrowUp:
 			dy = -1
-			actionedKey = true
+			movementKey = true
 		case ebiten.KeyArrowDown:
 			dy = 1
-			actionedKey = true
+			movementKey = true
 		case ebiten.KeyEscape:
 			// Just for debug
 			panic("ESCAPE !!!")
+		case ebiten.KeyG:
+			inventoryKey = true
 		}
 
-		if actionedKey {
+		if movementKey {
 			player.AddComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
 			systems.Movement(g.GameState, g.Engine, g.GameState.Grid)
+
+			g.GameState.IsPlayerTurn = false
+		} else if inventoryKey {
+			systems.InventoryPickUp(g.GameState)
 
 			g.GameState.IsPlayerTurn = false
 		}

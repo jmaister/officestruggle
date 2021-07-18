@@ -58,6 +58,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 	drawMessageLog(screen, gameState)
 	drawPlayerHud(screen, gameState)
 	drawInfo(screen, gameState, visibleEntities)
+	drawInventory(screen, gameState)
 }
 
 func showDebug(screen *ebiten.Image) {
@@ -193,5 +194,25 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 			y++
 		}
 	}
+}
 
+func drawInventory(screen *ebiten.Image, gs *gamestate.GameState) {
+	fontSize := 15
+	font := assets.MplusFont(float64(fontSize))
+
+	position := gs.Grid.Inventory
+	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
+
+	cl := ParseHexColorFast("#FFFFFF")
+
+	y := position.Y
+	status := strconv.Itoa(len(inventory.Items)) + "/" + strconv.Itoa(inventory.MaxItems)
+	text.Draw(screen, status, font, (position.X)*fontSize, y*fontSize, cl)
+	y++
+
+	for i, entity := range inventory.Items {
+		str := strconv.Itoa(i) + "-" + state.GetLongDescription(entity)
+		text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, cl)
+		y++
+	}
 }

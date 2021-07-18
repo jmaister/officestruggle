@@ -22,7 +22,9 @@ const (
 	AI          = "ai"
 	Stats       = "stats"
 	Consumable  = "consumable"
+	IsPickup    = "isPickup"
 	Dead        = "dead"
+	Inventory   = "inventory"
 )
 
 type PlayerComponent struct {
@@ -166,7 +168,7 @@ func (a AIComponent) ComponentType() string {
 	return AI
 }
 
-type statsValues struct {
+type StatsValues struct {
 	Health     int
 	MaxHealth  int
 	Defense    int
@@ -177,7 +179,7 @@ type statsValues struct {
 }
 
 type StatsComponent struct {
-	*statsValues
+	*StatsValues
 }
 
 func toStr(i int) string {
@@ -199,10 +201,18 @@ func (a StatsComponent) ComponentType() string {
 }
 
 type ConsumableComponent struct {
+	*StatsValues
 }
 
 func (a ConsumableComponent) ComponentType() string {
 	return Consumable
+}
+
+type IsPickupComponent struct {
+}
+
+func (a IsPickupComponent) ComponentType() string {
+	return IsPickup
 }
 
 type DeadComponent struct {
@@ -210,4 +220,31 @@ type DeadComponent struct {
 
 func (a DeadComponent) ComponentType() string {
 	return Dead
+}
+
+type InventoryComponent struct {
+	Items    ecs.EntityList
+	MaxItems int
+}
+
+func (a *InventoryComponent) PickUp(entity *ecs.Entity) bool {
+	if len(a.Items) > a.MaxItems {
+		return false
+	}
+	a.Items = append(a.Items, entity)
+	return true
+}
+
+func (a *InventoryComponent) Drop(entity *ecs.Entity) bool {
+	for i, item := range a.Items {
+		if item == entity {
+			a.Items = append(a.Items[:i], a.Items[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+func (a InventoryComponent) ComponentType() string {
+	return Inventory
 }
