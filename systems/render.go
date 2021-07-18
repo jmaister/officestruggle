@@ -45,15 +45,19 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 		}
 	}
 
+	visibleEntities := []*ecs.Entity{}
 	for _, layer := range layers {
 		renderable := []string{state.Position, state.Apparence, layer}
 		entities := engine.Entities.GetEntities(renderable)
 
-		renderEntities(entities, gameState, screen)
+		v := renderEntities(entities, gameState, screen)
+
+		visibleEntities = append(visibleEntities, v...)
 	}
 
 	drawMessageLog(screen, gameState)
 	drawPlayerHud(screen, gameState)
+	drawInfo(screen, gameState, visibleEntities)
 }
 
 func showDebug(screen *ebiten.Image) {
@@ -70,7 +74,7 @@ func showDebug(screen *ebiten.Image) {
 
 }
 
-func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) {
+func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) []*ecs.Entity {
 
 	w := gameState.ScreenWidth
 	h := gameState.ScreenHeight
@@ -78,6 +82,8 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 	th := h / gameState.Grid.Height
 
 	font := assets.LoadFontCached(float64(20))
+
+	visibleEntities := []*ecs.Entity{}
 
 	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
@@ -115,9 +121,12 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 				bgColor := ParseHexColorFast(bg)
 				fgColor := ParseHexColorFast(fg)
 				drawChar(screen, ch, px, py, font, fgColor, bgColor)
+
+				visibleEntities = append(visibleEntities, entity)
 			}
 		}
 	}
+	return visibleEntities
 }
 
 func drawChar(screen *ebiten.Image, str string, x int, y int, font font.Face, fgColor color.Color, bgColor color.Color) {
@@ -168,4 +177,21 @@ func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 	player := gs.Player
 	stats := player.GetComponent(state.Stats).(state.StatsComponent)
 	text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#00AA00"))
+}
+
+func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*ecs.Entity) {
+	fontSize := 15
+	font := assets.MplusFont(float64(fontSize))
+
+	position := gs.Grid.InfoBar
+
+	y := position.Y
+	for _, entity := range visibleEntities {
+		if !entity.HasComponent(state.Player) {
+			str := state.GetLongDescription(entity)
+			text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, ParseHexColorFast("#FFFFFF"))
+			y++
+		}
+	}
+
 }

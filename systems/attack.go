@@ -46,6 +46,7 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 	entity.RemoveComponent(state.IsBlocking)
 	entity.RemoveComponent(state.Layer400)
 	entity.AddComponent(state.Layer300, state.Layer300Component{})
+	entity.AddComponent(state.Dead, state.DeadComponent{})
 
 	apparence, ok := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
 	if ok {

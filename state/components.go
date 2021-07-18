@@ -22,6 +22,7 @@ const (
 	AI          = "ai"
 	Stats       = "stats"
 	Consumable  = "consumable"
+	Dead        = "dead"
 )
 
 type PlayerComponent struct {
@@ -139,7 +140,23 @@ func GetDescription(entity *ecs.Entity) string {
 	if ok {
 		return cmp.Name
 	}
-	return "something"
+	return "UnDeFiNeD!"
+}
+
+func GetLongDescription(entity *ecs.Entity) string {
+	cmp, ok := entity.GetComponent(Description).(DescriptionComponent)
+	if ok {
+		str := cmp.Name
+
+		if entity.HasComponent(Dead) {
+			str = str + " (Dead)"
+		} else if entity.HasComponent(Stats) {
+			stats := entity.GetComponent(Stats).(StatsComponent)
+			str = str + " (" + stats.String() + ")"
+		}
+		return str
+	}
+	return "UnDeFiNeD!"
 }
 
 type AIComponent struct {
@@ -186,4 +203,11 @@ type ConsumableComponent struct {
 
 func (a ConsumableComponent) ComponentType() string {
 	return Consumable
+}
+
+type DeadComponent struct {
+}
+
+func (a DeadComponent) ComponentType() string {
+	return Dead
 }
