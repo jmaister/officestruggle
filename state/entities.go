@@ -8,7 +8,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#ffffff", Bg: "#FF0000", Char: '@'})
 	entity.AddComponent(Layer500, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
-		statsValues: &statsValues{
+		StatsValues: &StatsValues{
 			Health:     10,
 			MaxHealth:  10,
 			Defense:    3,
@@ -17,6 +17,10 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 			MaxPower:   10,
 			Fov:        10,
 		},
+	})
+	entity.AddComponent(Inventory, InventoryComponent{
+		Items:    ecs.EntityList{},
+		MaxItems: 10,
 	})
 	return entity
 }
@@ -33,7 +37,7 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#00FC00", Char: 'g'})
 	entity.AddComponent(Layer400, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
-		statsValues: &statsValues{
+		StatsValues: &StatsValues{
 			Health:     4,
 			MaxHealth:  10,
 			Defense:    1,
@@ -43,16 +47,24 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 			Fov:        6,
 		},
 	})
+	entity.AddComponent(Consumable, ConsumableComponent{
+		StatsValues: &StatsValues{
+			Health:     -3,
+			MaxHealth:  0,
+			Defense:    0,
+			MaxDefense: 0,
+			Power:      1,
+			MaxPower:   1,
+			Fov:        0,
+		},
+	})
 	return entity
 }
 
 func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
-	entity.AddComponent(Consumable, ConsumableComponent{})
-	entity.AddComponent(Description, DescriptionComponent{Name: "Health Potion"})
-	entity.AddComponent(Apparence, ApparenceComponent{Color: "#FF0000", Char: 'o'})
-	entity.AddComponent(Layer300, Layer400Component{})
-	entity.AddComponent(Stats, StatsComponent{
-		statsValues: &statsValues{
+	entity.AddComponent(IsPickup, IsPickupComponent{})
+	entity.AddComponent(Consumable, ConsumableComponent{
+		StatsValues: &StatsValues{
 			Health:     5,
 			MaxHealth:  1,
 			Defense:    0,
@@ -62,5 +74,8 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 			Fov:        0,
 		},
 	})
+	entity.AddComponent(Description, DescriptionComponent{Name: "Health Potion"})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#FF0000", Char: 'o'})
+	entity.AddComponent(Layer300, Layer400Component{})
 	return entity
 }

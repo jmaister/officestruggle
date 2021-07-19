@@ -60,6 +60,17 @@ func (engine *Engine) NewEntity() *Entity {
 	return newEntity
 }
 
+func (engine *Engine) DestroyEntity(entity *Entity) {
+	// Remove all components to trigger possible actions
+	for k := range entity.components {
+		entity.RemoveComponent(k)
+	}
+	engine.Entities.RemoveEntity(entity)
+
+	entity.components = nil
+	entity.Engine = nil
+}
+
 /**
  * Entity
  */
@@ -157,6 +168,17 @@ func (entityList *EntityList) GetEntity(types []string) *Entity {
 	}
 	fmt.Println("Warning, more than one entity found for types: " + strings.Join(types, ","))
 	return nil
+}
+
+func (entityList *EntityList) RemoveEntity(entity *Entity) {
+	old := *entityList
+	for i, e := range old {
+		if e.Id == entity.Id {
+			old = append(old[:i], old[i+1:]...)
+			break
+		}
+	}
+	entityList = &old
 }
 
 /**

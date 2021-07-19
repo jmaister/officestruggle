@@ -16,6 +16,9 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
+var fnt20 = assets.LoadFontCached(float64(20))
+var fnt40 = assets.LoadFontCached(float64(40))
+
 func setVisibleEntities(entities ecs.EntityList, isVisible bool) {
 	for _, e := range entities {
 		visitable, _ := e.RemoveComponent(state.Visitable).(state.VisitableComponent)
@@ -58,6 +61,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 	drawMessageLog(screen, gameState)
 	drawPlayerHud(screen, gameState)
 	drawInfo(screen, gameState, visibleEntities)
+	drawGameInventory(screen, gameState)
 }
 
 func showDebug(screen *ebiten.Image) {
@@ -109,18 +113,18 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 			if visitable.Visible {
 				bgColor := ParseHexColorFast(bg)
 				fgColor := ParseHexColorFast(fg)
-				drawChar(screen, ch, px, py, font, fgColor, bgColor)
+				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 
 			} else if visitable.Explored {
 				bgColor := ParseHexColorFast("#000000")
 				fgColor := ParseHexColorFast("#555555")
-				drawChar(screen, ch, px, py, font, fgColor, bgColor)
+				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
 				bgColor := ParseHexColorFast(bg)
 				fgColor := ParseHexColorFast(fg)
-				drawChar(screen, ch, px, py, font, fgColor, bgColor)
+				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 
 				visibleEntities = append(visibleEntities, entity)
 			}
@@ -129,15 +133,18 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 	return visibleEntities
 }
 
-func drawChar(screen *ebiten.Image, str string, x int, y int, font font.Face, fgColor color.Color, bgColor color.Color) {
-	drawBackground(screen, str, x, y, font, bgColor)
+func drawCharWithBackground(screen *ebiten.Image, str string, x int, y int, font font.Face, fgColor color.Color, bgColor color.Color) {
+	// Draw background
+	DrawTextRect(screen, str, x, y, font, bgColor)
+	// Draw char
 	text.Draw(screen, str, font, x, y, fgColor)
 }
 
-func drawBackground(screen *ebiten.Image, str string, x int, y int, face font.Face, bgColor color.Color) {
-	rect := text.BoundString(face, str)
+func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face, bgColor color.Color) {
+	rect := text.BoundString(font, str)
 	pad := 0
 	ebitenutil.DrawRect(screen, float64(x+rect.Min.X-pad), float64(y+rect.Min.Y-pad), float64(rect.Max.X-rect.Min.X+pad), float64(rect.Max.Y-rect.Min.Y+pad), bgColor)
+
 }
 
 var messageLogColors = [5]color.RGBA{
@@ -150,7 +157,7 @@ var messageLogColors = [5]color.RGBA{
 
 func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
-	fontSize := 15
+	fontSize := 14
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.MessageLog
@@ -169,18 +176,20 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 }
 
 func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
-	fontSize := 15
+	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.PlayerHud
 
 	player := gs.Player
-	stats := player.GetComponent(state.Stats).(state.StatsComponent)
-	text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#00AA00"))
+	stats, ok := player.GetComponent(state.Stats).(state.StatsComponent)
+	if ok {
+		text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#00AA00"))
+	}
 }
 
 func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*ecs.Entity) {
-	fontSize := 15
+	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.InfoBar
@@ -193,5 +202,28 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 			y++
 		}
 	}
+}
 
+func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
+	fontSize := 12
+	font := assets.MplusFont(float64(fontSize))
+
+	position := gs.Grid.GameInventory
+	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
+
+	cl := ParseHexColorFast("#FFFFFF")
+
+	y := position.Y
+	status := "Inventory " + strconv.Itoa(len(inventory.Items)) + "/" + strconv.Itoa(inventory.MaxItems)
+	text.Draw(screen, status, font, (position.X)*fontSize, y*fontSize, cl)
+
+	if len(inventory.Items) > 0 {
+		for i, entity := range inventory.Items {
+			str := strconv.Itoa(i) + "-" + state.GetLongDescription(entity)
+			text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, cl)
+			y++
+		}
+	} else {
+		text.Draw(screen, "- No items in the inventory -", font, (position.X)*fontSize, (y+1)*fontSize, cl)
+	}
 }

@@ -2,6 +2,7 @@ package state
 
 import (
 	"strconv"
+	"strings"
 
 	"jordiburgos.com/officestruggle/ecs"
 )
@@ -22,7 +23,9 @@ const (
 	AI          = "ai"
 	Stats       = "stats"
 	Consumable  = "consumable"
+	IsPickup    = "isPickup"
 	Dead        = "dead"
+	Inventory   = "inventory"
 )
 
 type PlayerComponent struct {
@@ -149,10 +152,15 @@ func GetLongDescription(entity *ecs.Entity) string {
 		str := cmp.Name
 
 		if entity.HasComponent(Dead) {
-			str = str + " (Dead)"
-		} else if entity.HasComponent(Stats) {
+			str = str + " corpse"
+		}
+
+		if entity.HasComponent(Stats) {
 			stats := entity.GetComponent(Stats).(StatsComponent)
 			str = str + " (" + stats.String() + ")"
+		} else if entity.HasComponent(Consumable) {
+			cons := entity.GetComponent(Consumable).(ConsumableComponent)
+			str = str + " (" + cons.String() + ")"
 		}
 		return str
 	}
@@ -166,7 +174,7 @@ func (a AIComponent) ComponentType() string {
 	return AI
 }
 
-type statsValues struct {
+type StatsValues struct {
 	Health     int
 	MaxHealth  int
 	Defense    int
@@ -177,7 +185,7 @@ type statsValues struct {
 }
 
 type StatsComponent struct {
-	*statsValues
+	*StatsValues
 }
 
 func toStr(i int) string {
@@ -199,10 +207,42 @@ func (a StatsComponent) ComponentType() string {
 }
 
 type ConsumableComponent struct {
+	*StatsValues
+}
+
+func incr(i int) string {
+	if i >= 0 {
+		return "+" + strconv.Itoa(i)
+	}
+	return strconv.Itoa(i)
+}
+
+func stIncr(name string, value int, max int) string {
+	if value != 0 || max != 0 {
+		return name + " " + incr(value) + "/" + incr(max) + " "
+	}
+	return ""
+}
+
+func (a ConsumableComponent) String() string {
+	s := ""
+
+	s += stIncr("Health", a.Health, a.MaxHealth)
+	s += stIncr("Def", a.Defense, a.MaxDefense)
+	s += stIncr("Pow", a.Power, a.MaxPower)
+
+	return strings.Trim(s, " ")
 }
 
 func (a ConsumableComponent) ComponentType() string {
 	return Consumable
+}
+
+type IsPickupComponent struct {
+}
+
+func (a IsPickupComponent) ComponentType() string {
+	return IsPickup
 }
 
 type DeadComponent struct {
@@ -210,4 +250,31 @@ type DeadComponent struct {
 
 func (a DeadComponent) ComponentType() string {
 	return Dead
+}
+
+type InventoryComponent struct {
+	Items    ecs.EntityList
+	MaxItems int
+}
+
+func (a *InventoryComponent) PickUp(entity *ecs.Entity) bool {
+	if len(a.Items) >= a.MaxItems {
+		return false
+	}
+	a.Items = append(a.Items, entity)
+	return true
+}
+
+func (a *InventoryComponent) Drop(entity *ecs.Entity) bool {
+	for i, item := range a.Items {
+		if item == entity {
+			a.Items = append(a.Items[:i], a.Items[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+func (a InventoryComponent) ComponentType() string {
+	return Inventory
 }

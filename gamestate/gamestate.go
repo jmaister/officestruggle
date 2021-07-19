@@ -12,23 +12,48 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
-type GameState struct {
-	Engine       *ecs.Engine
-	Fov          *fov.View
-	Grid         *grid.Grid
-	Player       *ecs.Entity
-	IsPlayerTurn bool
-	L            *log.Logger
-	ScreenWidth  int
-	ScreenHeight int
-	TileWidth    int
-	TileHeight   int
-	logLines     []LogLine
+type ScreenState string
+
+var (
+	WelcomeScreen   ScreenState = "welcome"
+	GameScreen      ScreenState = "game"
+	InventoryScreen ScreenState = "inventory"
+)
+
+type InventoryScreenStateState struct {
+	Selected int
 }
+
+type GameState struct {
+	Engine          *ecs.Engine
+	Fov             *fov.View
+	Grid            *grid.Grid
+	Player          *ecs.Entity
+	ScreenState     ScreenState
+	InventoryScreen InventoryScreenStateState
+	IsPlayerTurn    bool
+	L               *log.Logger
+	ScreenWidth     int
+	ScreenHeight    int
+	TileWidth       int
+	TileHeight      int
+	logLines        []LogLine
+}
+
+type LogType string
+
+var (
+	Info   LogType = "i"
+	Warn   LogType = "w"
+	Bad    LogType = "b"
+	Danger LogType = "d"
+	Good   LogType = "g"
+)
 
 type LogLine struct {
 	Msg   string
 	Count int
+	Type  LogType
 }
 
 func NewGameState(engine *ecs.Engine) *GameState {
@@ -38,29 +63,40 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		Width:  80,
 		Height: 34,
 		Map: grid.Rect{
-			X:      2,
+			X:      21,
 			Y:      6,
 			Width:  79,
 			Height: 29,
 		},
 		MessageLog: grid.Rect{
-			Width:  79,
-			Height: 5,
 			X:      0,
 			Y:      0,
+			Width:  79,
+			Height: 5,
 		},
 		PlayerHud: grid.Rect{
-			Width:  20,
-			Height: 34,
 			X:      0,
-			Y:      8,
+			Y:      6,
+			Width:  20,
+			Height: 1,
 		},
-
 		InfoBar: grid.Rect{
-			Width:  79,
-			Height: 3,
 			X:      21,
 			Y:      32,
+			Width:  79,
+			Height: -1,
+		},
+		GameInventory: grid.Rect{
+			X:      0,
+			Y:      10,
+			Width:  79,
+			Height: 10,
+		},
+		Inventory: grid.Rect{
+			X:      2,
+			Y:      5,
+			Width:  79,
+			Height: 29,
 		},
 	}
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
@@ -82,7 +118,7 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		state.ApplyPosition(goblin, pos.X, pos.Y)
 	}
 	// Health potions
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		v := visitables[rand.Intn(len(visitables))]
 		pos := state.GetPosition(v)
 		potion := state.NewHealthPotion(engine.NewEntity())
@@ -90,10 +126,14 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	}
 
 	return &GameState{
-		Engine:       engine,
-		Fov:          fov.New(),
-		Grid:         &g,
-		Player:       player,
+		Engine:      engine,
+		Fov:         fov.New(),
+		Grid:        &g,
+		Player:      player,
+		ScreenState: WelcomeScreen,
+		InventoryScreen: InventoryScreenStateState{
+			Selected: 0,
+		},
 		IsPlayerTurn: true,
 		L:            log.New(os.Stderr, "", 0),
 		ScreenWidth:  1024,
@@ -103,7 +143,7 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	}
 }
 
-func (gs *GameState) Log(s string) {
+func (gs *GameState) Log(t LogType, s string) {
 	n := len(gs.logLines)
 	if n > 0 {
 		if gs.logLines[n-1].Msg == s {
@@ -111,8 +151,7 @@ func (gs *GameState) Log(s string) {
 			return
 		}
 	}
-	gs.logLines = append(gs.logLines, LogLine{Msg: s, Count: 1})
-
+	gs.logLines = append(gs.logLines, LogLine{Msg: s, Count: 1, Type: t})
 }
 
 func (gs *GameState) GetLog(lineNumber int) []LogLine {

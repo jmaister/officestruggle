@@ -2,6 +2,7 @@ package systems_test
 
 import (
 	"encoding/hex"
+	"image/color"
 	"math/rand"
 	"testing"
 
@@ -40,4 +41,33 @@ func TestRandom(t *testing.T) {
 func toHex(n int64) string {
 	src := []byte{byte(n)}
 	return hex.EncodeToString(src)
+}
+
+func TestRGBToHSV(t *testing.T) {
+	c := color.RGBA{
+		R: 255,
+		G: 255,
+		B: 17,
+		A: 0,
+	}
+
+	h, s, v := systems.RGBToHSV(c)
+	assert.Equal(t, 60, h)
+	assert.Assert(t, 0.93-s < 0.001)
+	assert.Assert(t, 1-v < 0.001)
+}
+
+func TestHSVToRGB(t *testing.T) {
+	h := 60
+	s := 0.93
+	v := 1.0
+
+	c := systems.HSVToRGB(h, s, v)
+
+	r, g, b, a := c.RGBA()
+
+	assert.Equal(t, uint32(257), r)
+	assert.Equal(t, uint32(257), g)
+	assert.Equal(t, uint32(17), b)
+	assert.Equal(t, uint32(0), a)
 }
