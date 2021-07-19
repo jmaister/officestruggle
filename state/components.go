@@ -258,7 +258,7 @@ type InventoryComponent struct {
 }
 
 func (a *InventoryComponent) PickUp(entity *ecs.Entity) bool {
-	if len(a.Items) > a.MaxItems {
+	if len(a.Items) >= a.MaxItems {
 		return false
 	}
 	a.Items = append(a.Items, entity)

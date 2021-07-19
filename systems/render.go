@@ -151,7 +151,7 @@ var messageLogColors = [5]color.RGBA{
 
 func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
-	fontSize := 15
+	fontSize := 14
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.MessageLog
@@ -170,18 +170,20 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 }
 
 func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
-	fontSize := 15
+	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.PlayerHud
 
 	player := gs.Player
-	stats := player.GetComponent(state.Stats).(state.StatsComponent)
-	text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#00AA00"))
+	stats, ok := player.GetComponent(state.Stats).(state.StatsComponent)
+	if ok {
+		text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#00AA00"))
+	}
 }
 
 func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*ecs.Entity) {
-	fontSize := 15
+	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.InfoBar
@@ -206,13 +208,16 @@ func drawInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	cl := ParseHexColorFast("#FFFFFF")
 
 	y := position.Y
-	status := strconv.Itoa(len(inventory.Items)) + "/" + strconv.Itoa(inventory.MaxItems)
+	status := "Inventory " + strconv.Itoa(len(inventory.Items)) + "/" + strconv.Itoa(inventory.MaxItems)
 	text.Draw(screen, status, font, (position.X)*fontSize, y*fontSize, cl)
-	y++
 
-	for i, entity := range inventory.Items {
-		str := strconv.Itoa(i) + "-" + state.GetLongDescription(entity)
-		text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, cl)
-		y++
+	if len(inventory.Items) > 0 {
+		for i, entity := range inventory.Items {
+			str := strconv.Itoa(i) + "-" + state.GetLongDescription(entity)
+			text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, cl)
+			y++
+		}
+	} else {
+		text.Draw(screen, "- No items in the inventory -", font, (position.X)*fontSize, (y+1)*fontSize, cl)
 	}
 }
