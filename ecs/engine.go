@@ -60,6 +60,21 @@ func (engine *Engine) NewEntity() *Entity {
 	return newEntity
 }
 
+func (engine *Engine) DestroyEntity(entity *Entity) {
+	// Remove all components to trigger possible actions
+	for k := range entity.components {
+		entity.RemoveComponent(k)
+	}
+	for i, e := range engine.Entities {
+		if e.Id == entity.Id {
+			engine.Entities = append(engine.Entities[:i], engine.Entities[i+1:]...)
+			break
+		}
+	}
+	entity.components = nil
+	entity.Engine = nil
+}
+
 /**
  * Entity
  */

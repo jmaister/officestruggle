@@ -12,18 +12,32 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
+type ScreenState string
+
+var (
+	WelcomeScreen   ScreenState = "welcome"
+	GameScreen      ScreenState = "game"
+	InventoryScreen ScreenState = "inventory"
+)
+
+type InventoryScreenStateState struct {
+	Selected int
+}
+
 type GameState struct {
-	Engine       *ecs.Engine
-	Fov          *fov.View
-	Grid         *grid.Grid
-	Player       *ecs.Entity
-	IsPlayerTurn bool
-	L            *log.Logger
-	ScreenWidth  int
-	ScreenHeight int
-	TileWidth    int
-	TileHeight   int
-	logLines     []LogLine
+	Engine          *ecs.Engine
+	Fov             *fov.View
+	Grid            *grid.Grid
+	Player          *ecs.Entity
+	ScreenState     ScreenState
+	InventoryScreen InventoryScreenStateState
+	IsPlayerTurn    bool
+	L               *log.Logger
+	ScreenWidth     int
+	ScreenHeight    int
+	TileWidth       int
+	TileHeight      int
+	logLines        []LogLine
 }
 
 type LogType string
@@ -72,11 +86,17 @@ func NewGameState(engine *ecs.Engine) *GameState {
 			Width:  79,
 			Height: -1,
 		},
-		Inventory: grid.Rect{
+		GameInventory: grid.Rect{
 			X:      0,
 			Y:      10,
 			Width:  79,
 			Height: 10,
+		},
+		Inventory: grid.Rect{
+			X:      2,
+			Y:      5,
+			Width:  79,
+			Height: 29,
 		},
 	}
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
@@ -106,10 +126,14 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	}
 
 	return &GameState{
-		Engine:       engine,
-		Fov:          fov.New(),
-		Grid:         &g,
-		Player:       player,
+		Engine:      engine,
+		Fov:         fov.New(),
+		Grid:        &g,
+		Player:      player,
+		ScreenState: WelcomeScreen,
+		InventoryScreen: InventoryScreenStateState{
+			Selected: 0,
+		},
 		IsPlayerTurn: true,
 		L:            log.New(os.Stderr, "", 0),
 		ScreenWidth:  1024,

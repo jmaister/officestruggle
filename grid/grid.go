@@ -142,13 +142,14 @@ type Rect struct {
 }
 
 type Grid struct {
-	Width      int
-	Height     int
-	Map        Rect
-	MessageLog Rect
-	PlayerHud  Rect
-	InfoBar    Rect
-	Inventory  Rect
+	Width         int
+	Height        int
+	Map           Rect
+	MessageLog    Rect
+	PlayerHud     Rect
+	InfoBar       Rect
+	GameInventory Rect
+	Inventory     Rect
 }
 
 func IsOnMapEdge(x int, y int, rect Rect) bool {

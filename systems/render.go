@@ -16,6 +16,9 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
+var fnt20 = assets.LoadFontCached(float64(20))
+var fnt40 = assets.LoadFontCached(float64(40))
+
 func setVisibleEntities(entities ecs.EntityList, isVisible bool) {
 	for _, e := range entities {
 		visitable, _ := e.RemoveComponent(state.Visitable).(state.VisitableComponent)
@@ -58,7 +61,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 	drawMessageLog(screen, gameState)
 	drawPlayerHud(screen, gameState)
 	drawInfo(screen, gameState, visibleEntities)
-	drawInventory(screen, gameState)
+	drawGameInventory(screen, gameState)
 }
 
 func showDebug(screen *ebiten.Image) {
@@ -110,18 +113,18 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 			if visitable.Visible {
 				bgColor := ParseHexColorFast(bg)
 				fgColor := ParseHexColorFast(fg)
-				drawChar(screen, ch, px, py, font, fgColor, bgColor)
+				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 
 			} else if visitable.Explored {
 				bgColor := ParseHexColorFast("#000000")
 				fgColor := ParseHexColorFast("#555555")
-				drawChar(screen, ch, px, py, font, fgColor, bgColor)
+				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
 				bgColor := ParseHexColorFast(bg)
 				fgColor := ParseHexColorFast(fg)
-				drawChar(screen, ch, px, py, font, fgColor, bgColor)
+				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 
 				visibleEntities = append(visibleEntities, entity)
 			}
@@ -130,15 +133,18 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 	return visibleEntities
 }
 
-func drawChar(screen *ebiten.Image, str string, x int, y int, font font.Face, fgColor color.Color, bgColor color.Color) {
-	drawBackground(screen, str, x, y, font, bgColor)
+func drawCharWithBackground(screen *ebiten.Image, str string, x int, y int, font font.Face, fgColor color.Color, bgColor color.Color) {
+	// Draw background
+	DrawTextRect(screen, str, x, y, font, bgColor)
+	// Draw char
 	text.Draw(screen, str, font, x, y, fgColor)
 }
 
-func drawBackground(screen *ebiten.Image, str string, x int, y int, face font.Face, bgColor color.Color) {
-	rect := text.BoundString(face, str)
+func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face, bgColor color.Color) {
+	rect := text.BoundString(font, str)
 	pad := 0
 	ebitenutil.DrawRect(screen, float64(x+rect.Min.X-pad), float64(y+rect.Min.Y-pad), float64(rect.Max.X-rect.Min.X+pad), float64(rect.Max.Y-rect.Min.Y+pad), bgColor)
+
 }
 
 var messageLogColors = [5]color.RGBA{
@@ -198,11 +204,11 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 	}
 }
 
-func drawInventory(screen *ebiten.Image, gs *gamestate.GameState) {
+func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
 
-	position := gs.Grid.Inventory
+	position := gs.Grid.GameInventory
 	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
 
 	cl := ParseHexColorFast("#FFFFFF")
