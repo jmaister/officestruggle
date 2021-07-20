@@ -286,12 +286,22 @@ type EquipableComponent struct {
 }
 
 func (a EquipableComponent) ComponentType() string {
-	return Inventory
+	return Equipable
 }
 
+type EquipPosition string
+
+var (
+	EquipHead   EquipPosition = "hd"
+	EquipShield EquipPosition = "sh"
+	EquipWeapon EquipPosition = "wp"
+	EquipBoots  EquipPosition = "bt"
+)
+
 type EquipmentComponent struct {
+	Items map[EquipPosition]*ecs.Entity
 }
 
 func (a EquipmentComponent) ComponentType() string {
-	return Inventory
+	return Equipment
 }
