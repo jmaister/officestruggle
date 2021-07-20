@@ -79,3 +79,22 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Layer300, Layer400Component{})
 	return entity
 }
+
+func NewSword(entity *ecs.Entity) *ecs.Entity {
+	entity.AddComponent(IsPickup, IsPickupComponent{})
+	entity.AddComponent(Equipable, EquipableComponent{
+		StatsValues: &StatsValues{
+			Health:     0,
+			MaxHealth:  1,
+			Defense:    0,
+			MaxDefense: 0,
+			Power:      5,
+			MaxPower:   5,
+			Fov:        1,
+		},
+	})
+	entity.AddComponent(Description, DescriptionComponent{Name: "Sword"})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#1EFFFF", Char: '('})
+	entity.AddComponent(Layer300, Layer400Component{})
+	return entity
+}

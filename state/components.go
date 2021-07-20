@@ -26,6 +26,8 @@ const (
 	IsPickup    = "isPickup"
 	Dead        = "dead"
 	Inventory   = "inventory"
+	Equipable   = "equipable"
+	Equipment   = "equipment"
 )
 
 type PlayerComponent struct {
@@ -276,5 +278,20 @@ func (a *InventoryComponent) Drop(entity *ecs.Entity) bool {
 }
 
 func (a InventoryComponent) ComponentType() string {
+	return Inventory
+}
+
+type EquipableComponent struct {
+	*StatsValues
+}
+
+func (a EquipableComponent) ComponentType() string {
+	return Inventory
+}
+
+type EquipmentComponent struct {
+}
+
+func (a EquipmentComponent) ComponentType() string {
 	return Inventory
 }
