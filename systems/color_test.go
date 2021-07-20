@@ -66,8 +66,23 @@ func TestHSVToRGB(t *testing.T) {
 
 	r, g, b, a := c.RGBA()
 
-	assert.Equal(t, uint32(257), r)
-	assert.Equal(t, uint32(257), g)
-	assert.Equal(t, uint32(17), b)
+	assert.Equal(t, uint32(255), r>>8)
+	assert.Equal(t, uint32(255), g>>8)
+	assert.Equal(t, uint32(17), b>>8)
+	assert.Equal(t, uint32(0), a)
+}
+
+func TestHSVToRGB_2(t *testing.T) {
+	h := 124
+	s := 0.6
+	v := 0.65
+
+	c := systems.HSVToRGB(h, s, v)
+
+	r, g, b, a := c.RGBA()
+
+	assert.Equal(t, uint32(66), r>>8)
+	assert.Equal(t, uint32(165), g>>8)
+	assert.Equal(t, uint32(72), b>>8)
 	assert.Equal(t, uint32(0), a)
 }

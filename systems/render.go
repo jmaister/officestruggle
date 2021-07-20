@@ -3,6 +3,7 @@ package systems
 import (
 	"fmt"
 	"image/color"
+	"math"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -89,6 +90,22 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 
 	visibleEntities := []*ecs.Entity{}
 
+	pp := gameState.Player.GetComponent(state.Position).(state.PositionComponent)
+	pStats := gameState.Player.GetComponent(state.Stats).(state.StatsComponent)
+	lightColor := color.RGBA{
+		R: 250,
+		G: 250,
+		B: 30,
+		A: 0,
+	}
+	black := color.RGBA{
+		R: 0,
+		G: 0,
+		B: 0,
+		A: 0,
+	}
+	// gradientColors := GetColorGradient(lightColor)
+
 	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
 		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
@@ -111,7 +128,10 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				bgColor := ParseHexColorFast(bg)
+				distance := calcDistance(position.X, position.Y, pp.X, pp.Y) / 2
+				mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
+				bgColor := ColorBlend(lightColor, black, mix)
+
 				fgColor := ParseHexColorFast(fg)
 				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 
@@ -142,8 +162,9 @@ func drawCharWithBackground(screen *ebiten.Image, str string, x int, y int, font
 
 func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face, bgColor color.Color) {
 	rect := text.BoundString(font, str)
-	pad := 0
-	ebitenutil.DrawRect(screen, float64(x+rect.Min.X-pad), float64(y+rect.Min.Y-pad), float64(rect.Max.X-rect.Min.X+pad), float64(rect.Max.Y-rect.Min.Y+pad), bgColor)
+	padL := 0
+	padR := padL * 2
+	ebitenutil.DrawRect(screen, float64(x+rect.Min.X-padL), float64(y+rect.Min.Y-padL), float64(rect.Max.X-rect.Min.X+padR), float64(rect.Max.Y-rect.Min.Y+padR), bgColor)
 
 }
 
@@ -226,4 +247,21 @@ func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	} else {
 		text.Draw(screen, "- No items in the inventory -", font, (position.X)*fontSize, (y+1)*fontSize, cl)
 	}
+}
+
+var distances = map[string]int{}
+
+func calcDistance(x1 int, y1 int, x2 int, y2 int) int {
+	key := strconv.Itoa(x1) + "-" + strconv.Itoa(y1) + "-" + strconv.Itoa(x2) + "-" + strconv.Itoa(y2)
+	distance, ok := distances[key]
+	if ok {
+		return distance
+	}
+
+	x := float64(x2 - x1)
+	y := float64(y2 - y1)
+	dfloat := math.Sqrt(math.Pow(x, 2) + math.Pow(y, 2))
+	distance = int(dfloat)
+	distances[key] = distance
+	return distance
 }
