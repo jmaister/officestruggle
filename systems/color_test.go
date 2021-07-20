@@ -69,7 +69,7 @@ func TestHSVToRGB(t *testing.T) {
 	assert.Equal(t, uint32(255), r>>8)
 	assert.Equal(t, uint32(255), g>>8)
 	assert.Equal(t, uint32(17), b>>8)
-	assert.Equal(t, uint32(0), a)
+	assert.Equal(t, uint32(255), a>>8)
 }
 
 func TestHSVToRGB_2(t *testing.T) {
@@ -84,5 +84,5 @@ func TestHSVToRGB_2(t *testing.T) {
 	assert.Equal(t, uint32(66), r>>8)
 	assert.Equal(t, uint32(165), g>>8)
 	assert.Equal(t, uint32(72), b>>8)
-	assert.Equal(t, uint32(0), a)
+	assert.Equal(t, uint32(255), a>>8)
 }
