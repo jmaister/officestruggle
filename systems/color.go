@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"image/color"
 	"math"
 )
@@ -46,17 +45,15 @@ func ParseHexColorFast(s string) color.RGBA {
 func RGBToHSV(c color.Color) (int, float64, float64) {
 	ri, gi, bi, _ := c.RGBA()
 
-	red := float64(ri / 255.0)
-	green := float64(gi / 255.0)
-	blue := float64(bi / 255.0)
+	red := float64(ri >> 8)
+	green := float64(gi >> 8)
+	blue := float64(bi >> 8)
 
 	hue := 0.0
 	saturation := 0.0
 
 	max := math.Max(math.Max(red, green), blue)
 	min := math.Min(math.Min(red, green), blue)
-
-	fmt.Println(max, min)
 
 	value := max
 	if min == max {
@@ -84,8 +81,6 @@ func RGBToHSV(c color.Color) (int, float64, float64) {
 			hue -= 360
 		}
 	}
-
-	fmt.Println(hue, saturation, value)
 
 	return int(hue), saturation, value
 }
@@ -138,15 +133,31 @@ func HSVToRGB(hi int, s float64, v float64) color.RGBA {
 
 	}
 
-	fmt.Printf("%f %f %f\n", red, green, blue)
-	fmt.Printf("%d %d %d\n", uint8(red), uint8(green), uint8(blue))
-	fmt.Printf("%d\n", uint8(red)*255)
-	fmt.Printf("%d\n", uint8(red*255))
-
 	return color.RGBA{
 		R: uint8(red * 255),
 		G: uint8(green * 255),
 		B: uint8(blue * 255),
-		A: 0,
+		A: uint8(255),
+	}
+}
+
+func ColorBlend(ca color.RGBA, cb color.RGBA, mix float64) color.Color {
+
+	ra, ga, ba, _ := ca.RGBA()
+	rb, gb, bb, _ := cb.RGBA()
+
+	r1 := float64(ra)
+	g1 := float64(ga)
+	b1 := float64(ba)
+
+	r2 := float64(rb)
+	g2 := float64(gb)
+	b2 := float64(bb)
+
+	return color.RGBA{
+		R: uint8((r1*mix + r2*(1-mix)) / 256),
+		G: uint8((g1*mix + g2*(1-mix)) / 255),
+		B: uint8((b1*mix + b2*(1-mix)) / 255),
+		A: uint8(255),
 	}
 }
