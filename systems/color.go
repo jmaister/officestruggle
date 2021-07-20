@@ -138,12 +138,15 @@ func HSVToRGB(hi int, s float64, v float64) color.RGBA {
 
 	}
 
-	fmt.Println(red, green, blue)
+	fmt.Printf("%f %f %f\n", red, green, blue)
+	fmt.Printf("%d %d %d\n", uint8(red), uint8(green), uint8(blue))
+	fmt.Printf("%d\n", uint8(red)*255)
+	fmt.Printf("%d\n", uint8(red*255))
 
 	return color.RGBA{
-		R: uint8(red),
-		G: uint8(green),
-		B: uint8(math.Round(blue)),
+		R: uint8(red * 255),
+		G: uint8(green * 255),
+		B: uint8(blue * 255),
 		A: 0,
 	}
 }
