@@ -163,6 +163,9 @@ func GetLongDescription(entity *ecs.Entity) string {
 		} else if entity.HasComponent(Consumable) {
 			cons := entity.GetComponent(Consumable).(ConsumableComponent)
 			str = str + " (" + cons.String() + ")"
+		} else if entity.HasComponent(Equipable) {
+			eq := entity.GetComponent(Equipable).(EquipableComponent)
+			str = str + " (" + eq.String() + ")"
 		}
 		return str
 	}
@@ -184,6 +187,30 @@ type StatsValues struct {
 	Power      int
 	MaxPower   int
 	Fov        int
+	MaxFov     int
+}
+
+func (a StatsValues) String() string {
+	s := ""
+	s += statDiff("Health", a.Health, a.MaxHealth)
+	s += statDiff("Def", a.Defense, a.MaxDefense)
+	s += statDiff("Pow", a.Power, a.MaxPower)
+	s += statDiff("FOV", a.Fov, a.MaxFov)
+	return strings.Trim(s, " ")
+}
+
+func addSign(i int) string {
+	if i >= 0 {
+		return "+" + strconv.Itoa(i)
+	}
+	return strconv.Itoa(i)
+}
+
+func statDiff(name string, value int, max int) string {
+	if value != 0 || max != 0 {
+		return name + " " + addSign(value) + "/" + addSign(max) + " "
+	}
+	return ""
 }
 
 type StatsComponent struct {
@@ -198,42 +225,12 @@ func st(name string, value int, max int) string {
 	return name + ": " + toStr(value) + "/" + toStr(max)
 }
 
-func (s StatsComponent) String() string {
-	return st("HP", s.Health, s.MaxHealth) + " " +
-		st("Def", s.Defense, s.MaxDefense) + " " +
-		st("Pow", s.Power, s.MaxPower)
-}
-
 func (a StatsComponent) ComponentType() string {
 	return Stats
 }
 
 type ConsumableComponent struct {
 	*StatsValues
-}
-
-func incr(i int) string {
-	if i >= 0 {
-		return "+" + strconv.Itoa(i)
-	}
-	return strconv.Itoa(i)
-}
-
-func stIncr(name string, value int, max int) string {
-	if value != 0 || max != 0 {
-		return name + " " + incr(value) + "/" + incr(max) + " "
-	}
-	return ""
-}
-
-func (a ConsumableComponent) String() string {
-	s := ""
-
-	s += stIncr("Health", a.Health, a.MaxHealth)
-	s += stIncr("Def", a.Defense, a.MaxDefense)
-	s += stIncr("Pow", a.Power, a.MaxPower)
-
-	return strings.Trim(s, " ")
 }
 
 func (a ConsumableComponent) ComponentType() string {

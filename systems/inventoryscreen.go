@@ -14,8 +14,8 @@ import (
 
 func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.Image) {
 
-	text.Draw(screen, "In ventory", fnt40, 30, 35, color.White)
-	text.Draw(screen, "C - Consume, D - Drop", fnt20, 30, 40, color.White)
+	text.Draw(screen, "Inventory", fnt40, 30, 35, color.White)
+	text.Draw(screen, "C - Consume, D - Drop, E - Equip, U - Unequip", fnt20, 300, 40, color.White)
 
 	drawFullInventory(screen, gameState)
 }

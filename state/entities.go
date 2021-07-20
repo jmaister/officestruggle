@@ -94,7 +94,7 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 		},
 	})
 	entity.AddComponent(Description, DescriptionComponent{Name: "Sword"})
-	entity.AddComponent(Apparence, ApparenceComponent{Color: "#1EFFFF", Char: '('})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#1EFFFF", Char: '/'})
 	entity.AddComponent(Layer300, Layer400Component{})
 	return entity
 }
