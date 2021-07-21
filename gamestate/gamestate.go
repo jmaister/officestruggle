@@ -112,7 +112,7 @@ func NewGameState(engine *ecs.Engine) *GameState {
 			Height: 29,
 		},
 		Equipment: grid.Rect{
-			X:      40,
+			X:      50,
 			Y:      5,
 			Width:  20,
 			Height: 29,
