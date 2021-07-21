@@ -91,6 +91,7 @@ func (g *Game) Update() error {
 	} else if g.GameState.ScreenState == gamestate.InventoryScreen {
 		if hasPressedKeys {
 			fmt.Println(keys)
+			// TODO: move key handling to inventory.go
 			if keys[0] == ebiten.KeyI || keys[0] == ebiten.KeyEscape {
 				// Hide inventory screen
 				g.GameState.ScreenState = gamestate.GameScreen
@@ -115,6 +116,9 @@ func (g *Game) Update() error {
 			} else if keys[0] == ebiten.KeyE {
 				// Equip
 				systems.InventoryEquip(g.GameState)
+			} else if keys[0] == ebiten.KeyU {
+				// Unequip
+				systems.InventoryUnequip(g.GameState)
 			}
 		}
 	}

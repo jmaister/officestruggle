@@ -46,7 +46,7 @@ func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 	player := gs.Player
 	equipment, _ := player.GetComponent(state.Equipment).(state.EquipmentComponent)
 
-	sel := gs.InventoryScreenState.InventoryState.Selected
+	sel := gs.InventoryScreenState.EquipmentState.Selected
 	if sel >= 0 && sel < len(state.EquipmentPositions) {
 		pos := state.EquipmentPositions[sel]
 		item, ok := equipment.Items[pos]
@@ -150,28 +150,27 @@ func InventoryEquip(gs *gamestate.GameState) {
 
 func InventoryUnequip(gs *gamestate.GameState) {
 	player := gs.Player
-	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 
-	item, ok := getCurrentInventoryItem(gs)
-	equipable, isEquipable := item.GetComponent(state.Equipable).(state.EquipableComponent)
-	if ok && isEquipable {
+	item, ok := getCurrentEquipmentItem(gs)
+	if ok {
 		// TODO: move to it's own System
-		gs.Log(gamestate.Info, "You dropped "+state.GetLongDescription(item))
+		gs.Log(gamestate.Info, "You unequipped "+state.GetLongDescription(item))
 
-		// Remove from inventory
-		inventory.RemoveItem(item)
-		player.ReplaceComponent(state.Inventory, inventory)
-
-		// Add to equip
+		// Remove from equip
+		equipable, _ := item.GetComponent(state.Equipable).(state.EquipableComponent)
 		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
-		equipment.Items[equipable.Position] = item
+		delete(equipment.Items, equipable.Position)
+
+		// Add to inventory
+		// TODO: check if there is space in the inventory
+		inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
+		inventory.AddItem(item)
+		player.ReplaceComponent(state.Inventory, inventory)
 
 		// TODO: move to it's own System
 		equipment.UpdateStats(player)
 
 		updateInventorySelection(gs, 0)
-	} else if !isEquipable {
-		gs.Log(gamestate.Warn, state.GetDescription(item)+" can't be equiped.")
 	} else {
 		gs.Log(gamestate.Warn, "No items to drop.")
 	}

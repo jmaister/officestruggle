@@ -66,6 +66,14 @@ func drawList(screen *ebiten.Image, gs *gamestate.GameState, listState *gamestat
 			y++
 		}
 	} else {
-		text.Draw(screen, "- No items -", font, (position.X)*fontSize, (y+1)*fontSize, color.White)
+		str := "- No items -"
+		px := (position.X) * fontSize
+		py := (y + 1) * fontSize
+		if listState.IsFocused {
+			DrawTextRect(screen, str, px, py, font, color.White)
+			text.Draw(screen, str, font, px, py, color.Black)
+		} else {
+			text.Draw(screen, str, font, px, py, color.White)
+		}
 	}
 }
