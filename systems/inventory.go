@@ -30,14 +30,29 @@ func InventoryPickUp(gs *gamestate.GameState) {
 	}
 }
 
-func getCurrentSelectedItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
+func getCurrentInventoryItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 	player := gs.Player
 	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 
-	sel := gs.InventoryScreenState.Selected
+	sel := gs.InventoryScreenState.InventoryState.Selected
 	if sel >= 0 && sel < len(inventory.Items) {
-		item := inventory.Items[gs.InventoryScreenState.Selected]
+		item := inventory.Items[sel]
 		return item, true
+	}
+	return nil, false
+}
+
+func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
+	player := gs.Player
+	equipment, _ := player.GetComponent(state.Equipment).(state.EquipmentComponent)
+
+	sel := gs.InventoryScreenState.InventoryState.Selected
+	if sel >= 0 && sel < len(state.EquipmentPositions) {
+		pos := state.EquipmentPositions[sel]
+		item, ok := equipment.Items[pos]
+		if ok {
+			return item, true
+		}
 	}
 	return nil, false
 }
@@ -46,7 +61,7 @@ func InventoryConsume(gs *gamestate.GameState) {
 	player := gs.Player
 	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 
-	consumable, ok := getCurrentSelectedItem(gs)
+	consumable, ok := getCurrentInventoryItem(gs)
 	isConsumable := consumable.HasComponent(state.Consumable)
 	if ok && isConsumable {
 		// TODO: move to it's own System
@@ -69,7 +84,7 @@ func InventoryConsume(gs *gamestate.GameState) {
 		engine := consumable.Engine
 		engine.DestroyEntity(consumable)
 
-		UpdateInventorySelection(gs, 0)
+		updateInventorySelection(gs, 0)
 	} else if !isConsumable {
 		gs.Log(gamestate.Warn, state.GetDescription(consumable)+" can't be consumed.")
 	} else {
@@ -82,7 +97,7 @@ func InventoryDrop(gs *gamestate.GameState) {
 	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 	position := player.GetComponent(state.Position).(state.PositionComponent)
 
-	invetoryItem, ok := getCurrentSelectedItem(gs)
+	invetoryItem, ok := getCurrentInventoryItem(gs)
 	if ok {
 		// TODO: move to it's own System
 		gs.Log(gamestate.Info, "You dropped "+state.GetLongDescription(invetoryItem))
@@ -98,7 +113,7 @@ func InventoryDrop(gs *gamestate.GameState) {
 		})
 		invetoryItem.AddComponent(state.IsPickup, state.IsPickupComponent{})
 
-		UpdateInventorySelection(gs, 0)
+		updateInventorySelection(gs, 0)
 	} else {
 		gs.Log(gamestate.Warn, "No items to drop.")
 	}
@@ -108,7 +123,7 @@ func InventoryEquip(gs *gamestate.GameState) {
 	player := gs.Player
 	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 
-	item, ok := getCurrentSelectedItem(gs)
+	item, ok := getCurrentInventoryItem(gs)
 	equipable, isEquipable := item.GetComponent(state.Equipable).(state.EquipableComponent)
 	if ok && isEquipable {
 		// TODO: move to it's own System
@@ -125,7 +140,7 @@ func InventoryEquip(gs *gamestate.GameState) {
 		// TODO: move to it's own System
 		equipment.UpdateStats(player)
 
-		UpdateInventorySelection(gs, 0)
+		updateInventorySelection(gs, 0)
 	} else if !isEquipable {
 		gs.Log(gamestate.Warn, state.GetDescription(item)+" can't be equiped.")
 	} else {
@@ -133,26 +148,85 @@ func InventoryEquip(gs *gamestate.GameState) {
 	}
 }
 
-func UpdateInventorySelection(gs *gamestate.GameState, change int) {
+func InventoryUnequip(gs *gamestate.GameState) {
+	player := gs.Player
+	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 
-	selected := gs.InventoryScreenState.Selected + change
+	item, ok := getCurrentInventoryItem(gs)
+	equipable, isEquipable := item.GetComponent(state.Equipable).(state.EquipableComponent)
+	if ok && isEquipable {
+		// TODO: move to it's own System
+		gs.Log(gamestate.Info, "You dropped "+state.GetLongDescription(item))
+
+		// Remove from inventory
+		inventory.RemoveItem(item)
+		player.ReplaceComponent(state.Inventory, inventory)
+
+		// Add to equip
+		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
+		equipment.Items[equipable.Position] = item
+
+		// TODO: move to it's own System
+		equipment.UpdateStats(player)
+
+		updateInventorySelection(gs, 0)
+	} else if !isEquipable {
+		gs.Log(gamestate.Warn, state.GetDescription(item)+" can't be equiped.")
+	} else {
+		gs.Log(gamestate.Warn, "No items to drop.")
+	}
+}
+
+func updateInventorySelection(gs *gamestate.GameState, change int) {
+
+	selected := gs.InventoryScreenState.InventoryState.Selected + change
 
 	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
+	max := len(inventory.Items)
 	if selected < 0 {
 		selected = 0
-	} else if len(inventory.Items) > 0 && selected >= len(inventory.Items) {
-		selected = len(inventory.Items) - 1
+	} else if max > 0 && selected >= max {
+		selected = max - 1
 	}
 
-	gs.InventoryScreenState.Selected = selected
+	gs.InventoryScreenState.InventoryState.Selected = selected
+}
+
+func updateEquipmentSelection(gs *gamestate.GameState, change int) {
+
+	selected := gs.InventoryScreenState.EquipmentState.Selected + change
+	max := len(state.EquipmentPositions)
+	if selected < 0 {
+		selected = 0
+	} else if max > 0 && selected >= max {
+		selected = max - 1
+	}
+
+	gs.InventoryScreenState.EquipmentState.Selected = selected
+}
+
+func InventoryKeyUp(gs *gamestate.GameState) {
+	if gs.InventoryScreenState.InventoryState.IsFocused {
+		updateInventorySelection(gs, -1)
+	} else if gs.InventoryScreenState.EquipmentState.IsFocused {
+		updateEquipmentSelection(gs, -1)
+	}
+}
+
+func InventoryKeyDown(gs *gamestate.GameState) {
+	if gs.InventoryScreenState.InventoryState.IsFocused {
+		updateInventorySelection(gs, 1)
+	} else if gs.InventoryScreenState.EquipmentState.IsFocused {
+		updateEquipmentSelection(gs, 1)
+	}
 }
 
 func InventoryKeyLeft(gs *gamestate.GameState) {
-	gs.InventoryScreenState.Selected = 0
-	gs.InventoryScreenState.Focus = gamestate.InventoryFocus
+	gs.InventoryScreenState.InventoryState.IsFocused = true
+	gs.InventoryScreenState.EquipmentState.IsFocused = false
 }
 
 func InventoryKeyRight(gs *gamestate.GameState) {
-	gs.InventoryScreenState.Selected = 0
-	gs.InventoryScreenState.Focus = gamestate.EquipmentFocus
+	gs.InventoryScreenState.EquipmentState.IsFocused = true
+	gs.InventoryScreenState.InventoryState.IsFocused = false
 }

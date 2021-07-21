@@ -313,6 +313,14 @@ var (
 	EquipArmor  EquipPosition = "armor"
 )
 
+var EquipmentPositions = []EquipPosition{
+	EquipHead,
+	EquipShield,
+	EquipWeapon,
+	EquipBoots,
+	EquipArmor,
+}
+
 type EquipmentComponent struct {
 	Base  StatsValues
 	Items map[EquipPosition]*ecs.Entity

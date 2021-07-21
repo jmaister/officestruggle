@@ -27,9 +27,14 @@ var (
 	EquipmentFocus InventoryScreenFocus = "e"
 )
 
+type ListState struct {
+	Selected  int
+	IsFocused bool
+}
+
 type InventoryScreenState struct {
-	Selected int
-	Focus    InventoryScreenFocus
+	InventoryState ListState
+	EquipmentState ListState
 }
 
 type GameState struct {
@@ -153,8 +158,14 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		Player:      player,
 		ScreenState: WelcomeScreen,
 		InventoryScreenState: InventoryScreenState{
-			Selected: 0,
-			Focus:    InventoryFocus,
+			InventoryState: ListState{
+				Selected:  0,
+				IsFocused: true,
+			},
+			EquipmentState: ListState{
+				Selected:  0,
+				IsFocused: false,
+			},
 		},
 		IsPlayerTurn: true,
 		L:            log.New(os.Stderr, "", 0),
