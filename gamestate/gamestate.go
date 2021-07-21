@@ -20,8 +20,16 @@ var (
 	InventoryScreen ScreenState = "inventory"
 )
 
+type InventoryScreenFocus string
+
+var (
+	InventoryFocus InventoryScreenFocus = "i"
+	EquipmentFocus InventoryScreenFocus = "e"
+)
+
 type InventoryScreenState struct {
 	Selected int
+	Focus    InventoryScreenFocus
 }
 
 type GameState struct {
@@ -98,6 +106,12 @@ func NewGameState(engine *ecs.Engine) *GameState {
 			Width:  79,
 			Height: 29,
 		},
+		Equipment: grid.Rect{
+			X:      40,
+			Y:      5,
+			Width:  20,
+			Height: 29,
+		},
 	}
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
@@ -140,6 +154,7 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		ScreenState: WelcomeScreen,
 		InventoryScreenState: InventoryScreenState{
 			Selected: 0,
+			Focus:    InventoryFocus,
 		},
 		IsPlayerTurn: true,
 		L:            log.New(os.Stderr, "", 0),

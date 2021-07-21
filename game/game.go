@@ -99,6 +99,12 @@ func (g *Game) Update() error {
 			} else if keys[0] == ebiten.KeyDown {
 				// Selected item down
 				systems.InventoryKeyDown(g.GameState)
+			} else if keys[0] == ebiten.KeyLeft {
+				// Selected item left
+				systems.InventoryKeyLeft(g.GameState)
+			} else if keys[0] == ebiten.KeyRight {
+				// Selected item right
+				systems.InventoryKeyRight(g.GameState)
 			} else if keys[0] == ebiten.KeyC {
 				// Consume
 				systems.InventoryConsume(g.GameState)

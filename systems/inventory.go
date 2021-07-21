@@ -135,10 +135,7 @@ func InventoryEquip(gs *gamestate.GameState) {
 
 func UpdateInventorySelection(gs *gamestate.GameState, change int) {
 
-	selected := gs.InventoryScreenState.Selected
-
-	// Update inventory as list could have changed
-	selected = selected + change
+	selected := gs.InventoryScreenState.Selected + change
 
 	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
 	if selected < 0 {
@@ -148,4 +145,14 @@ func UpdateInventorySelection(gs *gamestate.GameState, change int) {
 	}
 
 	gs.InventoryScreenState.Selected = selected
+}
+
+func InventoryKeyLeft(gs *gamestate.GameState) {
+	gs.InventoryScreenState.Selected = 0
+	gs.InventoryScreenState.Focus = gamestate.InventoryFocus
+}
+
+func InventoryKeyRight(gs *gamestate.GameState) {
+	gs.InventoryScreenState.Selected = 0
+	gs.InventoryScreenState.Focus = gamestate.EquipmentFocus
 }
