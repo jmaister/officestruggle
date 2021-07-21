@@ -30,12 +30,12 @@ func drawFullInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	cl := ParseHexColorFast("#FFFFFF")
 
 	y := position.Y
-	status := "Inventory " + strconv.Itoa(len(inventory.Items)) + "/" + strconv.Itoa(inventory.MaxItems) + " - Selected: " + strconv.Itoa(gs.InventoryScreen.Selected)
+	status := "Inventory " + strconv.Itoa(len(inventory.Items)) + "/" + strconv.Itoa(inventory.MaxItems) + " - Selected: " + strconv.Itoa(gs.InventoryScreenState.Selected)
 	text.Draw(screen, status, font, (position.X)*fontSize, y*fontSize, cl)
 
 	if len(inventory.Items) > 0 {
 		for i, entity := range inventory.Items {
-			selected := (i == gs.InventoryScreen.Selected)
+			selected := (i == gs.InventoryScreenState.Selected)
 
 			str := strconv.Itoa(i) + "-" + state.GetLongDescription(entity)
 			px := (position.X) * fontSize
@@ -51,4 +51,12 @@ func drawFullInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	} else {
 		text.Draw(screen, "- No items in the inventory -", font, (position.X)*fontSize, (y+1)*fontSize, cl)
 	}
+}
+
+func InventoryKeyUp(gs *gamestate.GameState) {
+	UpdateInventorySelection(gs, -1)
+}
+
+func InventoryKeyDown(gs *gamestate.GameState) {
+	UpdateInventorySelection(gs, 1)
 }

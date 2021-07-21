@@ -199,6 +199,29 @@ func (a StatsValues) String() string {
 	return strings.Trim(s, " ")
 }
 
+func (plStats StatsValues) Merge(other StatsValues) StatsValues {
+	// First increases the max values
+
+	plStats.MaxHealth += other.MaxHealth
+	plStats.Health = increase(plStats.Health, plStats.MaxHealth, other.Health)
+	plStats.MaxDefense += other.MaxDefense
+	plStats.Defense = increase(plStats.Defense, plStats.MaxDefense, other.Defense)
+	plStats.MaxPower += other.MaxPower
+	plStats.Power = increase(plStats.Power, plStats.MaxPower, other.Power)
+	plStats.MaxFov += other.MaxFov
+	plStats.Fov = increase(plStats.Fov, plStats.MaxFov, other.Fov)
+
+	return plStats
+}
+
+func increase(current int, max int, incr int) int {
+	current = current + incr
+	if current > max {
+		return max
+	}
+	return current
+}
+
 func addSign(i int) string {
 	if i >= 0 {
 		return "+" + strconv.Itoa(i)
@@ -215,14 +238,6 @@ func statDiff(name string, value int, max int) string {
 
 type StatsComponent struct {
 	*StatsValues
-}
-
-func toStr(i int) string {
-	return strconv.Itoa(i)
-}
-
-func st(name string, value int, max int) string {
-	return name + ": " + toStr(value) + "/" + toStr(max)
 }
 
 func (a StatsComponent) ComponentType() string {
@@ -256,7 +271,7 @@ type InventoryComponent struct {
 	MaxItems int
 }
 
-func (a *InventoryComponent) PickUp(entity *ecs.Entity) bool {
+func (a *InventoryComponent) AddItem(entity *ecs.Entity) bool {
 	if len(a.Items) >= a.MaxItems {
 		return false
 	}
@@ -264,7 +279,7 @@ func (a *InventoryComponent) PickUp(entity *ecs.Entity) bool {
 	return true
 }
 
-func (a *InventoryComponent) Drop(entity *ecs.Entity) bool {
+func (a *InventoryComponent) RemoveItem(entity *ecs.Entity) bool {
 	for i, item := range a.Items {
 		if item == entity {
 			a.Items = append(a.Items[:i], a.Items[i+1:]...)
@@ -280,6 +295,8 @@ func (a InventoryComponent) ComponentType() string {
 
 type EquipableComponent struct {
 	*StatsValues
+
+	Position EquipPosition
 }
 
 func (a EquipableComponent) ComponentType() string {
@@ -289,14 +306,37 @@ func (a EquipableComponent) ComponentType() string {
 type EquipPosition string
 
 var (
-	EquipHead   EquipPosition = "hd"
-	EquipShield EquipPosition = "sh"
-	EquipWeapon EquipPosition = "wp"
-	EquipBoots  EquipPosition = "bt"
+	EquipHead   EquipPosition = "head"
+	EquipShield EquipPosition = "shield"
+	EquipWeapon EquipPosition = "weapon"
+	EquipBoots  EquipPosition = "boot"
+	EquipArmor  EquipPosition = "armor"
 )
 
 type EquipmentComponent struct {
+	Base  StatsValues
 	Items map[EquipPosition]*ecs.Entity
+}
+
+func (e *EquipmentComponent) UpdateStats(player *ecs.Entity) {
+	newState := e.Base
+	for _, item := range e.Items {
+		itemStats := item.GetComponent(Equipable).(EquipableComponent)
+		newState = newState.Merge(*itemStats.StatsValues)
+	}
+	player.ReplaceComponent(Stats, StatsComponent{
+		StatsValues: &newState,
+	})
+}
+
+func (a EquipmentComponent) OnAdd(engine *ecs.Engine, entity *ecs.Entity) {
+	// Update player.StatsComponent
+	a.UpdateStats(entity)
+}
+
+func (a EquipmentComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
+	// Update player.StatsComponent
+	a.UpdateStats(entity)
 }
 
 func (a EquipmentComponent) ComponentType() string {

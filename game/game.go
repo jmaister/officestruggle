@@ -90,39 +90,24 @@ func (g *Game) Update() error {
 		}
 	} else if g.GameState.ScreenState == gamestate.InventoryScreen {
 		if hasPressedKeys {
-			inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 			if keys[0] == ebiten.KeyI || keys[0] == ebiten.KeyEscape {
 				// Hide inventory screen
 				g.GameState.ScreenState = gamestate.GameScreen
 			} else if keys[0] == ebiten.KeyUp {
 				// Selected item up
-				g.GameState.InventoryScreen.Selected = g.GameState.InventoryScreen.Selected - 1
+				systems.InventoryKeyUp(g.GameState)
 			} else if keys[0] == ebiten.KeyDown {
 				// Selected item down
-				g.GameState.InventoryScreen.Selected = g.GameState.InventoryScreen.Selected + 1
+				systems.InventoryKeyDown(g.GameState)
 			} else if keys[0] == ebiten.KeyC {
 				// Consume
-				sel := g.GameState.InventoryScreen.Selected
-				if sel >= 0 && sel < len(inventory.Items) {
-					consumable := inventory.Items[g.GameState.InventoryScreen.Selected]
-					systems.InventoryConsume(g.GameState, consumable)
-				}
+				systems.InventoryConsume(g.GameState)
 			} else if keys[0] == ebiten.KeyD {
 				// Drop
-				sel := g.GameState.InventoryScreen.Selected
-				if sel >= 0 && sel < len(inventory.Items) {
-					consumable := inventory.Items[g.GameState.InventoryScreen.Selected]
-					systems.InventoryDrop(g.GameState, consumable)
-				}
-			}
-
-			// Update inventory as list could have changed
-			inventory, _ = player.GetComponent(state.Inventory).(state.InventoryComponent)
-			if g.GameState.InventoryScreen.Selected < 0 {
-				g.GameState.InventoryScreen.Selected = 0
-			}
-			if len(inventory.Items) > 0 && g.GameState.InventoryScreen.Selected >= len(inventory.Items) {
-				g.GameState.InventoryScreen.Selected = len(inventory.Items) - 1
+				systems.InventoryDrop(g.GameState)
+			} else if keys[0] == ebiten.KeyE {
+				// Equip
+				systems.InventoryEquip(g.GameState)
 			}
 		}
 	}

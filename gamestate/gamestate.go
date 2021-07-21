@@ -20,24 +20,24 @@ var (
 	InventoryScreen ScreenState = "inventory"
 )
 
-type InventoryScreenStateState struct {
+type InventoryScreenState struct {
 	Selected int
 }
 
 type GameState struct {
-	Engine          *ecs.Engine
-	Fov             *fov.View
-	Grid            *grid.Grid
-	Player          *ecs.Entity
-	ScreenState     ScreenState
-	InventoryScreen InventoryScreenStateState
-	IsPlayerTurn    bool
-	L               *log.Logger
-	ScreenWidth     int
-	ScreenHeight    int
-	TileWidth       int
-	TileHeight      int
-	logLines        []LogLine
+	Engine               *ecs.Engine
+	Fov                  *fov.View
+	Grid                 *grid.Grid
+	Player               *ecs.Entity
+	ScreenState          ScreenState
+	InventoryScreenState InventoryScreenState
+	IsPlayerTurn         bool
+	L                    *log.Logger
+	ScreenWidth          int
+	ScreenHeight         int
+	TileWidth            int
+	TileHeight           int
+	logLines             []LogLine
 }
 
 type LogType string
@@ -138,7 +138,7 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		Grid:        &g,
 		Player:      player,
 		ScreenState: WelcomeScreen,
-		InventoryScreen: InventoryScreenStateState{
+		InventoryScreenState: InventoryScreenState{
 			Selected: 0,
 		},
 		IsPlayerTurn: true,

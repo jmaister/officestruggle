@@ -8,7 +8,14 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#ffffff", Bg: "#FF0000", Char: '@'})
 	entity.AddComponent(Layer500, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
-		StatsValues: &StatsValues{
+		StatsValues: &StatsValues{},
+	})
+	entity.AddComponent(Inventory, InventoryComponent{
+		Items:    ecs.EntityList{},
+		MaxItems: 10,
+	})
+	entity.AddComponent(Equipment, EquipmentComponent{
+		Base: StatsValues{
 			Health:     10,
 			MaxHealth:  10,
 			Defense:    3,
@@ -16,11 +23,9 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 			Power:      4,
 			MaxPower:   10,
 			Fov:        10,
+			MaxFov:     20,
 		},
-	})
-	entity.AddComponent(Inventory, InventoryComponent{
-		Items:    ecs.EntityList{},
-		MaxItems: 10,
+		Items: map[EquipPosition]*ecs.Entity{},
 	})
 	return entity
 }
@@ -45,6 +50,7 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 			Power:      4,
 			MaxPower:   10,
 			Fov:        6,
+			MaxFov:     6,
 		},
 	})
 	entity.AddComponent(Consumable, ConsumableComponent{
@@ -56,6 +62,7 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 			Power:      1,
 			MaxPower:   1,
 			Fov:        0,
+			MaxFov:     0,
 		},
 	})
 	return entity
@@ -72,6 +79,7 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 			Power:      0,
 			MaxPower:   0,
 			Fov:        0,
+			MaxFov:     0,
 		},
 	})
 	entity.AddComponent(Description, DescriptionComponent{Name: "Health Potion"})
@@ -83,6 +91,7 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 func NewSword(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(IsPickup, IsPickupComponent{})
 	entity.AddComponent(Equipable, EquipableComponent{
+		Position: EquipWeapon,
 		StatsValues: &StatsValues{
 			Health:     0,
 			MaxHealth:  1,
@@ -91,6 +100,7 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 			Power:      5,
 			MaxPower:   5,
 			Fov:        1,
+			MaxFov:     1,
 		},
 	})
 	entity.AddComponent(Description, DescriptionComponent{Name: "Sword"})
