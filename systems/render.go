@@ -104,7 +104,6 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		B: 0,
 		A: 0,
 	}
-	// gradientColors := GetColorGradient(lightColor)
 
 	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
@@ -128,7 +127,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				distance := calcDistance(position.X, position.Y, pp.X, pp.Y) / 2
+				distance := calcDistance(position.X, position.Y, pp.X, pp.Y)
 				mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
 				bgColor := ColorBlend(lightColor, black, mix)
 
@@ -235,12 +234,12 @@ func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	cl := ParseHexColorFast("#FFFFFF")
 
 	y := position.Y
-	status := "Inventory " + strconv.Itoa(len(inventory.Items)) + "/" + strconv.Itoa(inventory.MaxItems)
+	status := fmt.Sprintf("Inventory %2d/%2d", len(inventory.Items), inventory.MaxItems)
 	text.Draw(screen, status, font, (position.X)*fontSize, y*fontSize, cl)
 
 	if len(inventory.Items) > 0 {
 		for i, entity := range inventory.Items {
-			str := strconv.Itoa(i) + "-" + state.GetLongDescription(entity)
+			str := fmt.Sprintf("%2d - %s", i+1, state.GetLongDescription(entity))
 			text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, cl)
 			y++
 		}

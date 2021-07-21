@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"fmt"
 	"image/color"
 	"strconv"
 
@@ -17,9 +18,6 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 
 	text.Draw(screen, "Inventory", fnt40, 30, 35, color.White)
 	text.Draw(screen, "C - Consume, D - Drop, E - Equip, U - Unequip", fnt20, 300, 40, color.White)
-
-	//drawFullInventory(screen, gameState)
-	//drawEquipment(screen, gameState)
 
 	// Inventory
 	inventory, _ := gameState.Player.GetComponent(state.Inventory).(state.InventoryComponent)
@@ -42,6 +40,7 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 	}, items, gameState.Grid.Equipment, equipmentTitle)
 }
 
+/*
 func drawFullInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	fontSize := 14
 	font := assets.MplusFont(float64(fontSize))
@@ -108,6 +107,7 @@ func drawEquipment(screen *ebiten.Image, gs *gamestate.GameState) {
 	}
 
 }
+*/
 
 type ListState struct {
 	Selected  int
@@ -125,7 +125,7 @@ func drawList(screen *ebiten.Image, gs *gamestate.GameState, listState *ListStat
 		for i, entity := range items {
 			selected := (i == listState.Selected)
 
-			str := strconv.Itoa(i) + "-" + state.GetLongDescription(entity)
+			str := fmt.Sprintf("%2d - %s", i+1, state.GetLongDescription(entity))
 			px := (position.X) * fontSize
 			py := (y + 1) * fontSize
 			if selected && listState.IsFocused {
