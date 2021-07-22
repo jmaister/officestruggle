@@ -14,15 +14,16 @@ import (
 
 type ScreenState string
 
-var (
+const (
 	WelcomeScreen   ScreenState = "welcome"
 	GameScreen      ScreenState = "game"
+	TargetingScreen ScreenState = "target"
 	InventoryScreen ScreenState = "inventory"
 )
 
 type InventoryScreenFocus string
 
-var (
+const (
 	InventoryFocus InventoryScreenFocus = "i"
 	EquipmentFocus InventoryScreenFocus = "e"
 )
@@ -55,7 +56,7 @@ type GameState struct {
 
 type LogType string
 
-var (
+const (
 	Info   LogType = "i"
 	Warn   LogType = "w"
 	Bad    LogType = "b"

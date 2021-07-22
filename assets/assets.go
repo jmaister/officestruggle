@@ -13,9 +13,7 @@ import (
 //go:embed fonts/*
 var Data embed.FS
 
-var (
-	mplusFontCached map[float64]font.Face
-)
+var mplusFontCached map[float64]font.Face
 
 var fontCached = map[float64]font.Face{}
 
