@@ -20,24 +20,37 @@ var (
 	InventoryScreen ScreenState = "inventory"
 )
 
-type InventoryScreenStateState struct {
-	Selected int
+type InventoryScreenFocus string
+
+var (
+	InventoryFocus InventoryScreenFocus = "i"
+	EquipmentFocus InventoryScreenFocus = "e"
+)
+
+type ListState struct {
+	Selected  int
+	IsFocused bool
+}
+
+type InventoryScreenState struct {
+	InventoryState ListState
+	EquipmentState ListState
 }
 
 type GameState struct {
-	Engine          *ecs.Engine
-	Fov             *fov.View
-	Grid            *grid.Grid
-	Player          *ecs.Entity
-	ScreenState     ScreenState
-	InventoryScreen InventoryScreenStateState
-	IsPlayerTurn    bool
-	L               *log.Logger
-	ScreenWidth     int
-	ScreenHeight    int
-	TileWidth       int
-	TileHeight      int
-	logLines        []LogLine
+	Engine               *ecs.Engine
+	Fov                  *fov.View
+	Grid                 *grid.Grid
+	Player               *ecs.Entity
+	ScreenState          ScreenState
+	InventoryScreenState InventoryScreenState
+	IsPlayerTurn         bool
+	L                    *log.Logger
+	ScreenWidth          int
+	ScreenHeight         int
+	TileWidth            int
+	TileHeight           int
+	logLines             []LogLine
 }
 
 type LogType string
@@ -98,6 +111,12 @@ func NewGameState(engine *ecs.Engine) *GameState {
 			Width:  79,
 			Height: 29,
 		},
+		Equipment: grid.Rect{
+			X:      50,
+			Y:      5,
+			Width:  20,
+			Height: 29,
+		},
 	}
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
@@ -124,6 +143,13 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		potion := state.NewHealthPotion(engine.NewEntity())
 		state.ApplyPosition(potion, pos.X, pos.Y)
 	}
+	// Swords
+	for i := 0; i < 10; i++ {
+		v := visitables[rand.Intn(len(visitables))]
+		pos := state.GetPosition(v)
+		potion := state.NewSword(engine.NewEntity())
+		state.ApplyPosition(potion, pos.X, pos.Y)
+	}
 
 	return &GameState{
 		Engine:      engine,
@@ -131,8 +157,15 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		Grid:        &g,
 		Player:      player,
 		ScreenState: WelcomeScreen,
-		InventoryScreen: InventoryScreenStateState{
-			Selected: 0,
+		InventoryScreenState: InventoryScreenState{
+			InventoryState: ListState{
+				Selected:  0,
+				IsFocused: true,
+			},
+			EquipmentState: ListState{
+				Selected:  0,
+				IsFocused: false,
+			},
 		},
 		IsPlayerTurn: true,
 		L:            log.New(os.Stderr, "", 0),
