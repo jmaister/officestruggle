@@ -164,7 +164,7 @@ func IsOnMapEdge(x int, y int, rect Rect) bool {
 	if x == rect.X+rect.Width-1 {
 		return true
 	}
-	if x == rect.Y+rect.Height-1 {
+	if y == rect.Y+rect.Height-1 {
 		return true
 	}
 	return false
