@@ -30,7 +30,7 @@ func setVisibleEntities(entities ecs.EntityList, isVisible bool) {
 
 func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.Image) {
 
-	showDebug(screen)
+	showDebug(screen, gameState)
 
 	layers := []string{state.Layer100, state.Layer300, state.Layer400, state.Layer500}
 
@@ -65,7 +65,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 	drawGameInventory(screen, gameState)
 }
 
-func showDebug(screen *ebiten.Image) {
+func showDebug(screen *ebiten.Image, gs *gamestate.GameState) {
 	w, _ := screen.Size()
 	// Draw info
 	fnt := assets.MplusFont(10)
@@ -76,6 +76,9 @@ func showDebug(screen *ebiten.Image) {
 	x, y := ebiten.CursorPosition()
 	cursorStr := strconv.Itoa(x) + " " + strconv.Itoa(y)
 	text.Draw(screen, cursorStr, fnt, w-150, 35, color.White)
+	tx, ty := ToTile(gs, x, y)
+	tileStr := fmt.Sprintf("Tile: %d,%d", tx, ty)
+	text.Draw(screen, tileStr, fnt, w-150, 45, color.White)
 
 }
 
@@ -132,7 +135,8 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 				bgColor := ColorBlend(lightColor, black, mix)
 
 				fgColor := ParseHexColorFast(fg)
-				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
+				// drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
+				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
 
 			} else if visitable.Explored {
 				bgColor := ParseHexColorFast("#000000")
