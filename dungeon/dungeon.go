@@ -46,7 +46,7 @@ func CreateDungeon(engine *ecs.Engine, m grid.Rect, opts DungeonOptions) grid.Re
 		// test if candidate is overlapping with any existing rooms
 		existIntersection := false
 		for r := 0; r < len(rooms); r++ {
-			thisIntersects := grid.RectsIntersect(rooms[0], candidate)
+			thisIntersects := grid.RectsIntersect(rooms[r], candidate)
 			if thisIntersects {
 				existIntersection = true
 				break
