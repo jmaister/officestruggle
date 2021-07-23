@@ -63,6 +63,8 @@ func (g *Game) Update() error {
 				inventoryKey = true
 			case ebiten.KeyI:
 				g.GameState.ScreenState = gamestate.InventoryScreen
+			case ebiten.KeyZ:
+				g.GameState.ScreenState = gamestate.TargetingScreen
 			}
 
 			if movementKey {
@@ -121,6 +123,16 @@ func (g *Game) Update() error {
 				systems.InventoryUnequip(g.GameState)
 			}
 		}
+	} else if g.GameState.ScreenState == gamestate.TargetingScreen {
+		if hasPressedKeys {
+			if keys[0] == ebiten.KeyZ || keys[0] == ebiten.KeyEscape {
+				g.GameState.ScreenState = gamestate.GameScreen
+			}
+		}
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			mouseX, mouseY := ebiten.CursorPosition()
+			systems.TargetingMouseClick(g.Engine, g.GameState, mouseX, mouseY)
+		}
 	}
 
 	return nil
@@ -130,6 +142,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if g.GameState.ScreenState == gamestate.GameScreen {
 		// Render the screen
 		systems.Render(g.Engine, g.GameState, screen)
+	} else if g.GameState.ScreenState == gamestate.TargetingScreen {
+		// Render the screen
+		systems.Render(g.Engine, g.GameState, screen)
+		systems.RenderTargetingScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.WelcomeScreen {
 		systems.RenderWelcomesScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.InventoryScreen {

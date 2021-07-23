@@ -305,7 +305,7 @@ func (a EquipableComponent) ComponentType() string {
 
 type EquipPosition string
 
-var (
+const (
 	EquipHead   EquipPosition = "head"
 	EquipShield EquipPosition = "shield"
 	EquipWeapon EquipPosition = "weapon"

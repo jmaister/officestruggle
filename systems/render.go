@@ -127,7 +127,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				distance := calcDistance(position.X, position.Y, pp.X, pp.Y)
+				distance := CalcDistance(position.X, position.Y, pp.X, pp.Y)
 				mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
 				bgColor := ColorBlend(lightColor, black, mix)
 
@@ -250,7 +250,7 @@ func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 
 var distances = map[string]int{}
 
-func calcDistance(x1 int, y1 int, x2 int, y2 int) int {
+func CalcDistance(x1 int, y1 int, x2 int, y2 int) int {
 	key := strconv.Itoa(x1) + "-" + strconv.Itoa(y1) + "-" + strconv.Itoa(x2) + "-" + strconv.Itoa(y2)
 	distance, ok := distances[key]
 	if ok {
