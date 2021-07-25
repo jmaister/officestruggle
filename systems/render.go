@@ -84,11 +84,6 @@ func showDebug(screen *ebiten.Image, gs *gamestate.GameState) {
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) []*ecs.Entity {
 
-	w := gameState.ScreenWidth
-	h := gameState.ScreenHeight
-	tw := w / gameState.Grid.Width
-	th := h / gameState.Grid.Height
-
 	font := assets.LoadFontCached(float64(20))
 
 	visibleEntities := []*ecs.Entity{}
@@ -99,12 +94,6 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		R: 250,
 		G: 250,
 		B: 30,
-		A: 0,
-	}
-	black := color.RGBA{
-		R: 0,
-		G: 0,
-		B: 0,
 		A: 0,
 	}
 
@@ -123,31 +112,32 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		}
 		ch := string(apparence.Char)
 
-		// Pixel positions
-		px := position.X * tw
-		py := position.Y * th
-
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				distance := CalcDistance(position.X, position.Y, pp.X, pp.Y)
-				mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
-				bgColor := ColorBlend(lightColor, black, mix)
+				bgColor := ParseHexColorFast(bg)
+				if entity.HasComponent(state.IsBlocking) {
+					distance := CalcDistance(position.X, position.Y, pp.X, pp.Y)
+					mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
+					bgColor = ColorBlend(lightColor, bgColor, mix)
+
+				}
 
 				fgColor := ParseHexColorFast(fg)
 				// drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
-
 			} else if visitable.Explored {
 				bgColor := ParseHexColorFast("#000000")
 				fgColor := ParseHexColorFast("#555555")
-				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
+				//drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
+				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
 				bgColor := ParseHexColorFast(bg)
 				fgColor := ParseHexColorFast(fg)
-				drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
+				//drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
+				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
 
 				visibleEntities = append(visibleEntities, entity)
 			}
@@ -171,7 +161,7 @@ func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face
 
 }
 
-var messageLogColors = [5]color.RGBA{
+var messageLogColors = [5]color.Color{
 	ParseHexColorFast("#333333"),
 	ParseHexColorFast("#555555"),
 	ParseHexColorFast("#777777"),

@@ -19,6 +19,7 @@ const (
 	GameScreen      ScreenState = "game"
 	TargetingScreen ScreenState = "target"
 	InventoryScreen ScreenState = "inventory"
+	TestScreen      ScreenState = "test"
 )
 
 type InventoryScreenFocus string
@@ -170,10 +171,10 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		},
 		IsPlayerTurn: true,
 		L:            log.New(os.Stderr, "", 0),
-		ScreenWidth:  1024,
-		ScreenHeight: 576,
-		TileWidth:    16,
-		TileHeight:   16,
+		ScreenWidth:  1920,
+		ScreenHeight: 1080,
+		TileWidth:    20,
+		TileHeight:   20,
 	}
 }
 
