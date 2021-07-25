@@ -120,23 +120,19 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 					distance := CalcDistance(position.X, position.Y, pp.X, pp.Y)
 					mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
 					bgColor = ColorBlend(lightColor, bgColor, mix)
-
 				}
 
 				fgColor := ParseHexColorFast(fg)
-				// drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
 			} else if visitable.Explored {
 				bgColor := ParseHexColorFast("#000000")
 				fgColor := ParseHexColorFast("#555555")
-				//drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
 				bgColor := ParseHexColorFast(bg)
 				fgColor := ParseHexColorFast(fg)
-				//drawCharWithBackground(screen, ch, px, py, font, fgColor, bgColor)
 				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
 
 				visibleEntities = append(visibleEntities, entity)
@@ -144,13 +140,6 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		}
 	}
 	return visibleEntities
-}
-
-func drawCharWithBackground(screen *ebiten.Image, str string, x int, y int, font font.Face, fgColor color.Color, bgColor color.Color) {
-	// Draw background
-	DrawTextRect(screen, str, x, y, font, bgColor)
-	// Draw char
-	text.Draw(screen, str, font, x, y, fgColor)
 }
 
 func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face, bgColor color.Color) {
