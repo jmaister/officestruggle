@@ -49,10 +49,20 @@ func DrawChar(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font 
 	//fmt.Println(str, x, y, x1, y1, rect, rect.Dx(), rect.Dy())
 }
 
+func DrawText(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font font.Face, str string, fgColor color.Color, bgColor color.Color) {
+	// TODO: handle line breaks
+	for i := 0; i < len(str); i++ {
+		s := string(str[i])
+		DrawChar(screen, gs, x+i, y, font, s, fgColor, bgColor)
+	}
+}
+
 func DrawGridRect(screen *ebiten.Image, gs *gamestate.GameState, r grid.Rect, color color.Color) {
 
 	x1, y1 := ToPixel(gs, r.X, r.Y)
 	x2, y2 := ToPixel(gs, r.X+r.Width, r.Y+r.Height)
+
+	y1 = y1 - 1
 
 	// x1, y1   -1-    x2, y1
 	//   -2-             -4-

@@ -31,6 +31,7 @@ func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 
 	// Calculate line with tile positions
 	targetX, targetY := ToTile(gameState, mouseX, mouseY)
+	// TODO: line returned can be form player to target, or target to player. Detect and use player to target.
 	line := BresenhamLine(plPosition.X, plPosition.Y, targetX, targetY)
 	for _, tile := range line {
 		if CalcDistance(plPosition.X, plPosition.Y, tile.X, tile.Y) >= fov {

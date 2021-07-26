@@ -164,9 +164,9 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 	fontSize := 14
 	font := assets.MplusFont(float64(fontSize))
 
-	messagePosition := gs.Grid.MessageLog
+	position := gs.Grid.MessageLog
 
-	lines := gs.GetLog(messagePosition.Height)
+	lines := gs.GetLog(position.Height)
 	n := len(lines)
 	for i, line := range lines {
 		fgColor := messageLogColors[5-n+i]
@@ -174,14 +174,14 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 		if line.Count > 1 {
 			logStr = strconv.Itoa(line.Count) + "x " + line.Msg
 		}
-		text.Draw(screen, logStr, font, (messagePosition.X)*fontSize, (messagePosition.Y+i+1)*fontSize, fgColor)
+		DrawText(screen, gs, position.X, position.Y+i, font, logStr, fgColor, color.Black)
 	}
-	DrawGridRect(screen, gs, messagePosition, color.White)
+	DrawGridRect(screen, gs, position, color.White)
 
 }
 
 func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
-	fontSize := 12
+	fontSize := 18
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.PlayerHud
@@ -189,8 +189,9 @@ func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 	player := gs.Player
 	stats, ok := player.GetComponent(state.Stats).(state.StatsComponent)
 	if ok {
-		text.Draw(screen, stats.String(), font, (position.X)*fontSize, (position.Y+1)*fontSize, ParseHexColorFast("#00AA00"))
+		DrawText(screen, gs, position.X, position.Y, font, stats.String(), ParseHexColorFast("#00AA00"), color.Black)
 	}
+	DrawGridRect(screen, gs, position, color.White)
 }
 
 func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*ecs.Entity) {
@@ -203,10 +204,11 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 	for _, entity := range visibleEntities {
 		if !entity.HasComponent(state.Player) {
 			str := state.GetLongDescription(entity)
-			text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, ParseHexColorFast("#FFFFFF"))
+			DrawText(screen, gs, position.X, y, font, str, color.White, color.Black)
 			y++
 		}
 	}
+	DrawGridRect(screen, gs, position, color.White)
 }
 
 func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
@@ -216,21 +218,20 @@ func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	position := gs.Grid.GameInventory
 	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
 
-	cl := ParseHexColorFast("#FFFFFF")
-
 	y := position.Y
 	status := fmt.Sprintf("Inventory %2d/%2d", len(inventory.Items), inventory.MaxItems)
-	text.Draw(screen, status, font, (position.X)*fontSize, y*fontSize, cl)
+	DrawText(screen, gs, position.X, y, font, status, color.White, color.Black)
 
 	if len(inventory.Items) > 0 {
 		for i, entity := range inventory.Items {
-			str := fmt.Sprintf("%2d - %s", i+1, state.GetLongDescription(entity))
-			text.Draw(screen, str, font, (position.X)*fontSize, (y+1)*fontSize, cl)
+			str := fmt.Sprintf("%2d - %s", i+1, state.GetDescription(entity))
+			DrawText(screen, gs, position.X, y+1, font, str, color.White, color.Black)
 			y++
 		}
 	} else {
-		text.Draw(screen, "- No items in the inventory -", font, (position.X)*fontSize, (y+1)*fontSize, cl)
+		DrawText(screen, gs, position.X, y+1, font, "- No items -", color.White, color.Black)
 	}
+	DrawGridRect(screen, gs, position, color.White)
 }
 
 var distances = map[string]int{}

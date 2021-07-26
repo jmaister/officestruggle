@@ -78,10 +78,10 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		Width:  80,
 		Height: 34,
 		Map: grid.Rect{
-			X:      11,
-			Y:      6,
+			X:      16,
+			Y:      8,
 			Width:  74,
-			Height: 29,
+			Height: 30,
 		},
 		MessageLog: grid.Rect{
 			X:      0,
@@ -92,20 +92,20 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		PlayerHud: grid.Rect{
 			X:      0,
 			Y:      6,
-			Width:  20,
+			Width:  79,
 			Height: 1,
 		},
 		InfoBar: grid.Rect{
-			X:      21,
-			Y:      32,
+			X:      16,
+			Y:      39,
 			Width:  79,
-			Height: -1,
+			Height: 10,
 		},
 		GameInventory: grid.Rect{
 			X:      0,
-			Y:      10,
-			Width:  79,
-			Height: 10,
+			Y:      8,
+			Width:  15,
+			Height: 40,
 		},
 		Inventory: grid.Rect{
 			X:      2,
