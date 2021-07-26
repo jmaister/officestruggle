@@ -58,6 +58,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 		visibleEntities = append(visibleEntities, v...)
 	}
+	DrawGridRect(screen, gameState, gameState.Grid.Map, color.White)
 
 	drawMessageLog(screen, gameState)
 	drawPlayerHud(screen, gameState)
@@ -163,9 +164,9 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 	fontSize := 14
 	font := assets.MplusFont(float64(fontSize))
 
-	position := gs.Grid.MessageLog
+	messagePosition := gs.Grid.MessageLog
 
-	lines := gs.GetLog(position.Height)
+	lines := gs.GetLog(messagePosition.Height)
 	n := len(lines)
 	for i, line := range lines {
 		fgColor := messageLogColors[5-n+i]
@@ -173,8 +174,9 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 		if line.Count > 1 {
 			logStr = strconv.Itoa(line.Count) + "x " + line.Msg
 		}
-		text.Draw(screen, logStr, font, (position.X)*fontSize, (position.Y+i+1)*fontSize, fgColor)
+		text.Draw(screen, logStr, font, (messagePosition.X)*fontSize, (messagePosition.Y+i+1)*fontSize, fgColor)
 	}
+	DrawGridRect(screen, gs, messagePosition, color.White)
 
 }
 
