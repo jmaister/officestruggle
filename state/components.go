@@ -3,7 +3,9 @@ package state
 import (
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"jordiburgos.com/officestruggle/ecs"
 )
 
@@ -14,10 +16,10 @@ const (
 	Move        = "move"
 	IsBlocking  = "isBlocking"
 	IsFloor     = "isFloor"
-	Layer100    = "layer100"
-	Layer300    = "layer300"
-	Layer400    = "layer400"
-	Layer500    = "layer500"
+	Layer100    = "layer100" // Walls and floors
+	Layer300    = "layer300" // Objects
+	Layer400    = "layer400" // Player and enemies
+	Layer500    = "layer500" // Animations
 	Visitable   = "visitable"
 	Description = "description"
 	AI          = "ai"
@@ -28,6 +30,7 @@ const (
 	Inventory   = "inventory"
 	Equipable   = "equipable"
 	Equipment   = "equipment"
+	Animated    = "animated"
 )
 
 type PlayerComponent struct {
@@ -349,4 +352,18 @@ func (a EquipmentComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 
 func (a EquipmentComponent) ComponentType() string {
 	return Equipment
+}
+
+type Animation interface {
+	StartTime() time.Time
+	Duration() time.Duration
+	Update(percent float64, screen *ebiten.Image)
+}
+
+type AnimatedComponent struct {
+	Animation Animation
+}
+
+func (a AnimatedComponent) ComponentType() string {
+	return Animated
 }

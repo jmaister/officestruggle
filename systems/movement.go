@@ -9,7 +9,7 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
-func Movement(gs *gamestate.GameState, engine *ecs.Engine, g *grid.Grid) {
+func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
 	movable := []string{state.Move}
 
 	for _, entity := range engine.Entities.GetEntities(movable) {
@@ -34,7 +34,7 @@ func Movement(gs *gamestate.GameState, engine *ecs.Engine, g *grid.Grid) {
 		isBlocked := len(blockersOnPosition) > 0
 
 		if isBlocked {
-			Attack(gs, entity, blockersOnPosition)
+			Attack(engine, gs, entity, blockersOnPosition)
 		} else {
 			entity.AddComponent(state.Position, newPosition)
 

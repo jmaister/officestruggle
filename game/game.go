@@ -69,7 +69,7 @@ func (g *Game) Update() error {
 
 			if movementKey {
 				player.AddComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
-				systems.Movement(g.GameState, g.Engine, g.GameState.Grid)
+				systems.Movement(g.Engine, g.GameState, g.GameState.Grid)
 
 				g.GameState.IsPlayerTurn = false
 			} else if inventoryKey {
@@ -82,7 +82,7 @@ func (g *Game) Update() error {
 
 		if !g.GameState.IsPlayerTurn {
 			systems.AI(g.Engine, g.GameState)
-			systems.Movement(g.GameState, g.Engine, g.GameState.Grid)
+			systems.Movement(g.Engine, g.GameState, g.GameState.Grid)
 
 			g.GameState.IsPlayerTurn = true
 		}
@@ -161,6 +161,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else if g.GameState.ScreenState == gamestate.TestScreen {
 		systems.RenderTestScreen(g.Engine, g.GameState, screen)
 	}
+	systems.Animation(g.Engine, g.GameState, screen)
 }
 
 func (g *Game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, screenHeight int) {

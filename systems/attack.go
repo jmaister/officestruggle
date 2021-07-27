@@ -8,7 +8,7 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
-func Attack(gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityList) {
+func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityList) {
 
 	// Try if attacker has Stats
 	if attacker.HasComponent(state.Stats) {
@@ -18,12 +18,14 @@ func Attack(gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityLi
 		for _, blocker := range blockers {
 			if blocker.HasComponent(state.Stats) {
 				bStats := blocker.GetComponent(state.Stats).(state.StatsComponent)
+				bPos := blocker.GetComponent(state.Position).(state.PositionComponent)
 
 				// Damage calculation and attack
 				damage := aStats.Power - bStats.Defense
 				if damage >= 0 {
 					gs.Log(gamestate.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
+					state.NewDamageAnimation(engine.NewEntity(), bPos.X, bPos.Y, strconv.Itoa(damage))
 					if newHealth <= 0 {
 						Kill(gs, blocker)
 					} else {

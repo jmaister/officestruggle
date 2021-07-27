@@ -1,12 +1,20 @@
 package state
 
-import "jordiburgos.com/officestruggle/ecs"
+import (
+	"image/color"
+	"time"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"jordiburgos.com/officestruggle/assets"
+	"jordiburgos.com/officestruggle/ecs"
+)
 
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Player, PlayerComponent{})
 	entity.AddComponent(Description, DescriptionComponent{Name: "Player"})
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#ffffff", Char: '@'})
-	entity.AddComponent(Layer500, Layer400Component{})
+	entity.AddComponent(Layer400, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
 		StatsValues: &StatsValues{},
 	})
@@ -106,5 +114,46 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Description, DescriptionComponent{Name: "Sword"})
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#1EFFFF", Char: '/'})
 	entity.AddComponent(Layer300, Layer400Component{})
+	return entity
+}
+
+type damageAnimation struct {
+	X                 int
+	Y                 int
+	Damage            string
+	AnimationStart    time.Time
+	AnimationDuration time.Duration
+}
+
+func (a damageAnimation) StartTime() time.Time {
+	return a.AnimationStart
+}
+func (a damageAnimation) Duration() time.Duration {
+	return a.AnimationDuration
+}
+func (a damageAnimation) Update(percent float64, screen *ebiten.Image) {
+	x := a.X * 20
+	y := a.Y*20 - int(3*20*(1-percent))
+
+	fnt := assets.MplusFont(20)
+	text.Draw(screen, a.Damage, fnt, x, y, color.RGBA{
+		R: 255,
+		G: 0,
+		B: 0,
+		A: 127,
+	})
+}
+
+func NewDamageAnimation(entity *ecs.Entity, x int, y int, damage string) *ecs.Entity {
+	entity.AddComponent(Layer500, Layer500Component{})
+	entity.AddComponent(Animated, AnimatedComponent{
+		Animation: damageAnimation{
+			X:                 x,
+			Y:                 y,
+			Damage:            damage,
+			AnimationStart:    time.Now(),
+			AnimationDuration: 1 * time.Second,
+		},
+	})
 	return entity
 }
