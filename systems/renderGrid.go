@@ -46,7 +46,26 @@ func DrawChar(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font 
 	rect := text.BoundString(font, str)
 	text.Draw(screen, str, font, x1-2+rect.Dx()/2, y1+rect.Dy(), fgColor)
 
-	//fmt.Println(str, x, y, x1, y1, rect, rect.Dx(), rect.Dy())
+	/*
+		w1 := gs.TileWidth
+		h1 := gs.TileHeight
+		w2 := rect.Dx()
+		h2 := rect.Dy()
+
+		// • 25 21 500 420 (4,-7)-(8,-2) 4 5
+
+		x2 := x1 + ((w2 - w1) / 2) + (rect.Max.X-rect.Min.X)/2
+		yd := (rect.Max.Y - rect.Min.Y)
+		if yd < 0 {
+			yd = -1 * yd
+		}
+		y2 := y1 + ((h2 - h1) / 2) + yd
+		text.Draw(screen, str, font, x2, y2, ParseHexColorFast("#FF0000"))
+
+		if str == "•" {
+			fmt.Println(str, x, y, x1, y1, rect, rect.Dx(), rect.Dy())
+		}
+	*/
 }
 
 func DrawText(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font font.Face, str string, fgColor color.Color, bgColor color.Color) {
