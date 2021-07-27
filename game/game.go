@@ -87,8 +87,12 @@ func (g *Game) Update() error {
 			g.GameState.IsPlayerTurn = true
 		}
 	} else if g.GameState.ScreenState == gamestate.WelcomeScreen {
-		if hasPressedKeys && keys[0] == ebiten.KeyEnter {
-			g.GameState.ScreenState = gamestate.GameScreen
+		if hasPressedKeys {
+			if keys[0] == ebiten.KeyEnter {
+				g.GameState.ScreenState = gamestate.GameScreen
+			} else if keys[0] == ebiten.KeyT {
+				g.GameState.ScreenState = gamestate.TestScreen
+			}
 		}
 	} else if g.GameState.ScreenState == gamestate.InventoryScreen {
 		if hasPressedKeys {
@@ -133,6 +137,10 @@ func (g *Game) Update() error {
 			mouseX, mouseY := ebiten.CursorPosition()
 			systems.TargetingMouseClick(g.Engine, g.GameState, mouseX, mouseY)
 		}
+	} else if g.GameState.ScreenState == gamestate.TestScreen {
+		if hasPressedKeys {
+			fmt.Println(keys)
+		}
 	}
 
 	return nil
@@ -150,6 +158,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.RenderWelcomesScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.InventoryScreen {
 		systems.RenderInventoryScreen(g.Engine, g.GameState, screen)
+	} else if g.GameState.ScreenState == gamestate.TestScreen {
+		systems.RenderTestScreen(g.Engine, g.GameState, screen)
 	}
 }
 

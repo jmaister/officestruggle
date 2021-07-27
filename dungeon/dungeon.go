@@ -46,7 +46,7 @@ func CreateDungeon(engine *ecs.Engine, m grid.Rect, opts DungeonOptions) grid.Re
 		// test if candidate is overlapping with any existing rooms
 		existIntersection := false
 		for r := 0; r < len(rooms); r++ {
-			thisIntersects := grid.RectsIntersect(rooms[0], candidate)
+			thisIntersects := grid.RectsIntersect(rooms[r], candidate)
 			if thisIntersects {
 				existIntersection = true
 				break
@@ -81,7 +81,7 @@ func CreateDungeon(engine *ecs.Engine, m grid.Rect, opts DungeonOptions) grid.Re
 		if tile.Sprite == grid.Wall {
 			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Wall"})
 			tileEntity.AddComponent(state.IsBlocking, state.IsBlockingComponent{})
-			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#1a1aff", Bg: "#00FFFF", Char: '#'})
+			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#1a1aff", Char: '#'})
 		} else if tile.Sprite == grid.Floor {
 			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Floor"})
 			tileEntity.AddComponent(state.IsFloor, state.IsFloorComponent{})

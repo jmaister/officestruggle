@@ -6,7 +6,6 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
@@ -14,11 +13,6 @@ import (
 )
 
 func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.Image) {
-	// Tile size
-	w := gameState.ScreenWidth
-	h := gameState.ScreenHeight
-	tw := w / gameState.Grid.Width
-	th := h / gameState.Grid.Height
 
 	player := gameState.Player
 	plPosition := player.GetComponent(state.Position).(state.PositionComponent)
@@ -26,12 +20,6 @@ func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 
 	fov := stats.Fov
 
-	fg := color.RGBA{
-		R: 74,
-		G: 232,
-		B: 218,
-		A: 127, // 0.5
-	}
 	bg := color.RGBA{
 		R: 255,
 		G: 232,
@@ -41,31 +29,25 @@ func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 
 	mouseX, mouseY := ebiten.CursorPosition()
 
-	font := assets.LoadFontCached(float64(20))
-
 	// Calculate line with tile positions
-	line := BresenhamLine(plPosition.X, plPosition.Y, mouseX/tw, mouseY/th)
+	targetX, targetY := ToTile(gameState, mouseX, mouseY)
+	// TODO: line returned can be form player to target, or target to player. Detect and use player to target.
+	line := BresenhamLine(plPosition.X, plPosition.Y, targetX, targetY)
 	for _, tile := range line {
 		if CalcDistance(plPosition.X, plPosition.Y, tile.X, tile.Y) >= fov {
 			break
 		}
 		_, blocked := engine.PosCache.GetOneByCoordAndComponents(tile.X, tile.Y, []string{state.IsBlocking})
+		DrawTile(screen, gameState, tile.X, tile.Y, bg)
 		if blocked {
 			break
 		}
-		drawCharWithBackground(screen, "x", tile.X*tw, tile.Y*th, font, fg, bg)
 	}
 }
 
 func TargetingMouseClick(engine *ecs.Engine, gameState *gamestate.GameState, mouseX int, mouseY int) {
-	// Tile size
-	w := gameState.ScreenWidth
-	h := gameState.ScreenHeight
-	tw := w / gameState.Grid.Width
-	th := h / gameState.Grid.Height
 
-	x := mouseX / tw
-	y := mouseY / th
+	x, y := ToTile(gameState, mouseX, mouseY)
 
 	targetEntities, ok := engine.PosCache.GetByCoord(x, y)
 	if ok {

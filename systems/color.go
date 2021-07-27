@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-func ParseHexColorFast(s string) color.RGBA {
+func ParseHexColorFast(s string) color.Color {
 	c := color.RGBA{}
 	c.A = 0xff
 
@@ -141,7 +141,7 @@ func HSVToRGB(hi int, s float64, v float64) color.RGBA {
 	}
 }
 
-func ColorBlend(ca color.RGBA, cb color.RGBA, mix float64) color.Color {
+func ColorBlend(ca color.Color, cb color.Color, mix float64) color.Color {
 
 	ra, ga, ba, _ := ca.RGBA()
 	rb, gb, bb, _ := cb.RGBA()

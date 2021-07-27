@@ -19,6 +19,7 @@ const (
 	GameScreen      ScreenState = "game"
 	TargetingScreen ScreenState = "target"
 	InventoryScreen ScreenState = "inventory"
+	TestScreen      ScreenState = "test"
 )
 
 type InventoryScreenFocus string
@@ -77,10 +78,10 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		Width:  80,
 		Height: 34,
 		Map: grid.Rect{
-			X:      21,
-			Y:      6,
-			Width:  79,
-			Height: 29,
+			X:      16,
+			Y:      8,
+			Width:  74,
+			Height: 30,
 		},
 		MessageLog: grid.Rect{
 			X:      0,
@@ -91,20 +92,20 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		PlayerHud: grid.Rect{
 			X:      0,
 			Y:      6,
-			Width:  20,
+			Width:  79,
 			Height: 1,
 		},
 		InfoBar: grid.Rect{
-			X:      21,
-			Y:      32,
+			X:      16,
+			Y:      39,
 			Width:  79,
-			Height: -1,
+			Height: 10,
 		},
 		GameInventory: grid.Rect{
 			X:      0,
-			Y:      10,
-			Width:  79,
-			Height: 10,
+			Y:      8,
+			Width:  15,
+			Height: 40,
 		},
 		Inventory: grid.Rect{
 			X:      2,
@@ -122,7 +123,7 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
-		MaxRoomCount: 8,
+		MaxRoomCount: 40,
 	})
 
 	// Player
@@ -170,10 +171,10 @@ func NewGameState(engine *ecs.Engine) *GameState {
 		},
 		IsPlayerTurn: true,
 		L:            log.New(os.Stderr, "", 0),
-		ScreenWidth:  1024,
-		ScreenHeight: 576,
-		TileWidth:    16,
-		TileHeight:   16,
+		ScreenWidth:  1920,
+		ScreenHeight: 1080,
+		TileWidth:    20,
+		TileHeight:   20,
 	}
 }
 
