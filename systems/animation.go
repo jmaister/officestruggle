@@ -28,7 +28,7 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 				animation.Update(percent, gameState, screen)
 			} else {
 				entity.RemoveComponent(state.Animated)
-				engine.DestroyEntity(entity)
+				animation.End(engine, gameState, entity)
 			}
 
 		}
