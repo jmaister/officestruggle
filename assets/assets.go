@@ -55,9 +55,9 @@ func loadFont(size float64) font.Face {
 	//fontFile := "fonts/NotCourierSans.ttf"
 	// fontFile := "fonts/DejaVuSansMono-Bold.ttf"
 	//fontFile := "fonts/SLC_.ttf"
-	//fontBytes, err := ioutil.ReadFile(fontFile)
+	//fontFile := "fonts/FreeMono.ttf"
 
-	fontFile := "fonts/FreeMono.ttf"
+	fontFile := "fonts/unifont-13.0.06.ttf"
 	fontBytes, err := Data.ReadFile(fontFile)
 
 	if err != nil {
