@@ -7,6 +7,7 @@ import (
 	"jordiburgos.com/officestruggle/animations"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -20,7 +21,6 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 		for _, blocker := range blockers {
 			if blocker.HasComponent(state.Stats) {
 				bStats := blocker.GetComponent(state.Stats).(state.StatsComponent)
-				bPos := blocker.GetComponent(state.Position).(state.PositionComponent)
 
 				// Damage calculation and attack
 				damage := aStats.Power - bStats.Defense
@@ -28,17 +28,9 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 					gs.Log(gamestate.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
 
-					animationEntity := engine.NewEntity()
-					animationEntity.AddComponent(state.Layer500, state.Layer500Component{})
-					animationEntity.AddComponent(state.Animated, animations.AnimatedComponent{
-						Animation: DamageAnimation{
-							X:                 bPos.X,
-							Y:                 bPos.Y,
-							Damage:            strconv.Itoa(damage),
-							AnimationStart:    time.Now(),
-							AnimationDuration: 1 * time.Second,
-						},
-					})
+					aPos := attacker.GetComponent(state.Position).(state.PositionComponent)
+					bPos := blocker.GetComponent(state.Position).(state.PositionComponent)
+					createDamageAnimation(engine, aPos, bPos, strconv.Itoa(damage))
 
 					if newHealth <= 0 {
 						Kill(gs, blocker)
@@ -71,4 +63,42 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 		apparence.Char = '%'
 		entity.ReplaceComponent(state.Apparence, apparence)
 	}
+}
+
+func createDamageAnimation(engine *ecs.Engine, aPos state.PositionComponent, bPos state.PositionComponent, str string) {
+	animationEntity := engine.NewEntity()
+	animationEntity.AddComponent(state.Layer500, state.Layer500Component{})
+
+	dir := grid.UP
+	if aPos.X == bPos.X {
+		if aPos.Y > bPos.Y {
+			// b
+			// @
+			dir = grid.UP_RIGHT
+		} else {
+			// @
+			// b
+			dir = grid.DOWN_RIGHT
+		}
+	} else if aPos.Y == bPos.Y {
+		if aPos.X > bPos.X {
+			// b@
+			dir = grid.UP_LEFT
+		} else {
+			// @b
+			dir = grid.UP_RIGHT
+		}
+	}
+
+	animationEntity.AddComponent(state.Animated, animations.AnimatedComponent{
+		Animation: animations.DamageAnimation{
+			X:                 bPos.X,
+			Y:                 bPos.Y,
+			Direction:         dir,
+			Damage:            str,
+			AnimationStart:    time.Now(),
+			AnimationDuration: 750 * time.Millisecond,
+		},
+	})
+
 }
