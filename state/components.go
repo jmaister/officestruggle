@@ -3,9 +3,7 @@ package state
 import (
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"jordiburgos.com/officestruggle/ecs"
 )
 
@@ -299,7 +297,7 @@ func (a InventoryComponent) ComponentType() string {
 type EquipableComponent struct {
 	*StatsValues
 
-	Position EquipPosition
+	EquipSlot EquipPosition
 }
 
 func (a EquipableComponent) ComponentType() string {
@@ -352,18 +350,4 @@ func (a EquipmentComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 
 func (a EquipmentComponent) ComponentType() string {
 	return Equipment
-}
-
-type Animation interface {
-	StartTime() time.Time
-	Duration() time.Duration
-	Update(percent float64, screen *ebiten.Image)
-}
-
-type AnimatedComponent struct {
-	Animation Animation
-}
-
-func (a AnimatedComponent) ComponentType() string {
-	return Animated
 }

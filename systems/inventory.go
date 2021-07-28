@@ -135,12 +135,12 @@ func InventoryEquip(gs *gamestate.GameState) {
 
 		// Add to equip
 		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
-		current, ok := equipment.Items[equipable.Position]
+		current, ok := equipment.Items[equipable.EquipSlot]
 		if ok {
 			inventory.AddItem(current)
 			player.ReplaceComponent(state.Inventory, inventory)
 		}
-		equipment.Items[equipable.Position] = item
+		equipment.Items[equipable.EquipSlot] = item
 		player.ReplaceComponent(state.Equipment, equipment)
 
 		// TODO: move to it's own System
@@ -165,7 +165,7 @@ func InventoryUnequip(gs *gamestate.GameState) {
 		// Remove from equip
 		equipable, _ := item.GetComponent(state.Equipable).(state.EquipableComponent)
 		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
-		delete(equipment.Items, equipable.Position)
+		delete(equipment.Items, equipable.EquipSlot)
 
 		// Add to inventory
 		// TODO: check if there is space in the inventory

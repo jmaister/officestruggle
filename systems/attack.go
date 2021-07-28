@@ -2,7 +2,9 @@ package systems
 
 import (
 	"strconv"
+	"time"
 
+	"jordiburgos.com/officestruggle/animations"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
@@ -25,7 +27,19 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 				if damage >= 0 {
 					gs.Log(gamestate.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
-					state.NewDamageAnimation(engine.NewEntity(), bPos.X, bPos.Y, strconv.Itoa(damage))
+
+					animationEntity := engine.NewEntity()
+					animationEntity.AddComponent(state.Layer500, state.Layer500Component{})
+					animationEntity.AddComponent(state.Animated, animations.AnimatedComponent{
+						Animation: DamageAnimation{
+							X:                 bPos.X,
+							Y:                 bPos.Y,
+							Damage:            strconv.Itoa(damage),
+							AnimationStart:    time.Now(),
+							AnimationDuration: 1 * time.Second,
+						},
+					})
+
 					if newHealth <= 0 {
 						Kill(gs, blocker)
 					} else {

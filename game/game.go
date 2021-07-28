@@ -161,7 +161,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else if g.GameState.ScreenState == gamestate.TestScreen {
 		systems.RenderTestScreen(g.Engine, g.GameState, screen)
 	}
-	systems.Animation(g.Engine, g.GameState, screen)
+
+	// Update active animations
+	systems.AnimationSystem(g.Engine, g.GameState, screen)
 }
 
 func (g *Game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, screenHeight int) {
