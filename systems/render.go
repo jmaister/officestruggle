@@ -14,6 +14,7 @@ import (
 	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/palette"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -92,12 +93,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 
 	pp := gameState.Player.GetComponent(state.Position).(state.PositionComponent)
 	pStats := gameState.Player.GetComponent(state.Stats).(state.StatsComponent)
-	lightColor := color.RGBA{
-		R: 250,
-		G: 250,
-		B: 30,
-		A: 0,
-	}
+	lightColor := palette.PColor(palette.Yellow, 0.5)
 
 	for _, entity := range entities {
 		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
