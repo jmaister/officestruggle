@@ -98,7 +98,7 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 		// If enemy is far from player
 		if distance == 1 {
 			// Attack to the player
-			Attack(gameState, enemy, []*ecs.Entity{player})
+			Attack(engine, gameState, enemy, []*ecs.Entity{player})
 		} else if distance > 6 {
 			// TODO: change to enemy.fov
 			// Wander

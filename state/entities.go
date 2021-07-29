@@ -1,12 +1,14 @@
 package state
 
-import "jordiburgos.com/officestruggle/ecs"
+import (
+	"jordiburgos.com/officestruggle/ecs"
+)
 
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Player, PlayerComponent{})
 	entity.AddComponent(Description, DescriptionComponent{Name: "Player"})
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#ffffff", Char: '@'})
-	entity.AddComponent(Layer500, Layer400Component{})
+	entity.AddComponent(Layer400, Layer400Component{})
 	entity.AddComponent(Stats, StatsComponent{
 		StatsValues: &StatsValues{},
 	})
@@ -91,7 +93,7 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 func NewSword(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(IsPickup, IsPickupComponent{})
 	entity.AddComponent(Equipable, EquipableComponent{
-		Position: EquipWeapon,
+		EquipSlot: EquipWeapon,
 		StatsValues: &StatsValues{
 			Health:     0,
 			MaxHealth:  1,

@@ -2,13 +2,16 @@ package systems
 
 import (
 	"strconv"
+	"time"
 
+	"jordiburgos.com/officestruggle/animations"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 )
 
-func Attack(gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityList) {
+func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityList) {
 
 	// Try if attacker has Stats
 	if attacker.HasComponent(state.Stats) {
@@ -24,6 +27,11 @@ func Attack(gs *gamestate.GameState, attacker *ecs.Entity, blockers ecs.EntityLi
 				if damage >= 0 {
 					gs.Log(gamestate.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
+
+					aPos := attacker.GetComponent(state.Position).(state.PositionComponent)
+					bPos := blocker.GetComponent(state.Position).(state.PositionComponent)
+					createDamageAnimation(engine, aPos, bPos, strconv.Itoa(damage))
+
 					if newHealth <= 0 {
 						Kill(gs, blocker)
 					} else {
@@ -55,4 +63,42 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 		apparence.Char = '%'
 		entity.ReplaceComponent(state.Apparence, apparence)
 	}
+}
+
+func createDamageAnimation(engine *ecs.Engine, aPos state.PositionComponent, bPos state.PositionComponent, str string) {
+	animationEntity := engine.NewEntity()
+	animationEntity.AddComponent(state.Layer500, state.Layer500Component{})
+
+	dir := grid.UP
+	if aPos.X == bPos.X {
+		if aPos.Y > bPos.Y {
+			// b
+			// @
+			dir = grid.UP_RIGHT
+		} else {
+			// @
+			// b
+			dir = grid.DOWN_RIGHT
+		}
+	} else if aPos.Y == bPos.Y {
+		if aPos.X > bPos.X {
+			// b@
+			dir = grid.UP_LEFT
+		} else {
+			// @b
+			dir = grid.UP_RIGHT
+		}
+	}
+
+	animationEntity.AddComponent(state.Animated, animations.AnimatedComponent{
+		Animation: animations.DamageAnimation{
+			X:                 bPos.X,
+			Y:                 bPos.Y,
+			Direction:         dir,
+			Damage:            str,
+			AnimationStart:    time.Now(),
+			AnimationDuration: 750 * time.Millisecond,
+		},
+	})
+
 }

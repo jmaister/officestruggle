@@ -43,29 +43,14 @@ func DrawChar(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font 
 	x1, y1 := ToPixel(gs, x, y)
 	ebitenutil.DrawRect(screen, float64(x1), float64(y1), float64(gs.TileWidth-1), float64(gs.TileHeight-1), bgColor)
 
-	rect := text.BoundString(font, str)
-	text.Draw(screen, str, font, x1-2+rect.Dx()/2, y1+rect.Dy(), fgColor)
+	// rect := text.BoundString(font, str)
+	// rect.Dx(), rect.Dy()
+	h1 := gs.TileHeight
 
-	/*
-		w1 := gs.TileWidth
-		h1 := gs.TileHeight
-		w2 := rect.Dx()
-		h2 := rect.Dy()
+	xx := x1
+	yy := y1 + h1
+	text.Draw(screen, str, font, xx, yy, fgColor)
 
-		// • 25 21 500 420 (4,-7)-(8,-2) 4 5
-
-		x2 := x1 + ((w2 - w1) / 2) + (rect.Max.X-rect.Min.X)/2
-		yd := (rect.Max.Y - rect.Min.Y)
-		if yd < 0 {
-			yd = -1 * yd
-		}
-		y2 := y1 + ((h2 - h1) / 2) + yd
-		text.Draw(screen, str, font, x2, y2, ParseHexColorFast("#FF0000"))
-
-		if str == "•" {
-			fmt.Println(str, x, y, x1, y1, rect, rect.Dx(), rect.Dy())
-		}
-	*/
 }
 
 func DrawText(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font font.Face, str string, fgColor color.Color, bgColor color.Color) {

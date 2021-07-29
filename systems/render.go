@@ -85,7 +85,8 @@ func showDebug(screen *ebiten.Image, gs *gamestate.GameState) {
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) []*ecs.Entity {
 
-	font := assets.LoadFontCached(float64(20))
+	// font := assets.LoadFontCached(float64(18))
+	font := assets.MplusFont(float64(18))
 
 	visibleEntities := []*ecs.Entity{}
 

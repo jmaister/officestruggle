@@ -11,18 +11,28 @@ type Direction struct {
 	Y int
 }
 
+var UP Direction = Direction{X: 0, Y: -1}
+var RIGHT Direction = Direction{X: 1, Y: 0}
+var DOWN Direction = Direction{X: 0, Y: 1}
+var LEFT Direction = Direction{X: -1, Y: 0}
+
+var UP_RIGHT Direction = Direction{X: 1, Y: -1}
+var DOWN_RIGHT Direction = Direction{X: 1, Y: 1}
+var DOWN_LEFT Direction = Direction{X: -1, Y: 1}
+var UP_LEFT Direction = Direction{X: -1, Y: -1}
+
 var Cardinal = []Direction{
-	{X: 0, Y: -1}, // N
-	{X: 1, Y: 0},  // E
-	{X: 0, Y: 1},  // S
-	{X: -1, Y: 0}, // W
+	UP,    // N
+	RIGHT, // E
+	DOWN,  // S
+	LEFT,  // W
 }
 
 var Diagonal = []Direction{
-	{X: 1, Y: -1},  // NE
-	{X: 1, Y: 1},   // SE
-	{X: -1, Y: 1},  // SW
-	{X: -1, Y: -1}, // NW
+	UP_RIGHT,   // NE
+	DOWN_RIGHT, // SE
+	DOWN_LEFT,  // SW
+	UP_LEFT,    // NW
 }
 
 var AllDirection = append(Cardinal, Diagonal...)

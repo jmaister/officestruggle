@@ -12,18 +12,22 @@ import (
 
 func TestWhite(t *testing.T) {
 	thisColor := systems.ParseHexColorFast("#FFFFFF")
+	tr, tg, tb, ta := thisColor.RGBA()
 
-	assert.Equal(t, uint8(255), thisColor.R)
-	assert.Equal(t, uint8(255), thisColor.G)
-	assert.Equal(t, uint8(255), thisColor.B)
+	assert.Equal(t, uint32(255), tr>>8)
+	assert.Equal(t, uint32(255), tg>>8)
+	assert.Equal(t, uint32(255), tb>>8)
+	assert.Equal(t, uint32(255), ta>>8)
 }
 
 func TestBlack(t *testing.T) {
 	thisColor := systems.ParseHexColorFast("#000000")
+	tr, tg, tb, ta := thisColor.RGBA()
 
-	assert.Equal(t, uint8(0), thisColor.R)
-	assert.Equal(t, uint8(0), thisColor.G)
-	assert.Equal(t, uint8(0), thisColor.B)
+	assert.Equal(t, uint32(0), tr>>8)
+	assert.Equal(t, uint32(0), tg>>8)
+	assert.Equal(t, uint32(0), tb>>8)
+	assert.Equal(t, uint32(255), ta>>8)
 }
 
 func TestRandom(t *testing.T) {
@@ -33,9 +37,12 @@ func TestRandom(t *testing.T) {
 	colorStr := "#" + toHex(r) + toHex(g) + toHex(b)
 	thisColor := systems.ParseHexColorFast(colorStr)
 
-	assert.Equal(t, uint8(r), thisColor.R)
-	assert.Equal(t, uint8(g), thisColor.G)
-	assert.Equal(t, uint8(b), thisColor.B)
+	tr, tg, tb, ta := thisColor.RGBA()
+
+	assert.Equal(t, uint32(r), tr>>8)
+	assert.Equal(t, uint32(g), tg>>8)
+	assert.Equal(t, uint32(b), tb>>8)
+	assert.Equal(t, uint32(255), ta>>8)
 }
 
 func toHex(n int64) string {

@@ -1,6 +1,9 @@
 package systems
 
 import (
+	"time"
+
+	"jordiburgos.com/officestruggle/animations"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
@@ -68,10 +71,18 @@ func InventoryConsume(gs *gamestate.GameState) {
 		// Consume by player
 		conStats := consumable.GetComponent(state.Consumable).(state.ConsumableComponent)
 		plStats := player.GetComponent(state.Stats).(state.StatsComponent)
+		apparence := player.GetComponent(state.Apparence).(state.ApparenceComponent)
 
 		newStats := plStats.Merge(*conStats.StatsValues)
 		player.ReplaceComponent(state.Stats, state.StatsComponent{
 			StatsValues: &newStats,
+		})
+		player.AddComponent(state.Animated, animations.AnimatedComponent{
+			Animation: animations.HealthPotionAnimation{
+				AnimationStart:    time.Now(),
+				AnimationDuration: 1 * time.Second,
+				StartingApparence: apparence,
+			},
 		})
 
 		gs.Log(gamestate.Info, "Consumed "+state.GetLongDescription(consumable))
@@ -135,12 +146,12 @@ func InventoryEquip(gs *gamestate.GameState) {
 
 		// Add to equip
 		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
-		current, ok := equipment.Items[equipable.Position]
+		current, ok := equipment.Items[equipable.EquipSlot]
 		if ok {
 			inventory.AddItem(current)
 			player.ReplaceComponent(state.Inventory, inventory)
 		}
-		equipment.Items[equipable.Position] = item
+		equipment.Items[equipable.EquipSlot] = item
 		player.ReplaceComponent(state.Equipment, equipment)
 
 		// TODO: move to it's own System
@@ -165,7 +176,7 @@ func InventoryUnequip(gs *gamestate.GameState) {
 		// Remove from equip
 		equipable, _ := item.GetComponent(state.Equipable).(state.EquipableComponent)
 		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
-		delete(equipment.Items, equipable.Position)
+		delete(equipment.Items, equipable.EquipSlot)
 
 		// Add to inventory
 		// TODO: check if there is space in the inventory
