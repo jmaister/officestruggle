@@ -31,7 +31,6 @@ func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 
 	// Calculate line with tile positions
 	targetX, targetY := ToTile(gameState, mouseX, mouseY)
-	// TODO: line returned can be form player to target, or target to player. Detect and use player to target.
 	line := BresenhamLine(plPosition.X, plPosition.Y, targetX, targetY)
 	for _, tile := range line {
 		if CalcDistance(plPosition.X, plPosition.Y, tile.X, tile.Y) >= fov {
@@ -64,6 +63,9 @@ func BresenhamLine(x0 int, y0 int, x1 int, y1 int) []grid.Tile {
 	// advance the size of "result" and to use a fixed-size array
 	// instead of a list.
 	result := []grid.Tile{}
+
+	originX := x0
+	originY := y0
 
 	steep := math.Abs(float64(y1-y0)) > math.Abs(float64(x1-x0))
 	if steep {
@@ -99,5 +101,17 @@ func BresenhamLine(x0 int, y0 int, x1 int, y1 int) []grid.Tile {
 		}
 	}
 
+	// Line returned can be form player to target, or target to player. Detect and use player to target.
+	if len(result) > 0 && (result[0].X != originX || result[0].Y != originY) {
+		// Reverse result
+		reverse(result)
+	}
 	return result
+}
+
+func reverse(a []grid.Tile) {
+	for i := len(a)/2 - 1; i >= 0; i-- {
+		opp := len(a) - 1 - i
+		a[i], a[opp] = a[opp], a[i]
+	}
 }
