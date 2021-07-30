@@ -2,12 +2,14 @@ package systems
 
 import (
 	"image/color"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/palette"
 )
 
 func RenderTestScreen(engine *ecs.Engine, gs *gamestate.GameState, screen *ebiten.Image) {
@@ -29,6 +31,20 @@ func RenderTestScreen(engine *ecs.Engine, gs *gamestate.GameState, screen *ebite
 			//ch := fmt.Sprintf("%d", x%10)
 			DrawChar(screen, gs, x, y, font, ch, fgColor, bgColor)
 		}
+	}
+
+	// Draw palette of colors
+	y := 12
+	for _, hue := range palette.Hues {
+		//for i := 0; i <= 360; i = i + 10 {
+		//hue := i
+		for x := 0; x <= 10; x++ {
+			cl := palette.PColor(hue, float64(x)/10.0)
+
+			DrawTile(screen, gs, x, y, cl)
+		}
+		DrawText(screen, gs, 12, y, fnt20, strconv.Itoa(int(hue)), color.White, color.Black)
+		y++
 	}
 
 }
