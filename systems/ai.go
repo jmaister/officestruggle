@@ -94,13 +94,13 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 		from := tiles[fromTileEntity.Id]
 
 		distance := from.H(to)
+		stats := enemy.GetComponent(state.Stats).(state.StatsComponent)
 
 		// If enemy is far from player
 		if distance == 1 {
 			// Attack to the player
 			Attack(engine, gameState, enemy, []*ecs.Entity{player})
-		} else if distance > 6 {
-			// TODO: change to enemy.fov
+		} else if distance > stats.Fov {
 			// Wander
 			wander(enemy)
 		} else {
