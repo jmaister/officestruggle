@@ -1,7 +1,11 @@
 package state
 
 import (
+	"math/rand"
+
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/systems"
 )
 
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
@@ -108,5 +112,24 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Description, DescriptionComponent{Name: "Sword"})
 	entity.AddComponent(Apparence, ApparenceComponent{Color: "#1EFFFF", Char: '/'})
 	entity.AddComponent(Layer300, Layer400Component{})
+	return entity
+}
+
+func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
+	entity.AddComponent(IsPickup, IsPickupComponent{})
+	entity.AddComponent(Description, DescriptionComponent{Name: "Lightning scroll"})
+	entity.AddComponent(Apparence, ApparenceComponent{Color: "#DAA520", Char: '♪'})
+	entity.AddComponent(Layer300, Layer400Component{})
+	entity.AddComponent(RequiresTarget, RequiresTargetComponent{
+		Targeting:   RandomAcquisitionType,
+		TargetTypes: []string{AI},
+		OnSelect: func(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, targets ecs.EntityList) {
+			rndEnemy := targets[rand.Intn(len(targets))]
+
+			// TODO: create Attack system with more options: send damage
+			// TODO: create targeting system, calculate targets, log if no targets available, destroy used item? add Used() method
+			systems.Attack(engine, gs, attacker, ecs.EntityList{rndEnemy})
+		},
+	})
 	return entity
 }

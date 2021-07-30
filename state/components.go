@@ -5,30 +5,32 @@ import (
 	"strings"
 
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/gamestate"
 )
 
 const (
-	Player      = "player"
-	Apparence   = "apparence"
-	Position    = "position"
-	Move        = "move"
-	IsBlocking  = "isBlocking"
-	IsFloor     = "isFloor"
-	Layer100    = "layer100" // Walls and floors
-	Layer300    = "layer300" // Objects
-	Layer400    = "layer400" // Player and enemies
-	Layer500    = "layer500" // Animations
-	Visitable   = "visitable"
-	Description = "description"
-	AI          = "ai"
-	Stats       = "stats"
-	Consumable  = "consumable"
-	IsPickup    = "isPickup"
-	Dead        = "dead"
-	Inventory   = "inventory"
-	Equipable   = "equipable"
-	Equipment   = "equipment"
-	Animated    = "animated"
+	Player         = "player"
+	Apparence      = "apparence"
+	Position       = "position"
+	Move           = "move"
+	IsBlocking     = "isBlocking"
+	IsFloor        = "isFloor"
+	Layer100       = "layer100" // Walls and floors
+	Layer300       = "layer300" // Objects
+	Layer400       = "layer400" // Player and enemies
+	Layer500       = "layer500" // Animations
+	Visitable      = "visitable"
+	Description    = "description"
+	AI             = "ai"
+	Stats          = "stats"
+	Consumable     = "consumable"
+	IsPickup       = "isPickup"
+	Dead           = "dead"
+	Inventory      = "inventory"
+	Equipable      = "equipable"
+	Equipment      = "equipment"
+	Animated       = "animated"
+	RequiresTarget = "requiresTarget"
 )
 
 type PlayerComponent struct {
@@ -350,4 +352,20 @@ func (a EquipmentComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 
 func (a EquipmentComponent) ComponentType() string {
 	return Equipment
+}
+
+type TargetingType string
+
+const RandomAcquisitionType = "random"
+const SelectedAcquisitionType = "selected"
+const AreaAcquisitionType = "area"
+
+type RequiresTargetComponent struct {
+	Targeting   TargetingType
+	TargetTypes []string
+	OnSelect    func(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, targets ecs.EntityList)
+}
+
+func (a RequiresTargetComponent) ComponentType() string {
+	return RequiresTarget
 }
