@@ -1,5 +1,11 @@
 package constants
 
+import (
+	"image/color"
+
+	"jordiburgos.com/officestruggle/palette"
+)
+
 const (
 	Player        = "player"
 	Apparence     = "apparence"
@@ -24,3 +30,21 @@ const (
 	Animated      = "animated"
 	ConsumeEffect = "consumeEffect"
 )
+
+type LogType string
+
+const (
+	Info   LogType = "i"
+	Warn   LogType = "w"
+	Bad    LogType = "b"
+	Danger LogType = "d"
+	Good   LogType = "g"
+)
+
+var LogColors = map[LogType]color.Color{
+	Info:   color.White,
+	Warn:   palette.PColor(palette.Orange, 0.6),
+	Bad:    palette.PColor(palette.Red, 0.6),
+	Danger: palette.PColor(palette.Red, 0.3),
+	Good:   palette.PColor(palette.Green, 0.6),
+}

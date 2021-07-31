@@ -149,14 +149,6 @@ func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face
 
 }
 
-var messageLogColors = [5]color.Color{
-	ParseHexColorFast("#333333"),
-	ParseHexColorFast("#555555"),
-	ParseHexColorFast("#777777"),
-	ParseHexColorFast("#AAAAAA"),
-	ParseHexColorFast("#FFFFFF"),
-}
-
 func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
 	fontSize := 14
@@ -165,9 +157,8 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 	position := gs.Grid.MessageLog
 
 	lines := gs.GetLog(position.Height)
-	n := len(lines)
 	for i, line := range lines {
-		fgColor := messageLogColors[5-n+i]
+		fgColor := constants.LogColors[line.Type]
 		logStr := line.Msg
 		if line.Count > 1 {
 			logStr = strconv.Itoa(line.Count) + "x " + line.Msg

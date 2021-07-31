@@ -34,7 +34,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 			},
 		})
 
-		gs.Log(gamestate.Info, "Consumed "+state.GetLongDescription(consumable))
+		gs.Log(constants.Info, "Consumed "+state.GetLongDescription(consumable))
 		return true
 	} else if isConsumeEffect {
 		consumeEffect := consumable.GetComponent(constants.ConsumeEffect).(state.ConsumeEffectComponent)
@@ -63,7 +63,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 					AttackWithItem(gs.Engine, gs, gs.Player, target, consumable, damagePerEnemy)
 				}
 			} else {
-				gs.Log(gamestate.Warn, state.GetLongDescription(consumable)+" is used but no targets found.")
+				gs.Log(constants.Warn, state.GetLongDescription(consumable)+" is used but no targets found.")
 			}
 			return true
 		default:
@@ -71,7 +71,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 			panic("Add other target types")
 		}
 	} else {
-		gs.Log(gamestate.Warn, state.GetLongDescription(consumable)+" is not consumable.")
+		gs.Log(constants.Warn, state.GetLongDescription(consumable)+" is not consumable.")
 		return false
 	}
 

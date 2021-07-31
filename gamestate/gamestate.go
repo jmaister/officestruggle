@@ -52,23 +52,13 @@ type GameState struct {
 	logLines             []LogLine
 }
 
-type LogType string
-
-const (
-	Info   LogType = "i"
-	Warn   LogType = "w"
-	Bad    LogType = "b"
-	Danger LogType = "d"
-	Good   LogType = "g"
-)
-
 type LogLine struct {
 	Msg   string
 	Count int
-	Type  LogType
+	Type  constants.LogType
 }
 
-func (gs *GameState) Log(t LogType, s string) {
+func (gs *GameState) Log(t constants.LogType, s string) {
 	n := len(gs.logLines)
 	if n > 0 {
 		if gs.logLines[n-1].Msg == s {

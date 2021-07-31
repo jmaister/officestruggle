@@ -17,17 +17,17 @@ func InventoryPickUp(gs *gamestate.GameState) {
 		for _, pickable := range pickables {
 			pickUpOk := inventory.AddItem(pickable)
 			if pickUpOk {
-				gs.Log(gamestate.Info, state.GetDescription(player)+" picks up "+state.GetLongDescription(pickable))
+				gs.Log(constants.Info, state.GetDescription(player)+" picks up "+state.GetLongDescription(pickable))
 
 				pickable.RemoveComponent(constants.IsPickup)
 				pickable.RemoveComponent(constants.Position)
 			} else {
-				gs.Log(gamestate.Bad, state.GetDescription(player)+" can't pickup, inventory is full.")
+				gs.Log(constants.Bad, state.GetDescription(player)+" can't pickup, inventory is full.")
 			}
 		}
 		player.ReplaceComponent(inventory)
 	} else {
-		gs.Log(gamestate.Warn, "No items to pickup found at this location.")
+		gs.Log(constants.Warn, "No items to pickup found at this location.")
 	}
 }
 
@@ -69,7 +69,7 @@ func InventoryConsume(gs *gamestate.GameState) {
 
 		updateInventorySelection(gs, 0)
 	} else {
-		gs.Log(gamestate.Warn, "No items to consume.")
+		gs.Log(constants.Warn, "No items to consume.")
 	}
 }
 
@@ -95,7 +95,7 @@ func InventoryDrop(gs *gamestate.GameState) {
 	invetoryItem, ok := getCurrentInventoryItem(gs)
 	if ok {
 		// TODO: move to it's own System
-		gs.Log(gamestate.Info, "You dropped "+state.GetLongDescription(invetoryItem))
+		gs.Log(constants.Info, "You dropped "+state.GetLongDescription(invetoryItem))
 
 		// Remove from inventory
 		inventory.RemoveItem(invetoryItem)
@@ -110,7 +110,7 @@ func InventoryDrop(gs *gamestate.GameState) {
 
 		updateInventorySelection(gs, 0)
 	} else {
-		gs.Log(gamestate.Warn, "No items to drop.")
+		gs.Log(constants.Warn, "No items to drop.")
 	}
 }
 
@@ -122,7 +122,7 @@ func InventoryEquip(gs *gamestate.GameState) {
 	equipable, isEquipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
 	if ok && isEquipable {
 		// TODO: move to it's own System
-		gs.Log(gamestate.Info, "You equipped "+state.GetLongDescription(item))
+		gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
 
 		// Remove from inventory
 		inventory.RemoveItem(item)
@@ -140,9 +140,9 @@ func InventoryEquip(gs *gamestate.GameState) {
 
 		updateInventorySelection(gs, 0)
 	} else if !isEquipable {
-		gs.Log(gamestate.Warn, state.GetDescription(item)+" can't be equiped.")
+		gs.Log(constants.Warn, state.GetDescription(item)+" can't be equiped.")
 	} else {
-		gs.Log(gamestate.Warn, "No items to equip.")
+		gs.Log(constants.Warn, "No items to equip.")
 	}
 }
 
@@ -152,7 +152,7 @@ func InventoryUnequip(gs *gamestate.GameState) {
 	item, ok := getCurrentEquipmentItem(gs)
 	if ok {
 		// TODO: move to it's own System
-		gs.Log(gamestate.Info, "You unequipped "+state.GetLongDescription(item))
+		gs.Log(constants.Info, "You unequipped "+state.GetLongDescription(item))
 
 		// Remove from equipment
 		equipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
@@ -168,7 +168,7 @@ func InventoryUnequip(gs *gamestate.GameState) {
 
 		updateInventorySelection(gs, 0)
 	} else {
-		gs.Log(gamestate.Warn, "No items to unequip.")
+		gs.Log(constants.Warn, "No items to unequip.")
 	}
 }
 
