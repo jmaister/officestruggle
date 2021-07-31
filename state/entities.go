@@ -1,9 +1,7 @@
 package state
 
 import (
-	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
-	"jordiburgos.com/officestruggle/gamestate"
 )
 
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
@@ -110,21 +108,6 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(DescriptionComponent{Name: "Sword"})
 	entity.AddComponent(ApparenceComponent{Color: "#1EFFFF", Char: '/'})
 	entity.AddComponent(Layer300Component{})
-	return entity
-}
-
-func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
-	entity.AddComponent(IsPickupComponent{})
-	entity.AddComponent(DescriptionComponent{Name: "Lightning scroll"})
-	entity.AddComponent(ApparenceComponent{Color: "#DAA520", Char: '♪'})
-	entity.AddComponent(Layer300Component{})
-	entity.AddComponent(ConsumeEffectComponent{
-		Targeting:   gamestate.RandomAcquisitionType,
-		TargetTypes: []string{constants.AI},
-		TargetCount: 1,
-		Damage:      10,
-		DamageType:  gamestate.DamageEachType,
-	})
 	return entity
 }
 

@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"fmt"
 	"image/color"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
+	"jordiburgos.com/officestruggle/interfaces"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -18,9 +20,10 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 	entities := engine.Entities.GetEntities([]string{constants.Animated})
 
 	for _, entity := range entities {
-		animatedCmp, ok := entity.GetComponent(constants.Animated).(AnimatedComponent)
+		animatedCmp, ok := entity.GetComponent(constants.Animated).(state.AnimatedComponent)
 		if ok {
 			animation := animatedCmp.Animation
+			fmt.Println("anim", animation)
 
 			now := time.Now()
 			start := animation.StartTime()
@@ -40,21 +43,6 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 
 }
 
-type Animation interface {
-	StartTime() time.Time
-	Duration() time.Duration
-	Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image)
-	End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity)
-}
-
-type AnimatedComponent struct {
-	Animation Animation
-}
-
-func (a AnimatedComponent) ComponentType() string {
-	return constants.Animated
-}
-
 // Damage Animation
 
 type DamageAnimation struct {
@@ -66,6 +54,12 @@ type DamageAnimation struct {
 	AnimationDuration time.Duration
 }
 
+func (a DamageAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
+	return a
+}
+func (a DamageAnimation) NeedsInit() bool {
+	return false
+}
 func (a DamageAnimation) StartTime() time.Time {
 	return a.AnimationStart
 }
@@ -104,6 +98,12 @@ type HealthPotionAnimation struct {
 	StartingApparence state.ApparenceComponent
 }
 
+func (a HealthPotionAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
+	return a
+}
+func (a HealthPotionAnimation) NeedsInit() bool {
+	return false
+}
 func (a HealthPotionAnimation) StartTime() time.Time {
 	return a.AnimationStart
 }
@@ -131,4 +131,51 @@ func (a HealthPotionAnimation) Update(percent float64, gs *gamestate.GameState, 
 }
 func (a HealthPotionAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
 	gs.Player.ReplaceComponent(a.StartingApparence)
+}
+
+// Falling char animation
+
+type FallingCharAnimation struct {
+	Direction         grid.Direction
+	Char              string
+	Color             color.Color
+	AnimationStart    time.Time
+	AnimationDuration time.Duration
+	Source            *ecs.Entity
+	Target            *ecs.Entity
+}
+
+func (a FallingCharAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
+	a.AnimationStart = time.Now()
+	a.Source = source
+	a.Target = target
+	return a
+}
+func (a FallingCharAnimation) NeedsInit() bool {
+	return true
+}
+func (a FallingCharAnimation) StartTime() time.Time {
+	return a.AnimationStart
+}
+func (a FallingCharAnimation) Duration() time.Duration {
+	return a.AnimationDuration
+}
+func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
+	pos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
+	x, y := toPixel(gs, pos.X+a.Direction.X, pos.Y+a.Direction.Y)
+
+	x = x - int(float64(3*gs.TileWidth)*(1-percent))*a.Direction.X
+	y = y - int(float64(3*gs.TileHeight)*(1-percent))*a.Direction.Y
+
+	fnt := assets.MplusFont(20)
+	text.Draw(screen, a.Char, fnt, x, y, a.Color)
+}
+func (a FallingCharAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
+	engine.DestroyEntity(entity)
+}
+func (a *FallingCharAnimation) SetStartTime(t time.Time) {
+	a.AnimationStart = t
+}
+func (a *FallingCharAnimation) SetTarget(entity *ecs.Entity) {
+	a.Target = entity
 }

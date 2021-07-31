@@ -121,7 +121,7 @@ func createDamageAnimation(engine *ecs.Engine, aPos state.PositionComponent, bPo
 		}
 	}
 
-	animationEntity.AddComponent(AnimatedComponent{
+	animationEntity.AddComponent(state.AnimatedComponent{
 		Animation: DamageAnimation{
 			X:                 bPos.X,
 			Y:                 bPos.Y,

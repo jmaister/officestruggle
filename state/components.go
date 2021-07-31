@@ -7,6 +7,7 @@ import (
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/interfaces"
 )
 
 type PlayerComponent struct {
@@ -330,12 +331,21 @@ func (a EquipmentComponent) ComponentType() string {
 	return constants.Equipment
 }
 
+type AnimatedComponent struct {
+	Animation interfaces.Animation
+}
+
+func (a AnimatedComponent) ComponentType() string {
+	return constants.Animated
+}
+
 type ConsumeEffectComponent struct {
 	Targeting   gamestate.TargetingType
 	TargetTypes []string
 	TargetCount int
 	Damage      int
 	DamageType  gamestate.DamageType
+	Animation   interfaces.Animation
 }
 
 func (a ConsumeEffectComponent) ComponentType() string {

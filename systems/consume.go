@@ -26,7 +26,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 		player.ReplaceComponent(state.StatsComponent{
 			StatsValues: &newStats,
 		})
-		player.AddComponent(AnimatedComponent{
+		player.AddComponent(state.AnimatedComponent{
 			Animation: HealthPotionAnimation{
 				AnimationStart:    time.Now(),
 				AnimationDuration: 1 * time.Second,
@@ -61,6 +61,15 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 				for i := 0; i < consumeEffect.TargetCount; i++ {
 					target := enemiesInFov[rand.Intn(len(enemiesInFov))]
 					AttackWithItem(gs.Engine, gs, gs.Player, target, consumable, damagePerEnemy)
+
+					animation := consumeEffect.Animation
+					if animation.NeedsInit() {
+						animation = animation.Init(gs.Player, target)
+					}
+					e := gs.Engine.NewEntity()
+					e.AddComponent(state.AnimatedComponent{
+						Animation: animation,
+					})
 				}
 			} else {
 				gs.Log(constants.Warn, state.GetLongDescription(consumable)+" is used but no targets found.")
