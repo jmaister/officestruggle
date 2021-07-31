@@ -154,9 +154,6 @@ func InventoryEquip(gs *gamestate.GameState) {
 		equipment.Items[equipable.EquipSlot] = item
 		player.ReplaceComponent(equipment)
 
-		// TODO: move to it's own System
-		equipment.UpdateStats(player)
-
 		updateInventorySelection(gs, 0)
 	} else if !isEquipable {
 		gs.Log(gamestate.Warn, state.GetDescription(item)+" can't be equiped.")
@@ -174,18 +171,16 @@ func InventoryUnequip(gs *gamestate.GameState) {
 		gs.Log(gamestate.Info, "You unequipped "+state.GetLongDescription(item))
 
 		// Remove from equip
-		equipable, _ := item.GetComponent(constants.Equipable).(state.EquipableComponent)
+		equipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
 		equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 		delete(equipment.Items, equipable.EquipSlot)
+		player.ReplaceComponent(equipment)
 
 		// Add to inventory
 		// TODO: check if there is space in the inventory
 		inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 		inventory.AddItem(item)
 		player.ReplaceComponent(inventory)
-
-		// TODO: move to it's own System
-		equipment.UpdateStats(player)
 
 		updateInventorySelection(gs, 0)
 	} else {
