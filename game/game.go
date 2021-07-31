@@ -7,7 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
-	"jordiburgos.com/officestruggle/state"
 	"jordiburgos.com/officestruggle/systems"
 )
 
@@ -28,10 +27,7 @@ func NewGame() *Game {
 
 func (g *Game) Update() error {
 
-	player := g.GameState.Player
-	position := state.GetPosition(player)
-	stats, _ := player.GetComponent(state.Stats).(state.StatsComponent)
-	g.GameState.Fov.Compute(g.GameState, position.X, position.Y, stats.Fov)
+	g.GameState.ComputeFov()
 
 	// Update the logical state
 	keys := inpututil.PressedKeys()
@@ -68,7 +64,7 @@ func (g *Game) Update() error {
 			}
 
 			if movementKey {
-				player.AddComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
+				systems.HandleMovementKey(g.Engine, g.GameState, dx, dy)
 				systems.Movement(g.Engine, g.GameState, g.GameState.Grid)
 
 				g.GameState.IsPlayerTurn = false

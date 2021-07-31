@@ -3,18 +3,25 @@ package systems
 import (
 	"math"
 
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 )
 
+func HandleMovementKey(engine *ecs.Engine, gs *gamestate.GameState, dx int, dy int) {
+	gs.Player.AddComponent(state.MoveComponent{X: dx, Y: dy})
+}
+
 func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
-	movable := []string{state.Move}
+	movable := []string{constants.Move}
 
 	for _, entity := range engine.Entities.GetEntities(movable) {
-		move := entity.RemoveComponent(state.Move).(state.MoveComponent)
-		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
+		move := entity.GetComponent(constants.Move).(state.MoveComponent)
+		entity.RemoveComponent(constants.Move)
+
+		position, _ := entity.GetComponent(constants.Position).(state.PositionComponent)
 
 		mx := position.X + move.X
 		my := position.Y + move.Y
@@ -30,17 +37,13 @@ func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
 			Y: my,
 		}
 		entitiesOnPosition, _ := engine.PosCache.Get(newPosition.GetKey())
-		blockersOnPosition := entitiesOnPosition.GetEntities([]string{state.IsBlocking})
+		blockersOnPosition := entitiesOnPosition.GetEntities([]string{constants.IsBlocking})
 		isBlocked := len(blockersOnPosition) > 0
 
 		if isBlocked {
 			Attack(engine, gs, entity, blockersOnPosition)
 		} else {
-			entity.AddComponent(state.Position, newPosition)
-
-			// Update cache
-			engine.PosCache.Delete(position.GetKey(), entity)
-			engine.PosCache.Add(newPosition.GetKey(), entity)
+			entity.ReplaceComponent(newPosition)
 		}
 	}
 

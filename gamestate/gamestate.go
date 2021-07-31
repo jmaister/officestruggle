@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/norendren/go-fov/fov"
+	"jordiburgos.com/officestruggle/actions"
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/dungeon"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/grid"
@@ -120,17 +122,26 @@ func NewGameState(engine *ecs.Engine) *GameState {
 			Height: 29,
 		},
 	}
-	dungeonRectangle := dungeon.CreateDungeon(engine, g.Map, dungeon.DungeonOptions{
+	dungeonTiles, startingTile := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
 		MaxRoomCount: 40,
 	})
 
+	for _, tile := range dungeonTiles {
+		tileEntity := engine.NewEntity()
+		if tile.Sprite == grid.Wall {
+			state.NewWall(tileEntity, tile.X, tile.Y)
+		} else if tile.Sprite == grid.Floor {
+			state.NewFloor(tileEntity, tile.X, tile.Y)
+		}
+	}
+
 	// Player
 	player := state.NewPlayer(engine.NewEntity())
-	state.ApplyPosition(player, dungeonRectangle.Center.X, dungeonRectangle.Center.Y)
+	state.ApplyPosition(player, startingTile.X, startingTile.Y)
 
-	visitables := engine.Entities.GetEntities([]string{state.IsFloor})
+	visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
 	// Enemies
 	for i := 0; i < 5; i++ {
 		v := visitables[rand.Intn(len(visitables))]
@@ -156,8 +167,14 @@ func NewGameState(engine *ecs.Engine) *GameState {
 	for i := 0; i < 10; i++ {
 		v := visitables[rand.Intn(len(visitables))]
 		pos := state.GetPosition(v)
-		potion := state.NewLightningScroll(engine.NewEntity())
-		state.ApplyPosition(potion, pos.X, pos.Y)
+		scroll := state.NewLightningScroll(engine.NewEntity())
+		scroll.AddComponent(actions.RequiresTargetComponent{
+			Targeting:   actions.RandomAcquisitionType,
+			TargetTypes: []string{constants.AI},
+			OnSelect:    actions.LightningScrollRandomTarget,
+		})
+
+		state.ApplyPosition(scroll, pos.X, pos.Y)
 	}
 
 	return &GameState{
@@ -212,10 +229,19 @@ func (gs *GameState) InBounds(x int, y int) bool {
 }
 
 func (gs *GameState) IsOpaque(x int, y int) bool {
-	visitableEntity, ok := gs.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
+	visitableEntity, ok := gs.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{constants.Visitable})
 	if ok {
-		_, ok2 := visitableEntity.GetComponent(state.IsBlocking).(state.IsBlockingComponent)
+		_, ok2 := visitableEntity.GetComponent(constants.IsBlocking).(state.IsBlockingComponent)
 		return ok2
 	}
 	return false
+}
+
+// Shortcut functions
+
+func (gs *GameState) ComputeFov() {
+	stats, _ := gs.Player.GetComponent(constants.Stats).(state.StatsComponent)
+	position, _ := gs.Player.GetComponent(constants.Position).(state.PositionComponent)
+
+	gs.Fov.Compute(gs, position.X, position.Y, stats.Fov)
 }

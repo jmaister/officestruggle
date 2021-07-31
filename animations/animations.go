@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"jordiburgos.com/officestruggle/assets"
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
@@ -25,7 +26,7 @@ type AnimatedComponent struct {
 }
 
 func (a AnimatedComponent) ComponentType() string {
-	return state.Animated
+	return constants.Animated
 }
 
 // Damage Animation
@@ -85,7 +86,7 @@ func (a HealthPotionAnimation) Duration() time.Duration {
 }
 func (a HealthPotionAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
 	player := gs.Player
-	apparence, _ := player.GetComponent(state.Apparence).(state.ApparenceComponent)
+	apparence, _ := player.GetComponent(constants.Apparence).(state.ApparenceComponent)
 	newColor := ""
 	if (percent > 0 && percent <= 0.25) || (percent > 0.5 && percent <= 0.75) {
 		newColor = "#FF0000"
@@ -94,12 +95,12 @@ func (a HealthPotionAnimation) Update(percent float64, gs *gamestate.GameState, 
 	}
 	if newColor != apparence.Color {
 		apparence.Color = newColor
-		player.ReplaceComponent(state.Apparence, state.ApparenceComponent{
+		player.ReplaceComponent(state.ApparenceComponent{
 			Color: newColor,
 			Char:  apparence.Char,
 		})
 	}
 }
 func (a HealthPotionAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
-	gs.Player.ReplaceComponent(state.Apparence, a.StartingApparence)
+	gs.Player.ReplaceComponent(a.StartingApparence)
 }

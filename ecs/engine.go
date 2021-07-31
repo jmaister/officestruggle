@@ -84,8 +84,8 @@ func (entity *Entity) String() string {
 	return str
 }
 
-func (entity *Entity) AddComponent(componentType string, component Component) {
-	entity.components[componentType] = component
+func (entity *Entity) AddComponent(component Component) {
+	entity.components[component.ComponentType()] = component
 
 	// Call event if possible
 	cmp, ok := component.(OnAddComponent)
@@ -94,7 +94,7 @@ func (entity *Entity) AddComponent(componentType string, component Component) {
 	}
 }
 
-func (entity *Entity) RemoveComponent(componentType string) Component {
+func (entity *Entity) RemoveComponent(componentType string) {
 	component, ok := entity.components[componentType]
 	if ok {
 		delete(entity.components, componentType)
@@ -104,14 +104,12 @@ func (entity *Entity) RemoveComponent(componentType string) Component {
 		if ok {
 			cmp.OnRemove(entity.Engine, entity)
 		}
-		return component
 	}
-	return nil
 }
 
-func (entity *Entity) ReplaceComponent(componentType string, newComponent Component) {
-	entity.RemoveComponent(componentType)
-	entity.AddComponent(componentType, newComponent)
+func (entity *Entity) ReplaceComponent(newComponent Component) {
+	entity.RemoveComponent(newComponent.ComponentType())
+	entity.AddComponent(newComponent)
 }
 
 func (entity *Entity) HasComponent(componentType string) bool {
