@@ -86,7 +86,7 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 	})
 	entity.AddComponent(DescriptionComponent{Name: "Health Potion"})
 	entity.AddComponent(ApparenceComponent{Color: "#FF0000", Char: 'o'})
-	entity.AddComponent(Layer400Component{})
+	entity.AddComponent(Layer300Component{})
 	return entity
 }
 
@@ -107,7 +107,7 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 	})
 	entity.AddComponent(DescriptionComponent{Name: "Sword"})
 	entity.AddComponent(ApparenceComponent{Color: "#1EFFFF", Char: '/'})
-	entity.AddComponent(Layer400Component{})
+	entity.AddComponent(Layer300Component{})
 	return entity
 }
 
@@ -115,7 +115,8 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(IsPickupComponent{})
 	entity.AddComponent(DescriptionComponent{Name: "Lightning scroll"})
 	entity.AddComponent(ApparenceComponent{Color: "#DAA520", Char: '♪'})
-	entity.AddComponent(Layer400Component{})
+	entity.AddComponent(Layer300Component{})
+	// TODO: add effect
 	return entity
 }
 
