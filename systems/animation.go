@@ -114,6 +114,8 @@ func (a HealthPotionAnimation) Update(percent float64, gs *gamestate.GameState, 
 	player := gs.Player
 	apparence, _ := player.GetComponent(constants.Apparence).(state.ApparenceComponent)
 	newColor := ""
+
+	// TODO: use palette.PColor(..., percent)
 	if (percent > 0 && percent <= 0.25) || (percent > 0.5 && percent <= 0.75) {
 		newColor = "#FF0000"
 	} else {
