@@ -21,13 +21,13 @@ func NewGame() *Game {
 	return &Game{
 		// ECS engine
 		Engine:    engine,
-		GameState: gamestate.NewGameState(engine),
+		GameState: NewGameState(engine),
 	}
 }
 
 func (g *Game) Update() error {
 
-	g.GameState.ComputeFov()
+	systems.ComputeFov(g.Engine, g.GameState)
 
 	// Update the logical state
 	keys := inpututil.PressedKeys()

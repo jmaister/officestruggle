@@ -1,4 +1,4 @@
-package gamestate_test
+package game_test
 
 import (
 	"fmt"
@@ -6,12 +6,12 @@ import (
 
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
-	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/game"
 )
 
 func TestNewGame(t *testing.T) {
 	engine := ecs.NewEngine()
-	g := gamestate.NewGameState(engine)
+	g := game.NewGameState(engine)
 
 	pos := g.Player.GetComponent(constants.Position)
 	fmt.Println(pos)

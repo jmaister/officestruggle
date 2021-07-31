@@ -1,9 +1,12 @@
-package actions
+package state
 
 import (
+	"math/rand"
+
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/systems"
 )
 
 type TargetingType string
@@ -23,9 +26,10 @@ func (a RequiresTargetComponent) ComponentType() string {
 }
 
 func LightningScrollRandomTarget(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, targets ecs.EntityList) {
-	//rndEnemy := targets[rand.Intn(len(targets))]
+	rndEnemy := targets[rand.Intn(len(targets))]
 
 	// TODO: create Attack system with more options: send damage
 	// TODO: create targeting system, calculate targets, log if no targets available, destroy used item? add Used() method
 	// systems.Attack(engine, gs, attacker, ecs.EntityList{rndEnemy})
+	systems.Attack(engine, gs, attacker, ecs.EntityList{rndEnemy})
 }
