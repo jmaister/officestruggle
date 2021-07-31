@@ -3,7 +3,6 @@ package systems
 import (
 	"time"
 
-	"jordiburgos.com/officestruggle/animations"
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -78,8 +77,8 @@ func InventoryConsume(gs *gamestate.GameState) {
 		player.ReplaceComponent(state.StatsComponent{
 			StatsValues: &newStats,
 		})
-		player.AddComponent(animations.AnimatedComponent{
-			Animation: animations.HealthPotionAnimation{
+		player.AddComponent(AnimatedComponent{
+			Animation: HealthPotionAnimation{
 				AnimationStart:    time.Now(),
 				AnimationDuration: 1 * time.Second,
 				StartingApparence: apparence,

@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	"jordiburgos.com/officestruggle/animations"
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -92,8 +91,8 @@ func createDamageAnimation(engine *ecs.Engine, aPos state.PositionComponent, bPo
 		}
 	}
 
-	animationEntity.AddComponent(animations.AnimatedComponent{
-		Animation: animations.DamageAnimation{
+	animationEntity.AddComponent(AnimatedComponent{
+		Animation: DamageAnimation{
 			X:                 bPos.X,
 			Y:                 bPos.Y,
 			Direction:         dir,

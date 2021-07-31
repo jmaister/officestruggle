@@ -12,6 +12,7 @@ import (
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
+	"jordiburgos.com/officestruggle/systems"
 )
 
 func NewGameState(engine *ecs.Engine) *gamestate.GameState {
@@ -109,10 +110,10 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		v := visitables[rand.Intn(len(visitables))]
 		pos := state.GetPosition(v)
 		scroll := state.NewLightningScroll(engine.NewEntity())
-		scroll.AddComponent(state.RequiresTargetComponent{
-			Targeting:   state.RandomAcquisitionType,
+		scroll.AddComponent(systems.RequiresTargetComponent{
+			Targeting:   systems.RandomAcquisitionType,
 			TargetTypes: []string{constants.AI},
-			OnSelect:    state.LightningScrollRandomTarget,
+			OnSelect:    systems.LightningScrollRandomTarget,
 		})
 
 		state.ApplyPosition(scroll, pos.X, pos.Y)
