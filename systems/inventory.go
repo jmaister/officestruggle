@@ -1,8 +1,6 @@
 package systems
 
 import (
-	"time"
-
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -61,46 +59,32 @@ func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 }
 
 func InventoryConsume(gs *gamestate.GameState) {
-	player := gs.Player
-	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
 	consumable, ok := getCurrentInventoryItem(gs)
-	isConsumable := consumable.HasComponent(constants.Consumable)
-	if ok && isConsumable {
-		// TODO: move to it's own System
-		// Consume by player
-		conStats := consumable.GetComponent(constants.Consumable).(state.ConsumableComponent)
-		plStats := player.GetComponent(constants.Stats).(state.StatsComponent)
-		apparence := player.GetComponent(constants.Apparence).(state.ApparenceComponent)
-
-		newStats := plStats.Merge(*conStats.StatsValues)
-		player.ReplaceComponent(state.StatsComponent{
-			StatsValues: &newStats,
-		})
-		player.AddComponent(AnimatedComponent{
-			Animation: HealthPotionAnimation{
-				AnimationStart:    time.Now(),
-				AnimationDuration: 1 * time.Second,
-				StartingApparence: apparence,
-			},
-		})
-
-		gs.Log(gamestate.Info, "Consumed "+state.GetLongDescription(consumable))
-
-		// Remove from inventory
-		inventory.RemoveItem(consumable)
-		player.ReplaceComponent(inventory)
-
-		// Destroy entity
-		engine := consumable.Engine
-		engine.DestroyEntity(consumable)
+	if ok {
+		consumed := ConsumeConsumableComponent(gs, consumable)
+		if consumed {
+			removeAndDestroy(gs, consumable)
+		}
 
 		updateInventorySelection(gs, 0)
-	} else if !isConsumable {
-		gs.Log(gamestate.Warn, state.GetDescription(consumable)+" can't be consumed.")
 	} else {
 		gs.Log(gamestate.Warn, "No items to consume.")
 	}
+}
+
+func removeAndDestroy(gs *gamestate.GameState, consumable *ecs.Entity) {
+	player := gs.Player
+	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
+
+	// Remove from inventory
+	inventory.RemoveItem(consumable)
+	gs.Player.ReplaceComponent(inventory)
+
+	// Destroy entity
+	engine := consumable.Engine
+	engine.DestroyEntity(consumable)
+
 }
 
 func InventoryDrop(gs *gamestate.GameState) {
@@ -170,7 +154,7 @@ func InventoryUnequip(gs *gamestate.GameState) {
 		// TODO: move to it's own System
 		gs.Log(gamestate.Info, "You unequipped "+state.GetLongDescription(item))
 
-		// Remove from equip
+		// Remove from equipment
 		equipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
 		equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 		delete(equipment.Items, equipable.EquipSlot)

@@ -6,6 +6,7 @@ import (
 
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/gamestate"
 )
 
 type PlayerComponent struct {
@@ -327,4 +328,16 @@ func (a EquipmentComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 
 func (a EquipmentComponent) ComponentType() string {
 	return constants.Equipment
+}
+
+type ConsumeEffectComponent struct {
+	Targeting   gamestate.TargetingType
+	TargetTypes []string
+	TargetCount int
+	Damage      int
+	DamageType  gamestate.DamageType
+}
+
+func (a ConsumeEffectComponent) ComponentType() string {
+	return constants.ConsumeEffect
 }

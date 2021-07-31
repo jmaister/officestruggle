@@ -1,7 +1,9 @@
 package state
 
 import (
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/gamestate"
 )
 
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
@@ -116,7 +118,13 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(DescriptionComponent{Name: "Lightning scroll"})
 	entity.AddComponent(ApparenceComponent{Color: "#DAA520", Char: '♪'})
 	entity.AddComponent(Layer300Component{})
-	// TODO: add effect
+	entity.AddComponent(ConsumeEffectComponent{
+		Targeting:   gamestate.RandomAcquisitionType,
+		TargetTypes: []string{constants.AI},
+		TargetCount: 1,
+		Damage:      10,
+		DamageType:  gamestate.DamageEachType,
+	})
 	return entity
 }
 

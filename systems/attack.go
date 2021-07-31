@@ -48,6 +48,36 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 	}
 }
 
+func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, blocker *ecs.Entity, entityUsed *ecs.Entity, damage int) {
+
+	// Check if blocker has Stats
+	if blocker.HasComponent(constants.Stats) {
+		bStats := blocker.GetComponent(constants.Stats).(state.StatsComponent)
+
+		// Damage calculation and attack
+		damage := damage - bStats.Defense
+		if damage >= 0 {
+			gs.Log(gamestate.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" using "+state.GetDescription(entityUsed)+" with "+strconv.Itoa(damage)+" damage points.")
+			newHealth := bStats.Health - damage
+
+			aPos := attacker.GetComponent(constants.Position).(state.PositionComponent)
+			bPos := blocker.GetComponent(constants.Position).(state.PositionComponent)
+			createDamageAnimation(engine, aPos, bPos, strconv.Itoa(damage))
+
+			if newHealth <= 0 {
+				Kill(gs, blocker)
+			} else {
+				bStats.Health = newHealth
+				blocker.ReplaceComponent(bStats)
+			}
+		} else {
+			gs.Log(gamestate.Danger, state.GetDescription(blocker)+" blocked attack from "+state.GetDescription(attacker)+".")
+		}
+	} else if blocker.HasComponent(constants.Visitable) {
+		gs.Log(gamestate.Warn, state.GetDescription(attacker)+" hits a "+state.GetDescription(blocker))
+	}
+}
+
 func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 	gs.Log(gamestate.Good, state.GetDescription(entity)+" is dead.")
 	entity.RemoveComponent(constants.AI)
