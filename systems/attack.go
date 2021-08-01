@@ -8,6 +8,7 @@ import (
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
+	"jordiburgos.com/officestruggle/interfaces"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -28,9 +29,7 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 					gs.Log(constants.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
 
-					aPos := attacker.GetComponent(constants.Position).(state.PositionComponent)
-					bPos := blocker.GetComponent(constants.Position).(state.PositionComponent)
-					createDamageAnimation(engine, aPos, bPos, strconv.Itoa(damage))
+					createDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
 
 					if newHealth <= 0 {
 						Kill(gs, blocker)
@@ -60,9 +59,7 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 			gs.Log(constants.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" using "+state.GetDescription(entityUsed)+" with "+strconv.Itoa(damage)+" damage points.")
 			newHealth := bStats.Health - damage
 
-			aPos := attacker.GetComponent(constants.Position).(state.PositionComponent)
-			bPos := blocker.GetComponent(constants.Position).(state.PositionComponent)
-			createDamageAnimation(engine, aPos, bPos, strconv.Itoa(damage))
+			createDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
 
 			if newHealth <= 0 {
 				Kill(gs, blocker)
@@ -96,9 +93,12 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 	// TODO: if player is killed, change screen state
 }
 
-func createDamageAnimation(engine *ecs.Engine, aPos state.PositionComponent, bPos state.PositionComponent, str string) {
+func createDamageAnimation(engine *ecs.Engine, source *ecs.Entity, target *ecs.Entity, str string) {
 	animationEntity := engine.NewEntity()
 	animationEntity.AddComponent(state.Layer500Component{})
+
+	aPos := source.GetComponent(constants.Position).(state.PositionComponent)
+	bPos := target.GetComponent(constants.Position).(state.PositionComponent)
 
 	dir := grid.UP
 	if aPos.X == bPos.X {
@@ -123,12 +123,14 @@ func createDamageAnimation(engine *ecs.Engine, aPos state.PositionComponent, bPo
 
 	animationEntity.AddComponent(state.AnimatedComponent{
 		Animation: DamageAnimation{
-			X:                 bPos.X,
-			Y:                 bPos.Y,
-			Direction:         dir,
-			Damage:            str,
-			AnimationStart:    time.Now(),
-			AnimationDuration: 750 * time.Millisecond,
+			AnimationInfo: interfaces.AnimationInfo{
+				StartTime: time.Now(),
+				Duration:  750 * time.Millisecond,
+				Source:    source,
+				Target:    target,
+			},
+			Direction: dir,
+			Damage:    str,
 		},
 	})
 

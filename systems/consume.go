@@ -7,6 +7,7 @@ import (
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/interfaces"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -28,8 +29,12 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 		})
 		player.AddComponent(state.AnimatedComponent{
 			Animation: HealthPotionAnimation{
-				AnimationStart:    time.Now(),
-				AnimationDuration: 1 * time.Second,
+				AnimationInfo: interfaces.AnimationInfo{
+					StartTime: time.Now(),
+					Duration:  1 * time.Second,
+					Source:    &ecs.Entity{},
+					Target:    &ecs.Entity{},
+				},
 				StartingApparence: apparence,
 			},
 		})

@@ -9,10 +9,16 @@ import (
 )
 
 type Animation interface {
+	GetAnimationInfo() AnimationInfo
 	NeedsInit() bool
 	Init(sourceEntity *ecs.Entity, targetEntity *ecs.Entity) Animation
-	StartTime() time.Time
-	Duration() time.Duration
 	Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image)
 	End(engine *ecs.Engine, gs *gamestate.GameState, animationEntity *ecs.Entity)
+}
+
+type AnimationInfo struct {
+	StartTime time.Time
+	Duration  time.Duration
+	Source    *ecs.Entity
+	Target    *ecs.Entity
 }

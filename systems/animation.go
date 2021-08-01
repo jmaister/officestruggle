@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"image/color"
 	"time"
 
@@ -23,15 +22,14 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 		animatedCmp, ok := entity.GetComponent(constants.Animated).(state.AnimatedComponent)
 		if ok {
 			animation := animatedCmp.Animation
-			fmt.Println("anim", animation)
 
 			now := time.Now()
-			start := animation.StartTime()
-			end := start.Add(animation.Duration())
+			start := animation.GetAnimationInfo().StartTime
+			end := start.Add(animation.GetAnimationInfo().Duration)
 
 			remaining := end.Sub(now).Milliseconds()
 			if remaining >= 0 {
-				percent := float64(remaining) / float64(animation.Duration().Milliseconds())
+				percent := float64(remaining) / float64(animation.GetAnimationInfo().Duration.Milliseconds())
 				animation.Update(percent, gameState, screen)
 			} else {
 				entity.RemoveComponent(constants.Animated)
@@ -46,12 +44,10 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 // Damage Animation
 
 type DamageAnimation struct {
-	X                 int
-	Y                 int
-	Direction         grid.Direction
-	Damage            string
-	AnimationStart    time.Time
-	AnimationDuration time.Duration
+	interfaces.AnimationInfo
+
+	Direction grid.Direction
+	Damage    string
 }
 
 func (a DamageAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
@@ -60,14 +56,12 @@ func (a DamageAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces
 func (a DamageAnimation) NeedsInit() bool {
 	return false
 }
-func (a DamageAnimation) StartTime() time.Time {
-	return a.AnimationStart
-}
-func (a DamageAnimation) Duration() time.Duration {
-	return a.AnimationDuration
+func (a DamageAnimation) GetAnimationInfo() interfaces.AnimationInfo {
+	return a.AnimationInfo
 }
 func (a DamageAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
-	x, y := toPixel(gs, a.X+a.Direction.X, a.Y+a.Direction.Y)
+	pos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
+	x, y := toPixel(gs, pos.X+a.Direction.X, pos.Y+a.Direction.Y)
 
 	x = x + int(float64(3*gs.TileWidth)*(1-percent))*a.Direction.X
 	y = y + int(float64(3*gs.TileHeight)*(1-percent))*a.Direction.Y
@@ -93,8 +87,8 @@ func toPixel(gs *gamestate.GameState, x int, y int) (int, int) {
 // Health Potion Animation
 
 type HealthPotionAnimation struct {
-	AnimationStart    time.Time
-	AnimationDuration time.Duration
+	interfaces.AnimationInfo
+
 	StartingApparence state.ApparenceComponent
 }
 
@@ -104,11 +98,8 @@ func (a HealthPotionAnimation) Init(source *ecs.Entity, target *ecs.Entity) inte
 func (a HealthPotionAnimation) NeedsInit() bool {
 	return false
 }
-func (a HealthPotionAnimation) StartTime() time.Time {
-	return a.AnimationStart
-}
-func (a HealthPotionAnimation) Duration() time.Duration {
-	return a.AnimationDuration
+func (a HealthPotionAnimation) GetAnimationInfo() interfaces.AnimationInfo {
+	return a.AnimationInfo
 }
 func (a HealthPotionAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
 	player := gs.Player
@@ -136,17 +127,15 @@ func (a HealthPotionAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, 
 // Falling char animation
 
 type FallingCharAnimation struct {
-	Direction         grid.Direction
-	Char              string
-	Color             color.Color
-	AnimationStart    time.Time
-	AnimationDuration time.Duration
-	Source            *ecs.Entity
-	Target            *ecs.Entity
+	interfaces.AnimationInfo
+
+	Direction grid.Direction
+	Char      string
+	Color     color.Color
 }
 
 func (a FallingCharAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
-	a.AnimationStart = time.Now()
+	a.StartTime = time.Now()
 	a.Source = source
 	a.Target = target
 	return a
@@ -154,12 +143,11 @@ func (a FallingCharAnimation) Init(source *ecs.Entity, target *ecs.Entity) inter
 func (a FallingCharAnimation) NeedsInit() bool {
 	return true
 }
-func (a FallingCharAnimation) StartTime() time.Time {
-	return a.AnimationStart
+
+func (a FallingCharAnimation) GetAnimationInfo() interfaces.AnimationInfo {
+	return a.AnimationInfo
 }
-func (a FallingCharAnimation) Duration() time.Duration {
-	return a.AnimationDuration
-}
+
 func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
 	pos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
 	x, y := toPixel(gs, pos.X+a.Direction.X, pos.Y+a.Direction.Y)
@@ -173,10 +161,4 @@ func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, s
 }
 func (a FallingCharAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
 	engine.DestroyEntity(entity)
-}
-func (a *FallingCharAnimation) SetStartTime(t time.Time) {
-	a.AnimationStart = t
-}
-func (a *FallingCharAnimation) SetTarget(entity *ecs.Entity) {
-	a.Target = entity
 }
