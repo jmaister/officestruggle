@@ -3,7 +3,6 @@ package systems
 import (
 	"image/color"
 	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -130,7 +129,7 @@ type FallingCharAnimation struct {
 	Direction grid.Direction
 	Char      string
 	Color     color.Color
-	Damage    int
+	Text      string
 }
 
 func (a FallingCharAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
@@ -153,6 +152,11 @@ func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, s
 	line := BresenhamLine(srcPos.X, srcPos.Y, tgtPos.X, tgtPos.Y)
 
 	current := len(line) * int((1-percent)*100) / 100
+	if current < 0 {
+		current = 0
+	} else if current > len(line)-1 {
+		current = len(line) - 1
+	}
 
 	x, y := toPixel(gs, line[current].X, line[current].Y)
 
@@ -166,7 +170,7 @@ func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, s
 func (a FallingCharAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
 	engine.DestroyEntity(entity)
 	// Trigger damage animation
-	CreateDamageAnimation(engine, a.Source, a.Target, strconv.Itoa(a.Damage))
+	CreateDamageAnimation(engine, a.Source, a.Target, a.Text)
 }
 
 func randInt(min int, max int) int {

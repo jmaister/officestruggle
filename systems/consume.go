@@ -44,11 +44,6 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 	} else if isConsumeEffect {
 		consumeEffect := consumable.GetComponent(constants.ConsumeEffect).(state.ConsumeEffectComponent)
 
-		damagePerEnemy := consumeEffect.Damage
-		if consumeEffect.DamageType == gamestate.DamageSharedType {
-			damagePerEnemy = damagePerEnemy / consumeEffect.TargetCount
-		}
-
 		enemiesInFov := getEnemiesInFov(gs, consumeEffect)
 
 		switch consumeEffect.Targeting {
@@ -56,10 +51,11 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 			// Find enemies on FOV
 			// Select n randomly
 			if len(enemiesInFov) > 0 {
-				// Attack enemies
+				// Apply EffectFunction on each target
 				for i := 0; i < consumeEffect.TargetCount && len(enemiesInFov) > 0; i++ {
 					target := enemiesInFov[rand.Intn(len(enemiesInFov))]
-					AttackWithItem(gs.Engine, gs, gs.Player, target, consumable, damagePerEnemy)
+
+					consumeEffect.EffectFunction(gs.Engine, gs, consumable, gs.Player, target)
 
 					animation := consumeEffect.EffectAnimation
 					if animation.NeedsInit() {

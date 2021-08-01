@@ -94,12 +94,7 @@ func (gs *GameState) IsOpaque(x int, y int) bool {
 type TargetingType string
 
 const RandomAcquisitionType TargetingType = "random"
-const SelectedAcquisitionType TargetingType = "selected"
+const ManualAcquisitionType TargetingType = "manual"
 const AreaAcquisitionType TargetingType = "area"
 
-type DamageType string
-
-const DamageSharedType DamageType = "shared"
-const DamageEachType DamageType = "each"
-
-type EffectFunction func(engine *ecs.Engine, gs *GameState, item *ecs.Entity, itemUser *ecs.Entity, targets ecs.EntityList)
+type EffectFunction func(engine *ecs.Engine, gs *GameState, item *ecs.Entity, source *ecs.Entity, target *ecs.Entity)

@@ -97,8 +97,16 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 		distance := from.H(to)
 		stats := enemy.GetComponent(constants.Stats).(state.StatsComponent)
 
-		// If enemy is far from player
-		if distance == 1 {
+		if enemy.HasComponent(constants.Paralize) {
+			current, _ := enemy.GetComponent(constants.Paralize).(state.ParalizeComponent)
+			if current.TurnsLeft > 1 {
+				enemy.ReplaceComponent(state.ParalizeComponent{
+					TurnsLeft: current.TurnsLeft - 1,
+				})
+			} else {
+				enemy.RemoveComponent(constants.Paralize)
+			}
+		} else if distance == 1 {
 			// Attack to the player
 			Attack(engine, gameState, enemy, []*ecs.Entity{player})
 		} else if distance > stats.Fov {
