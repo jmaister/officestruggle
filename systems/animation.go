@@ -12,6 +12,7 @@ import (
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/interfaces"
+	"jordiburgos.com/officestruggle/palette"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -67,12 +68,7 @@ func (a DamageAnimation) Update(percent float64, gs *gamestate.GameState, screen
 	y = y + int(float64(3*gs.TileHeight)*(1-percent))*a.Direction.Y
 
 	fnt := assets.MplusFont(20)
-	text.Draw(screen, a.Damage, fnt, x, y, color.RGBA{
-		R: 255,
-		G: 0,
-		B: 0,
-		A: 255,
-	})
+	text.Draw(screen, a.Damage, fnt, x, y, palette.PColor(palette.Red, percent))
 }
 func (a DamageAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
 	engine.DestroyEntity(entity)

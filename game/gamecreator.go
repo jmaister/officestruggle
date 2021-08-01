@@ -85,7 +85,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 
 	visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
 	// Enemies
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		v := visitables[rand.Intn(len(visitables))]
 		pos := state.GetPosition(v)
 		goblin := state.NewGlobin(engine.NewEntity())
