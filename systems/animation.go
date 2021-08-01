@@ -167,8 +167,9 @@ func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, s
 	x = x - int(float64(3*gs.TileWidth)*(1-percent))*a.Direction.X
 	y = y - int(float64(3*gs.TileHeight)*(1-percent))*a.Direction.Y
 
+	cl := ColorBlend(a.Color, color.Black, percent)
 	fnt := assets.MplusFont(20)
-	text.Draw(screen, a.Char, fnt, x, y, a.Color)
+	text.Draw(screen, a.Char, fnt, x, y, cl)
 }
 func (a FallingCharAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
 	engine.DestroyEntity(entity)

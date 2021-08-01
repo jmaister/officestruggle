@@ -44,13 +44,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 			damagePerEnemy = damagePerEnemy / consumeEffect.TargetCount
 		}
 
-		enemiesInFov := ecs.EntityList{}
-		for _, enemy := range gs.Engine.Entities.GetEntities(consumeEffect.TargetTypes) {
-			position := enemy.GetComponent(constants.Position).(state.PositionComponent)
-			if gs.Fov.IsVisible(position.X, position.Y) {
-				enemiesInFov = append(enemiesInFov, enemy)
-			}
-		}
+		enemiesInFov := getEnemiesInFov(gs, consumeEffect)
 
 		switch consumeEffect.Targeting {
 		case gamestate.RandomAcquisitionType:
@@ -58,7 +52,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 			// Select n randomly
 			if len(enemiesInFov) > 0 {
 				// Attack enemies
-				for i := 0; i < consumeEffect.TargetCount; i++ {
+				for i := 0; i < consumeEffect.TargetCount && len(enemiesInFov) > 0; i++ {
 					target := enemiesInFov[rand.Intn(len(enemiesInFov))]
 					AttackWithItem(gs.Engine, gs, gs.Player, target, consumable, damagePerEnemy)
 
@@ -70,6 +64,9 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 					e.AddComponent(state.AnimatedComponent{
 						Animation: animation,
 					})
+
+					// Recalculate as enemies could be killed
+					enemiesInFov = getEnemiesInFov(gs, consumeEffect)
 				}
 			} else {
 				gs.Log(constants.Warn, state.GetLongDescription(consumable)+" is used but no targets found.")
@@ -84,4 +81,15 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 		return false
 	}
 
+}
+
+func getEnemiesInFov(gs *gamestate.GameState, consumeEffect state.ConsumeEffectComponent) ecs.EntityList {
+	enemiesInFov := ecs.EntityList{}
+	for _, enemy := range gs.Engine.Entities.GetEntities(consumeEffect.TargetTypes) {
+		position := enemy.GetComponent(constants.Position).(state.PositionComponent)
+		if gs.Fov.IsVisible(position.X, position.Y) {
+			enemiesInFov = append(enemiesInFov, enemy)
+		}
+	}
+	return enemiesInFov
 }
