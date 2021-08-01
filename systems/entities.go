@@ -23,16 +23,17 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 		TargetCount: 3,
 		Damage:      10,
 		DamageType:  gamestate.DamageEachType,
-		Animation: FallingCharAnimation{
+		EffectAnimation: FallingCharAnimation{
 			AnimationInfo: interfaces.AnimationInfo{
 				StartTime: time.Time{},
-				Duration:  1 * time.Second,
+				Duration:  750 * time.Millisecond,
 				Source:    &ecs.Entity{},
 				Target:    &ecs.Entity{},
 			},
 			Direction: grid.DOWN,
 			Char:      "♪",
 			Color:     palette.PColor(palette.Blue, 0.5),
+			Damage:    10,
 		},
 	})
 	return entity

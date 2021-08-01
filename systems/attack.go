@@ -29,7 +29,7 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 					gs.Log(constants.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
 
-					createDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
+					CreateDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
 
 					if newHealth <= 0 {
 						Kill(gs, blocker)
@@ -58,8 +58,6 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 		if damage >= 0 {
 			gs.Log(constants.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" using "+state.GetDescription(entityUsed)+" with "+strconv.Itoa(damage)+" damage points.")
 			newHealth := bStats.Health - damage
-
-			createDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
 
 			if newHealth <= 0 {
 				Kill(gs, blocker)
@@ -93,7 +91,7 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 	// TODO: if player is killed, change screen state
 }
 
-func createDamageAnimation(engine *ecs.Engine, source *ecs.Entity, target *ecs.Entity, str string) {
+func CreateDamageAnimation(engine *ecs.Engine, source *ecs.Entity, target *ecs.Entity, str string) {
 	animationEntity := engine.NewEntity()
 	animationEntity.AddComponent(state.Layer500Component{})
 

@@ -2,6 +2,8 @@ package systems
 
 import (
 	"image/color"
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -128,6 +130,7 @@ type FallingCharAnimation struct {
 	Direction grid.Direction
 	Char      string
 	Color     color.Color
+	Damage    int
 }
 
 func (a FallingCharAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
@@ -145,16 +148,27 @@ func (a FallingCharAnimation) GetAnimationInfo() interfaces.AnimationInfo {
 }
 
 func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
-	pos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
-	x, y := toPixel(gs, pos.X+a.Direction.X, pos.Y+a.Direction.Y)
+	srcPos := a.Source.GetComponent(constants.Position).(state.PositionComponent)
+	tgtPos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
+	line := BresenhamLine(srcPos.X, srcPos.Y, tgtPos.X, tgtPos.Y)
 
-	x = x - int(float64(3*gs.TileWidth)*(1-percent))*a.Direction.X
-	y = y - int(float64(3*gs.TileHeight)*(1-percent))*a.Direction.Y
+	current := len(line) * int((1-percent)*100) / 100
 
-	cl := ColorBlend(a.Color, color.Black, percent)
+	x, y := toPixel(gs, line[current].X, line[current].Y)
+
+	x = x + randInt(-10, 10)
+	y = y + randInt(-10, 10)
+
+	cl := ColorBlend(a.Color, color.White, percent)
 	fnt := assets.MplusFont(20)
 	text.Draw(screen, a.Char, fnt, x, y, cl)
 }
 func (a FallingCharAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
 	engine.DestroyEntity(entity)
+	// Trigger damage animation
+	CreateDamageAnimation(engine, a.Source, a.Target, strconv.Itoa(a.Damage))
+}
+
+func randInt(min int, max int) int {
+	return min + rand.Intn(max-min)
 }

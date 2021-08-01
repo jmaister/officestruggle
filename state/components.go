@@ -340,12 +340,12 @@ func (a AnimatedComponent) ComponentType() string {
 }
 
 type ConsumeEffectComponent struct {
-	Targeting   gamestate.TargetingType
-	TargetTypes []string
-	TargetCount int
-	Damage      int
-	DamageType  gamestate.DamageType
-	Animation   interfaces.Animation
+	Targeting       gamestate.TargetingType
+	TargetTypes     []string
+	TargetCount     int
+	Damage          int
+	DamageType      gamestate.DamageType
+	EffectAnimation interfaces.Animation
 }
 
 func (a ConsumeEffectComponent) ComponentType() string {

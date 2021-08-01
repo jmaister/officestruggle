@@ -61,7 +61,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 					target := enemiesInFov[rand.Intn(len(enemiesInFov))]
 					AttackWithItem(gs.Engine, gs, gs.Player, target, consumable, damagePerEnemy)
 
-					animation := consumeEffect.Animation
+					animation := consumeEffect.EffectAnimation
 					if animation.NeedsInit() {
 						animation = animation.Init(gs.Player, target)
 					}
