@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"jordiburgos.com/officestruggle/assets"
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
@@ -19,7 +20,7 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 	text.Draw(screen, "C - Consume, D - Drop, E - Equip, U - Unequip", fnt20, 300, 40, color.White)
 
 	// Inventory
-	inventory, _ := gameState.Player.GetComponent(state.Inventory).(state.InventoryComponent)
+	inventory, _ := gameState.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
 	inventoryTitle := fmt.Sprintf("Inventory %2d/%2d", len(inventory.Items), inventory.MaxItems)
 	invStrItems := []string{}
 	for _, item := range inventory.Items {
@@ -28,7 +29,7 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 	drawList(screen, gameState, &gameState.InventoryScreenState.InventoryState, invStrItems, gameState.Grid.Inventory, inventoryTitle)
 
 	// Equipment
-	equipment, _ := gameState.Player.GetComponent(state.Equipment).(state.EquipmentComponent)
+	equipment, _ := gameState.Player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 	equipmentTitle := "Equipment"
 	equipStrItems := []string{}
 	for _, position := range state.EquipmentPositions {

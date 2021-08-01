@@ -4,38 +4,17 @@ import (
 	"strconv"
 	"strings"
 
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
-)
-
-const (
-	Player      = "player"
-	Apparence   = "apparence"
-	Position    = "position"
-	Move        = "move"
-	IsBlocking  = "isBlocking"
-	IsFloor     = "isFloor"
-	Layer100    = "layer100" // Walls and floors
-	Layer300    = "layer300" // Objects
-	Layer400    = "layer400" // Player and enemies
-	Layer500    = "layer500" // Animations
-	Visitable   = "visitable"
-	Description = "description"
-	AI          = "ai"
-	Stats       = "stats"
-	Consumable  = "consumable"
-	IsPickup    = "isPickup"
-	Dead        = "dead"
-	Inventory   = "inventory"
-	Equipable   = "equipable"
-	Equipment   = "equipment"
-	Animated    = "animated"
+	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/interfaces"
 )
 
 type PlayerComponent struct {
 }
 
 func (a PlayerComponent) ComponentType() string {
-	return Player
+	return constants.Player
 }
 
 type ApparenceComponent struct {
@@ -45,7 +24,7 @@ type ApparenceComponent struct {
 }
 
 func (a ApparenceComponent) ComponentType() string {
-	return Apparence
+	return constants.Apparence
 }
 
 type PositionComponent struct {
@@ -54,11 +33,11 @@ type PositionComponent struct {
 }
 
 func (a PositionComponent) ComponentType() string {
-	return Position
+	return constants.Position
 }
 
 func GetPosition(entity *ecs.Entity) PositionComponent {
-	return entity.GetComponent(Position).(PositionComponent)
+	return entity.GetComponent(constants.Position).(PositionComponent)
 }
 
 func (a PositionComponent) GetKey() string {
@@ -83,43 +62,43 @@ type MoveComponent struct {
 }
 
 func (a MoveComponent) ComponentType() string {
-	return Move
+	return constants.Move
 }
 
 type IsBlockingComponent struct{}
 
 func (a IsBlockingComponent) ComponentType() string {
-	return IsBlocking
+	return constants.IsBlocking
 }
 
 type IsFloorComponent struct{}
 
 func (a IsFloorComponent) ComponentType() string {
-	return IsFloor
+	return constants.IsFloor
 }
 
 type Layer100Component struct{}
 
 func (a Layer100Component) ComponentType() string {
-	return Layer100
+	return constants.Layer100
 }
 
 type Layer300Component struct{}
 
 func (a Layer300Component) ComponentType() string {
-	return Layer300
+	return constants.Layer300
 }
 
 type Layer400Component struct{}
 
 func (a Layer400Component) ComponentType() string {
-	return Layer400
+	return constants.Layer400
 }
 
 type Layer500Component struct{}
 
 func (a Layer500Component) ComponentType() string {
-	return Layer500
+	return constants.Layer500
 }
 
 type VisitableComponent struct {
@@ -130,7 +109,7 @@ type VisitableComponent struct {
 }
 
 func (a VisitableComponent) ComponentType() string {
-	return Visitable
+	return constants.Visitable
 }
 
 type DescriptionComponent struct {
@@ -138,11 +117,11 @@ type DescriptionComponent struct {
 }
 
 func (a DescriptionComponent) ComponentType() string {
-	return Description
+	return constants.Description
 }
 
 func GetDescription(entity *ecs.Entity) string {
-	cmp, ok := entity.GetComponent(Description).(DescriptionComponent)
+	cmp, ok := entity.GetComponent(constants.Description).(DescriptionComponent)
 	if ok {
 		return cmp.Name
 	}
@@ -150,22 +129,22 @@ func GetDescription(entity *ecs.Entity) string {
 }
 
 func GetLongDescription(entity *ecs.Entity) string {
-	cmp, ok := entity.GetComponent(Description).(DescriptionComponent)
+	cmp, ok := entity.GetComponent(constants.Description).(DescriptionComponent)
 	if ok {
 		str := cmp.Name
 
-		if entity.HasComponent(Dead) {
+		if entity.HasComponent(constants.Dead) {
 			str = str + " corpse"
 		}
 
-		if entity.HasComponent(Stats) {
-			stats := entity.GetComponent(Stats).(StatsComponent)
+		if entity.HasComponent(constants.Stats) {
+			stats := entity.GetComponent(constants.Stats).(StatsComponent)
 			str = str + " (" + stats.String() + ")"
-		} else if entity.HasComponent(Consumable) {
-			cons := entity.GetComponent(Consumable).(ConsumableComponent)
+		} else if entity.HasComponent(constants.Consumable) {
+			cons := entity.GetComponent(constants.Consumable).(ConsumableComponent)
 			str = str + " (" + cons.String() + ")"
-		} else if entity.HasComponent(Equipable) {
-			eq := entity.GetComponent(Equipable).(EquipableComponent)
+		} else if entity.HasComponent(constants.Equipable) {
+			eq := entity.GetComponent(constants.Equipable).(EquipableComponent)
 			str = str + " (" + eq.String() + ")"
 		}
 		return str
@@ -177,7 +156,7 @@ type AIComponent struct {
 }
 
 func (a AIComponent) ComponentType() string {
-	return AI
+	return constants.AI
 }
 
 type StatsValues struct {
@@ -194,8 +173,8 @@ type StatsValues struct {
 func (a StatsValues) String() string {
 	s := ""
 	s += statDiff("Health", a.Health, a.MaxHealth)
-	s += statDiff("Def", a.Defense, a.MaxDefense)
 	s += statDiff("Pow", a.Power, a.MaxPower)
+	s += statDiff("Def", a.Defense, a.MaxDefense)
 	s += statDiff("FOV", a.Fov, a.MaxFov)
 	return strings.Trim(s, " ")
 }
@@ -242,7 +221,7 @@ type StatsComponent struct {
 }
 
 func (a StatsComponent) ComponentType() string {
-	return Stats
+	return constants.Stats
 }
 
 type ConsumableComponent struct {
@@ -250,21 +229,21 @@ type ConsumableComponent struct {
 }
 
 func (a ConsumableComponent) ComponentType() string {
-	return Consumable
+	return constants.Consumable
 }
 
 type IsPickupComponent struct {
 }
 
 func (a IsPickupComponent) ComponentType() string {
-	return IsPickup
+	return constants.IsPickup
 }
 
 type DeadComponent struct {
 }
 
 func (a DeadComponent) ComponentType() string {
-	return Dead
+	return constants.Dead
 }
 
 type InventoryComponent struct {
@@ -291,7 +270,7 @@ func (a *InventoryComponent) RemoveItem(entity *ecs.Entity) bool {
 }
 
 func (a InventoryComponent) ComponentType() string {
-	return Inventory
+	return constants.Inventory
 }
 
 type EquipableComponent struct {
@@ -301,7 +280,7 @@ type EquipableComponent struct {
 }
 
 func (a EquipableComponent) ComponentType() string {
-	return Equipable
+	return constants.Equipable
 }
 
 type EquipPosition string
@@ -330,10 +309,10 @@ type EquipmentComponent struct {
 func (e *EquipmentComponent) UpdateStats(player *ecs.Entity) {
 	newState := e.Base
 	for _, item := range e.Items {
-		itemStats := item.GetComponent(Equipable).(EquipableComponent)
+		itemStats := item.GetComponent(constants.Equipable).(EquipableComponent)
 		newState = newState.Merge(*itemStats.StatsValues)
 	}
-	player.ReplaceComponent(Stats, StatsComponent{
+	player.ReplaceComponent(StatsComponent{
 		StatsValues: &newState,
 	})
 }
@@ -349,5 +328,26 @@ func (a EquipmentComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 }
 
 func (a EquipmentComponent) ComponentType() string {
-	return Equipment
+	return constants.Equipment
+}
+
+type AnimatedComponent struct {
+	Animation interfaces.Animation
+}
+
+func (a AnimatedComponent) ComponentType() string {
+	return constants.Animated
+}
+
+type ConsumeEffectComponent struct {
+	Targeting       gamestate.TargetingType
+	TargetTypes     []string
+	TargetCount     int
+	Damage          int
+	DamageType      gamestate.DamageType
+	EffectAnimation interfaces.Animation
+}
+
+func (a ConsumeEffectComponent) ComponentType() string {
+	return constants.ConsumeEffect
 }

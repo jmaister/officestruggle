@@ -1,9 +1,7 @@
 package systems
 
 import (
-	"time"
-
-	"jordiburgos.com/officestruggle/animations"
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
@@ -11,31 +9,31 @@ import (
 
 func InventoryPickUp(gs *gamestate.GameState) {
 	player := gs.Player
-	position := player.GetComponent(state.Position).(state.PositionComponent)
+	position := player.GetComponent(constants.Position).(state.PositionComponent)
 
-	pickables, ok := gs.Engine.PosCache.GetByCoordAndComponents(position.X, position.Y, []string{state.IsPickup})
+	pickables, ok := gs.Engine.PosCache.GetByCoordAndComponents(position.X, position.Y, []string{constants.IsPickup})
 	if ok && len(pickables) > 0 {
-		inventory := player.GetComponent(state.Inventory).(state.InventoryComponent)
+		inventory := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 		for _, pickable := range pickables {
 			pickUpOk := inventory.AddItem(pickable)
 			if pickUpOk {
-				gs.Log(gamestate.Info, state.GetDescription(player)+" picks up "+state.GetLongDescription(pickable))
+				gs.Log(constants.Info, state.GetDescription(player)+" picks up "+state.GetLongDescription(pickable))
 
-				pickable.RemoveComponent(state.IsPickup)
-				pickable.RemoveComponent(state.Position)
+				pickable.RemoveComponent(constants.IsPickup)
+				pickable.RemoveComponent(constants.Position)
 			} else {
-				gs.Log(gamestate.Bad, state.GetDescription(player)+" can't pickup, inventory is full.")
+				gs.Log(constants.Bad, state.GetDescription(player)+" can't pickup, inventory is full.")
 			}
 		}
-		player.ReplaceComponent(state.Inventory, inventory)
+		player.ReplaceComponent(inventory)
 	} else {
-		gs.Log(gamestate.Warn, "No items to pickup found at this location.")
+		gs.Log(constants.Warn, "No items to pickup found at this location.")
 	}
 }
 
 func getCurrentInventoryItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 	player := gs.Player
-	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
+	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
 	sel := gs.InventoryScreenState.InventoryState.Selected
 	if sel >= 0 && sel < len(inventory.Items) {
@@ -47,7 +45,7 @@ func getCurrentInventoryItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 
 func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 	player := gs.Player
-	equipment, _ := player.GetComponent(state.Equipment).(state.EquipmentComponent)
+	equipment, _ := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 
 	sel := gs.InventoryScreenState.EquipmentState.Selected
 	if sel >= 0 && sel < len(state.EquipmentPositions) {
@@ -61,107 +59,90 @@ func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 }
 
 func InventoryConsume(gs *gamestate.GameState) {
-	player := gs.Player
-	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
 
 	consumable, ok := getCurrentInventoryItem(gs)
-	isConsumable := consumable.HasComponent(state.Consumable)
-	if ok && isConsumable {
-		// TODO: move to it's own System
-		// Consume by player
-		conStats := consumable.GetComponent(state.Consumable).(state.ConsumableComponent)
-		plStats := player.GetComponent(state.Stats).(state.StatsComponent)
-		apparence := player.GetComponent(state.Apparence).(state.ApparenceComponent)
-
-		newStats := plStats.Merge(*conStats.StatsValues)
-		player.ReplaceComponent(state.Stats, state.StatsComponent{
-			StatsValues: &newStats,
-		})
-		player.AddComponent(state.Animated, animations.AnimatedComponent{
-			Animation: animations.HealthPotionAnimation{
-				AnimationStart:    time.Now(),
-				AnimationDuration: 1 * time.Second,
-				StartingApparence: apparence,
-			},
-		})
-
-		gs.Log(gamestate.Info, "Consumed "+state.GetLongDescription(consumable))
-
-		// Remove from inventory
-		inventory.RemoveItem(consumable)
-		player.ReplaceComponent(state.Inventory, inventory)
-
-		// Destroy entity
-		engine := consumable.Engine
-		engine.DestroyEntity(consumable)
+	if ok {
+		consumed := ConsumeConsumableComponent(gs, consumable)
+		if consumed {
+			removeAndDestroy(gs, consumable)
+		}
 
 		updateInventorySelection(gs, 0)
-	} else if !isConsumable {
-		gs.Log(gamestate.Warn, state.GetDescription(consumable)+" can't be consumed.")
 	} else {
-		gs.Log(gamestate.Warn, "No items to consume.")
+		gs.Log(constants.Warn, "No items to consume.")
 	}
+}
+
+func removeAndDestroy(gs *gamestate.GameState, consumable *ecs.Entity) {
+	player := gs.Player
+	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
+
+	// Remove from inventory
+	inventory.RemoveItem(consumable)
+	gs.Player.ReplaceComponent(inventory)
+
+	// Destroy entity
+	engine := consumable.Engine
+	engine.DestroyEntity(consumable)
+
 }
 
 func InventoryDrop(gs *gamestate.GameState) {
 	player := gs.Player
-	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
-	position := player.GetComponent(state.Position).(state.PositionComponent)
+	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
+	position := player.GetComponent(constants.Position).(state.PositionComponent)
 
 	invetoryItem, ok := getCurrentInventoryItem(gs)
 	if ok {
 		// TODO: move to it's own System
-		gs.Log(gamestate.Info, "You dropped "+state.GetLongDescription(invetoryItem))
+		gs.Log(constants.Info, "You dropped "+state.GetLongDescription(invetoryItem))
 
 		// Remove from inventory
 		inventory.RemoveItem(invetoryItem)
-		player.ReplaceComponent(state.Inventory, inventory)
+		player.ReplaceComponent(inventory)
 
 		// Set new position
-		invetoryItem.AddComponent(state.Position, state.PositionComponent{
+		invetoryItem.AddComponent(state.PositionComponent{
 			X: position.X,
 			Y: position.Y,
 		})
-		invetoryItem.AddComponent(state.IsPickup, state.IsPickupComponent{})
+		invetoryItem.AddComponent(state.IsPickupComponent{})
 
 		updateInventorySelection(gs, 0)
 	} else {
-		gs.Log(gamestate.Warn, "No items to drop.")
+		gs.Log(constants.Warn, "No items to drop.")
 	}
 }
 
 func InventoryEquip(gs *gamestate.GameState) {
 	player := gs.Player
-	inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
+	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
 	item, ok := getCurrentInventoryItem(gs)
-	equipable, isEquipable := item.GetComponent(state.Equipable).(state.EquipableComponent)
+	equipable, isEquipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
 	if ok && isEquipable {
 		// TODO: move to it's own System
-		gs.Log(gamestate.Info, "You equipped "+state.GetLongDescription(item))
+		gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
 
 		// Remove from inventory
 		inventory.RemoveItem(item)
-		player.ReplaceComponent(state.Inventory, inventory)
+		player.ReplaceComponent(inventory)
 
 		// Add to equip
-		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
+		equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 		current, ok := equipment.Items[equipable.EquipSlot]
 		if ok {
 			inventory.AddItem(current)
-			player.ReplaceComponent(state.Inventory, inventory)
+			player.ReplaceComponent(inventory)
 		}
 		equipment.Items[equipable.EquipSlot] = item
-		player.ReplaceComponent(state.Equipment, equipment)
-
-		// TODO: move to it's own System
-		equipment.UpdateStats(player)
+		player.ReplaceComponent(equipment)
 
 		updateInventorySelection(gs, 0)
 	} else if !isEquipable {
-		gs.Log(gamestate.Warn, state.GetDescription(item)+" can't be equiped.")
+		gs.Log(constants.Warn, state.GetDescription(item)+" can't be equiped.")
 	} else {
-		gs.Log(gamestate.Warn, "No items to equip.")
+		gs.Log(constants.Warn, "No items to equip.")
 	}
 }
 
@@ -171,25 +152,23 @@ func InventoryUnequip(gs *gamestate.GameState) {
 	item, ok := getCurrentEquipmentItem(gs)
 	if ok {
 		// TODO: move to it's own System
-		gs.Log(gamestate.Info, "You unequipped "+state.GetLongDescription(item))
+		gs.Log(constants.Info, "You unequipped "+state.GetLongDescription(item))
 
-		// Remove from equip
-		equipable, _ := item.GetComponent(state.Equipable).(state.EquipableComponent)
-		equipment := player.GetComponent(state.Equipment).(state.EquipmentComponent)
+		// Remove from equipment
+		equipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
+		equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 		delete(equipment.Items, equipable.EquipSlot)
+		player.ReplaceComponent(equipment)
 
 		// Add to inventory
 		// TODO: check if there is space in the inventory
-		inventory, _ := player.GetComponent(state.Inventory).(state.InventoryComponent)
+		inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 		inventory.AddItem(item)
-		player.ReplaceComponent(state.Inventory, inventory)
-
-		// TODO: move to it's own System
-		equipment.UpdateStats(player)
+		player.ReplaceComponent(inventory)
 
 		updateInventorySelection(gs, 0)
 	} else {
-		gs.Log(gamestate.Warn, "No items to unequip.")
+		gs.Log(constants.Warn, "No items to unequip.")
 	}
 }
 
@@ -197,7 +176,7 @@ func updateInventorySelection(gs *gamestate.GameState, change int) {
 
 	selected := gs.InventoryScreenState.InventoryState.Selected + change
 
-	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
+	inventory, _ := gs.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
 	max := len(inventory.Items)
 	if selected < 0 {
 		selected = 0

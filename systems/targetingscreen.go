@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/grid"
@@ -15,8 +16,8 @@ import (
 func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.Image) {
 
 	player := gameState.Player
-	plPosition := player.GetComponent(state.Position).(state.PositionComponent)
-	stats := player.GetComponent(state.Stats).(state.StatsComponent)
+	plPosition := player.GetComponent(constants.Position).(state.PositionComponent)
+	stats := player.GetComponent(constants.Stats).(state.StatsComponent)
 
 	fov := stats.Fov
 
@@ -36,7 +37,7 @@ func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 		if CalcDistance(plPosition.X, plPosition.Y, tile.X, tile.Y) >= fov {
 			break
 		}
-		_, blocked := engine.PosCache.GetOneByCoordAndComponents(tile.X, tile.Y, []string{state.IsBlocking})
+		_, blocked := engine.PosCache.GetOneByCoordAndComponents(tile.X, tile.Y, []string{constants.IsBlocking})
 		DrawTile(screen, gameState, tile.X, tile.Y, bg)
 		if blocked {
 			break

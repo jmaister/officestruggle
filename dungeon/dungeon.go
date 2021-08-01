@@ -4,9 +4,7 @@ import (
 	"math"
 	"math/rand"
 
-	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/grid"
-	"jordiburgos.com/officestruggle/state"
 )
 
 type DungeonOptions struct {
@@ -19,9 +17,9 @@ func randBetween(min int, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func CreateDungeon(engine *ecs.Engine, m grid.Rect, opts DungeonOptions) grid.Rectangle {
+func CreateDungeon(m grid.Rect, opts DungeonOptions) ([]grid.Tile, grid.Tile) {
 
-	dungeon, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
+	_, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
 		Sprite: grid.Wall,
 	})
 
@@ -72,40 +70,23 @@ func CreateDungeon(engine *ecs.Engine, m grid.Rect, opts DungeonOptions) grid.Re
 		}
 	}
 
-	// TODO: move tiles to entities.go
+	tileList := make([]grid.Tile, len(tiles))
 	for _, tile := range tiles {
-		tileEntity := engine.NewEntity()
-		tileEntity.AddComponent(state.Layer100, state.Layer100Component{})
-		tileEntity.AddComponent(state.Position, state.PositionComponent{X: tile.X, Y: tile.Y})
-		tileEntity.AddComponent(state.Visitable, state.VisitableComponent{Explored: false, Visible: false})
-		if tile.Sprite == grid.Wall {
-			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Wall"})
-			tileEntity.AddComponent(state.IsBlocking, state.IsBlockingComponent{})
-			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#1a1aff", Char: '#'})
-		} else if tile.Sprite == grid.Floor {
-			tileEntity.AddComponent(state.Description, state.DescriptionComponent{Name: "Floor"})
-			tileEntity.AddComponent(state.IsFloor, state.IsFloorComponent{})
-			// •
-			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#e3e3e3", Char: '.'})
-		} else {
-			tileEntity.AddComponent(state.Apparence, state.ApparenceComponent{Color: "#FF66FF", Char: '¿'})
-		}
+		tileList = append(tileList, tile)
 	}
 
-	dungeon.Center = rooms[0].Center
-
-	return dungeon
+	return tileList, rooms[0].Center
 }
 
 func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
 	var tiles []grid.Tile
 	start := math.Min(float64(x1), float64(x2))
-	end := math.Max(float64(x1), float64(x2)) + 1
-	x := start
+	end := int(math.Max(float64(x1), float64(x2)) + 1)
+	x := int(start)
 
 	for x < end {
 		tile := grid.Tile{
-			X:      int(x),
+			X:      x,
 			Y:      y,
 			Sprite: grid.Floor,
 		}
@@ -119,13 +100,13 @@ func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
 func digVerticalPassage(y1 int, y2 int, x int) []grid.Tile {
 	var tiles []grid.Tile
 	start := math.Min(float64(y1), float64(y2))
-	end := math.Max(float64(y1), float64(y2)) + 1
-	y := start
+	end := int(math.Max(float64(y1), float64(y2)) + 1)
+	y := int(start)
 
 	for y < end {
 		tile := grid.Tile{
 			X:      x,
-			Y:      int(y),
+			Y:      y,
 			Sprite: grid.Floor,
 		}
 		tiles = append(tiles, tile)

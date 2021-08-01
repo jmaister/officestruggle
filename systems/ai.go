@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"jordiburgos.com/officestruggle/astar"
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/state"
@@ -39,8 +40,8 @@ func (t *Tile) GetNeighbors() []astar.Node {
 	for _, d := range DIRECTIONS {
 		x := t.X + d.X
 		y := t.Y + d.Y
-		visitable, ok := eng.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
-		if ok && !visitable.HasComponent(state.IsBlocking) {
+		visitable, ok := eng.PosCache.GetOneByCoordAndComponents(x, y, []string{constants.Visitable})
+		if ok && !visitable.HasComponent(constants.IsBlocking) {
 			n := (t.tiles)[visitable.Id]
 			neighbors = append(neighbors, n)
 
@@ -68,10 +69,10 @@ func (t *Tile) String() string {
 }
 
 func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
-	visitables := engine.Entities.GetEntities([]string{state.Visitable})
+	visitables := engine.Entities.GetEntities([]string{constants.Visitable})
 	tiles := map[int]*Tile{}
 	for _, visitable := range visitables {
-		if !visitable.HasComponent(state.IsBlocking) {
+		if !visitable.HasComponent(constants.IsBlocking) {
 			pos := state.GetPosition(visitable)
 			t := Tile{
 				Ent:   visitable,
@@ -84,17 +85,17 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 	}
 
 	// Go to the tile where the Player is located
-	player := engine.Entities.GetEntity([]string{state.Player})
+	player := gameState.Player
 	toTileEntity := getTileOfEntity(player)
 	to := tiles[toTileEntity.Id]
 
-	aiEntities := engine.Entities.GetEntities([]string{state.AI})
+	aiEntities := engine.Entities.GetEntities([]string{constants.AI})
 	for _, enemy := range aiEntities {
 		fromTileEntity := getTileOfEntity(enemy)
 		from := tiles[fromTileEntity.Id]
 
 		distance := from.H(to)
-		stats := enemy.GetComponent(state.Stats).(state.StatsComponent)
+		stats := enemy.GetComponent(constants.Stats).(state.StatsComponent)
 
 		// If enemy is far from player
 		if distance == 1 {
@@ -111,7 +112,7 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 				nextStep := (*path[1]).(*Tile)
 				dx := nextStep.X - currStep.X
 				dy := nextStep.Y - currStep.Y
-				enemy.ReplaceComponent(state.Move, state.MoveComponent{X: dx, Y: dy})
+				enemy.ReplaceComponent(state.MoveComponent{X: dx, Y: dy})
 			}
 		}
 
@@ -121,12 +122,12 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 
 func getTileOfEntity(entity *ecs.Entity) *ecs.Entity {
 	playerPos := state.GetPosition(entity)
-	toTile, _ := entity.Engine.PosCache.GetOneByCoordAndComponents(playerPos.X, playerPos.Y, []string{state.Visitable})
+	toTile, _ := entity.Engine.PosCache.GetOneByCoordAndComponents(playerPos.X, playerPos.Y, []string{constants.Visitable})
 	return toTile
 }
 
 func SimpleAI(engine *ecs.Engine, gameState *gamestate.GameState) {
-	aiEntities := engine.Entities.GetEntities([]string{state.AI})
+	aiEntities := engine.Entities.GetEntities([]string{constants.AI})
 	for _, enemy := range aiEntities {
 		wander(enemy)
 	}
@@ -136,7 +137,7 @@ func wander(entity *ecs.Entity) {
 	walkable := getWalkableNeighbors(entity)
 	selected := walkable[rand.Intn(len(walkable))]
 
-	entity.AddComponent(state.Move, state.MoveComponent{X: selected.X, Y: selected.Y})
+	entity.AddComponent(state.MoveComponent{X: selected.X, Y: selected.Y})
 }
 
 func getWalkableNeighbors(enemy *ecs.Entity) []Dir {
@@ -146,8 +147,8 @@ func getWalkableNeighbors(enemy *ecs.Entity) []Dir {
 	for _, d := range DIRECTIONS {
 		x := fromPos.X + d.X
 		y := fromPos.Y + d.Y
-		visitable, ok := enemy.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{state.Visitable})
-		if ok && !visitable.HasComponent(state.IsBlocking) {
+		visitable, ok := enemy.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{constants.Visitable})
+		if ok && !visitable.HasComponent(constants.IsBlocking) {
 			point := Dir{d.X, d.Y}
 			points = append(points, point)
 

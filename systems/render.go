@@ -12,6 +12,7 @@ import (
 	"golang.org/x/image/font"
 
 	"jordiburgos.com/officestruggle/assets"
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/palette"
@@ -23,9 +24,9 @@ var fnt40 = assets.LoadFontCached(float64(40))
 
 func setVisibleEntities(entities ecs.EntityList, isVisible bool) {
 	for _, e := range entities {
-		visitable, _ := e.RemoveComponent(state.Visitable).(state.VisitableComponent)
+		visitable, _ := e.GetComponent(constants.Visitable).(state.VisitableComponent)
 		visitable.Visible = isVisible
-		e.AddComponent(state.Visitable, visitable)
+		e.ReplaceComponent(visitable)
 	}
 }
 
@@ -33,26 +34,26 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	showDebug(screen, gameState)
 
-	layers := []string{state.Layer100, state.Layer300, state.Layer400, state.Layer500}
+	layers := []string{constants.Layer100, constants.Layer300, constants.Layer400, constants.Layer500}
 
 	// Reset visibility
-	visitables := engine.Entities.GetEntities([]string{state.Visitable})
+	visitables := engine.Entities.GetEntities([]string{constants.Visitable})
 	setVisibleEntities(visitables, false)
 
 	// Update visibility
 	for _, visitable := range visitables {
 		pos := state.GetPosition(visitable)
 		if gameState.Fov.IsVisible(pos.X, pos.Y) {
-			vsComponent, _ := visitable.RemoveComponent(state.Visitable).(state.VisitableComponent)
+			vsComponent, _ := visitable.GetComponent(constants.Visitable).(state.VisitableComponent)
 			vsComponent.Visible = true
 			vsComponent.Explored = true
-			visitable.AddComponent(state.Visitable, vsComponent)
+			visitable.ReplaceComponent(vsComponent)
 		}
 	}
 
 	visibleEntities := []*ecs.Entity{}
 	for _, layer := range layers {
-		renderable := []string{state.Position, state.Apparence, layer}
+		renderable := []string{constants.Position, constants.Apparence, layer}
 		entities := engine.Entities.GetEntities(renderable)
 
 		v := renderEntities(entities, gameState, screen)
@@ -91,14 +92,14 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 
 	visibleEntities := []*ecs.Entity{}
 
-	pp := gameState.Player.GetComponent(state.Position).(state.PositionComponent)
-	pStats := gameState.Player.GetComponent(state.Stats).(state.StatsComponent)
+	pp := gameState.Player.GetComponent(constants.Position).(state.PositionComponent)
+	pStats := gameState.Player.GetComponent(constants.Stats).(state.StatsComponent)
 	lightColor := palette.PColor(palette.Yellow, 0.5)
 
 	for _, entity := range entities {
-		position, _ := entity.GetComponent(state.Position).(state.PositionComponent)
-		apparence, _ := entity.GetComponent(state.Apparence).(state.ApparenceComponent)
-		visitable, isVisitable := entity.GetComponent(state.Visitable).(state.VisitableComponent)
+		position, _ := entity.GetComponent(constants.Position).(state.PositionComponent)
+		apparence, _ := entity.GetComponent(constants.Apparence).(state.ApparenceComponent)
+		visitable, isVisitable := entity.GetComponent(constants.Visitable).(state.VisitableComponent)
 
 		fg := apparence.Color
 		if fg == "" || len(fg) == 0 {
@@ -114,7 +115,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 			// Walls and floor
 			if visitable.Visible {
 				bgColor := ParseHexColorFast(bg)
-				if entity.HasComponent(state.IsBlocking) {
+				if entity.HasComponent(constants.IsBlocking) {
 					distance := CalcDistance(position.X, position.Y, pp.X, pp.Y)
 					mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
 					bgColor = ColorBlend(lightColor, bgColor, mix)
@@ -148,14 +149,6 @@ func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face
 
 }
 
-var messageLogColors = [5]color.Color{
-	ParseHexColorFast("#333333"),
-	ParseHexColorFast("#555555"),
-	ParseHexColorFast("#777777"),
-	ParseHexColorFast("#AAAAAA"),
-	ParseHexColorFast("#FFFFFF"),
-}
-
 func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
 	fontSize := 14
@@ -164,9 +157,8 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 	position := gs.Grid.MessageLog
 
 	lines := gs.GetLog(position.Height)
-	n := len(lines)
 	for i, line := range lines {
-		fgColor := messageLogColors[5-n+i]
+		fgColor := constants.LogColors[line.Type]
 		logStr := line.Msg
 		if line.Count > 1 {
 			logStr = strconv.Itoa(line.Count) + "x " + line.Msg
@@ -184,7 +176,7 @@ func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 	position := gs.Grid.PlayerHud
 
 	player := gs.Player
-	stats, ok := player.GetComponent(state.Stats).(state.StatsComponent)
+	stats, ok := player.GetComponent(constants.Stats).(state.StatsComponent)
 	if ok {
 		DrawText(screen, gs, position.X, position.Y, font, stats.String(), ParseHexColorFast("#00AA00"), color.Black)
 	}
@@ -199,7 +191,7 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 
 	y := position.Y
 	for _, entity := range visibleEntities {
-		if !entity.HasComponent(state.Player) {
+		if !entity.HasComponent(constants.Player) {
 			str := state.GetLongDescription(entity)
 			DrawText(screen, gs, position.X, y, font, str, color.White, color.Black)
 			y++
@@ -213,7 +205,7 @@ func drawGameInventory(screen *ebiten.Image, gs *gamestate.GameState) {
 	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.GameInventory
-	inventory, _ := gs.Player.GetComponent(state.Inventory).(state.InventoryComponent)
+	inventory, _ := gs.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
 	y := position.Y
 	status := fmt.Sprintf("Inventory %2d/%2d", len(inventory.Items), inventory.MaxItems)
