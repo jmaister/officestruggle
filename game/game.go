@@ -111,7 +111,7 @@ func (g *Game) Update() error {
 				systems.InventoryKeyRight(g.GameState)
 			} else if keys[0] == ebiten.KeyC {
 				// Consume
-				systems.InventoryConsume(g.GameState)
+				systems.InventoryConsume(g.Engine, g.GameState)
 			} else if keys[0] == ebiten.KeyD {
 				// Drop
 				systems.InventoryDrop(g.GameState)
