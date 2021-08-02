@@ -1,6 +1,7 @@
 package gamestate
 
 import (
+	"image/color"
 	"log"
 
 	"github.com/norendren/go-fov/fov"
@@ -94,12 +95,12 @@ func (gs *GameState) IsOpaque(x int, y int) bool {
 type TargetingType string
 
 const RandomAcquisitionType TargetingType = "random"
-const SelectedAcquisitionType TargetingType = "selected"
+const ManualAcquisitionType TargetingType = "manual"
 const AreaAcquisitionType TargetingType = "area"
 
-type DamageType string
+type EffectFunction func(engine *ecs.Engine, gs *GameState, item *ecs.Entity, source *ecs.Entity, target *ecs.Entity)
 
-const DamageSharedType DamageType = "shared"
-const DamageEachType DamageType = "each"
-
-type EffectFunction func(engine *ecs.Engine, gs *GameState, item *ecs.Entity, itemUser *ecs.Entity, targets ecs.EntityList)
+type EffectInfo interface {
+	EffectInfo() string
+	EffectInfoColor() color.Color
+}

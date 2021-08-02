@@ -110,7 +110,13 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		v := visitables[rand.Intn(len(visitables))]
 		pos := state.GetPosition(v)
 		scroll := systems.NewLightningScroll(engine.NewEntity())
-
+		state.ApplyPosition(scroll, pos.X, pos.Y)
+	}
+	// Paralize Scroll
+	for i := 0; i < 10; i++ {
+		v := visitables[rand.Intn(len(visitables))]
+		pos := state.GetPosition(v)
+		scroll := systems.NewParalizeScroll(engine.NewEntity())
 		state.ApplyPosition(scroll, pos.X, pos.Y)
 	}
 

@@ -57,6 +57,7 @@ func TargetingMouseClick(engine *ecs.Engine, gameState *gamestate.GameState, mou
 	}
 }
 
+// TODO: extract to external library
 // Returns the list of points from (x0, y0) to (x1, y1).
 // https://www.codeproject.com/Articles/15604/Ray-casting-in-a-2D-tile-based-environment
 func BresenhamLine(x0 int, y0 int, x1 int, y1 int) []grid.Tile {

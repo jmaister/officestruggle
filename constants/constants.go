@@ -29,6 +29,7 @@ const (
 	Equipment     = "equipment"
 	Animated      = "animated"
 	ConsumeEffect = "consumeEffect"
+	Paralize      = "paralize"
 )
 
 type LogType string
