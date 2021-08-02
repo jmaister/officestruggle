@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+	"image/color"
 	"strconv"
 	"strings"
 
@@ -8,6 +10,7 @@ import (
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/interfaces"
+	"jordiburgos.com/officestruggle/palette"
 )
 
 type PlayerComponent struct {
@@ -357,4 +360,12 @@ type ParalizeComponent struct {
 
 func (a ParalizeComponent) ComponentType() string {
 	return constants.Paralize
+}
+
+// Implement gamestate.EffectInfoColor
+func (a ParalizeComponent) EffectInfo() string {
+	return fmt.Sprintf("P-%d", a.TurnsLeft)
+}
+func (a ParalizeComponent) EffectInfoColor() color.Color {
+	return palette.PColor(palette.Orange, 0.7)
 }

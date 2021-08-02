@@ -1,6 +1,7 @@
 package gamestate
 
 import (
+	"image/color"
 	"log"
 
 	"github.com/norendren/go-fov/fov"
@@ -98,3 +99,8 @@ const ManualAcquisitionType TargetingType = "manual"
 const AreaAcquisitionType TargetingType = "area"
 
 type EffectFunction func(engine *ecs.Engine, gs *GameState, item *ecs.Entity, source *ecs.Entity, target *ecs.Entity)
+
+type EffectInfo interface {
+	EffectInfo() string
+	EffectInfoColor() color.Color
+}

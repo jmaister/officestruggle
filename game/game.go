@@ -146,10 +146,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if g.GameState.ScreenState == gamestate.GameScreen {
 		// Render the screen
 		systems.Render(g.Engine, g.GameState, screen)
+		systems.EffectInfoSystem(g.Engine, g.GameState, screen)
+		// Update active animations
+		systems.AnimationSystem(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.TargetingScreen {
 		// Render the screen
 		systems.Render(g.Engine, g.GameState, screen)
+		systems.EffectInfoSystem(g.Engine, g.GameState, screen)
 		systems.RenderTargetingScreen(g.Engine, g.GameState, screen)
+		// Update active animations
+		systems.AnimationSystem(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.WelcomeScreen {
 		systems.RenderWelcomesScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.InventoryScreen {
@@ -158,8 +164,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.RenderTestScreen(g.Engine, g.GameState, screen)
 	}
 
-	// Update active animations
-	systems.AnimationSystem(g.Engine, g.GameState, screen)
 }
 
 func (g *Game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, screenHeight int) {
