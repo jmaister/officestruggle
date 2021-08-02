@@ -160,8 +160,8 @@ func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, s
 
 	x, y := toPixel(gs, line[current].X, line[current].Y)
 
-	x = x + randInt(-10, 10)
-	y = y + randInt(-10, 10)
+	x = x + randInt(-5, 5)
+	y = y + randInt(-5, 5)
 
 	cl := ColorBlend(a.Color, color.White, percent)
 	fnt := assets.MplusFont(20)

@@ -74,7 +74,7 @@ func NewParalizeScroll(entity *ecs.Entity) *ecs.Entity {
 			target.ReplaceComponent(state.ParalizeComponent{
 				TurnsLeft: turnsLeft,
 			})
-			gs.Log(constants.Info, fmt.Sprintf("%s got paralized by %d turns.", state.GetDescription(target), turnsLeft))
+			gs.Log(constants.Info, fmt.Sprintf("%s got paralized for %d turns.", state.GetDescription(target), turnsLeft))
 		},
 	})
 	return entity
