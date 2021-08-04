@@ -61,6 +61,10 @@ func (g *Game) Update() error {
 				g.GameState.ScreenState = gamestate.InventoryScreen
 			case ebiten.KeyZ:
 				g.GameState.ScreenState = gamestate.TargetingScreen
+			case ebiten.KeyS:
+				systems.SaveGame(g.Engine, g.GameState)
+			case ebiten.KeyL:
+				systems.LoadGame(g.Engine, g.GameState)
 			}
 
 			if movementKey {

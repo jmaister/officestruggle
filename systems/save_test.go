@@ -17,3 +17,14 @@ func TestSaveGame(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestLoadGame(t *testing.T) {
+	engine := ecs.NewEngine()
+	gs := game.NewGameState(engine)
+	err := systems.LoadGame(engine, gs)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+}
