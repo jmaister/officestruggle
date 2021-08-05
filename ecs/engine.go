@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"jordiburgos.com/officestruggle/constants"
 )
 
 type Entity struct {
@@ -71,9 +73,27 @@ func (engine *Engine) DestroyEntity(entity *Entity) {
 	entity.Engine = nil
 }
 
-func (engine *Engine) SetEntities(entities EntityList) {
-	engine.Entities = entities
-	engine.currentId = len(entities) + 1
+// Used to load a game state
+func (engine *Engine) SetEntityList(entityList EntityList) {
+	engine.Entities = entityList
+	engine.currentId = len(entityList) + 1
+
+	// Set the engine for every entity
+	for _, entity := range entityList {
+		entity.Engine = engine
+	}
+
+	// Recreate the position cache
+	for k := range engine.PosCache.Entities {
+		delete(engine.PosCache.Entities, k)
+	}
+
+	found := engine.Entities.GetEntities([]string{constants.Position})
+	for _, f := range found {
+		cmp := f.GetComponent(constants.Position)
+		// Triggers position cache update
+		f.ReplaceComponent(cmp)
+	}
 }
 
 /**

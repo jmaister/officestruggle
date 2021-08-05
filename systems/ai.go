@@ -115,7 +115,7 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 		} else {
 			// Follow the player
 			path, found := astar.AStar(from, to)
-			if found && len(path) > 0 {
+			if found && len(path) > 1 {
 				currStep := (*path[0]).(*Tile)
 				nextStep := (*path[1]).(*Tile)
 				dx := nextStep.X - currStep.X
@@ -143,9 +143,10 @@ func SimpleAI(engine *ecs.Engine, gameState *gamestate.GameState) {
 
 func wander(entity *ecs.Entity) {
 	walkable := getWalkableNeighbors(entity)
-	selected := walkable[rand.Intn(len(walkable))]
-
-	entity.AddComponent(state.MoveComponent{X: selected.X, Y: selected.Y})
+	if len(walkable) > 0 {
+		selected := walkable[rand.Intn(len(walkable))]
+		entity.AddComponent(state.MoveComponent{X: selected.X, Y: selected.Y})
+	}
 }
 
 func getWalkableNeighbors(enemy *ecs.Entity) []Dir {

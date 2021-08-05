@@ -22,12 +22,14 @@ type Save struct {
 	ScreenHeight int
 	TileWidth    int
 	TileHeight   int
+	LogLines     []gamestate.LogLine
 }
 
 func registerGob() {
 
 	gob.Register(Save{})
 	gob.Register(ecs.Entity{})
+
 	gob.Register(state.AIComponent{})
 	gob.Register(state.AnimatedComponent{})
 	gob.Register(state.ApparenceComponent{})
@@ -72,6 +74,7 @@ func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 		ScreenHeight: gs.ScreenHeight,
 		TileWidth:    gs.TileWidth,
 		TileHeight:   gs.TileHeight,
+		LogLines:     gs.LogLines,
 	}
 
 	err := encoder.Encode(save)
@@ -81,7 +84,7 @@ func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	}
 
 	home, err := os.UserHomeDir()
-	saveFileName := path.Join(home, "save.save")
+	saveFileName := path.Join(home, gamestate.SaveGamePrefix+".save")
 
 	err2 := os.WriteFile(saveFileName, buffer.Bytes(), 0666)
 	if err != nil {
@@ -100,7 +103,7 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 		return err
 	}
 
-	saveFileName := path.Join(home, "save.save")
+	saveFileName := path.Join(home, gamestate.SaveGamePrefix+".save")
 
 	contents, err2 := os.ReadFile(saveFileName)
 	if err2 != nil {
@@ -113,7 +116,7 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	save := Save{}
 	decoder.Decode(&save)
 
-	engine.SetEntities(save.Entities)
+	engine.SetEntityList(save.Entities)
 
 	gs.Engine = engine
 	gs.Grid = &save.Grid
@@ -122,8 +125,7 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	gs.TileWidth = save.TileWidth
 	gs.TileHeight = save.TileHeight
 	gs.Player = engine.Entities.GetEntity([]string{constants.Player})
-
-	restoreCycles(engine, gs)
+	gs.LogLines = save.LogLines
 
 	return nil
 }
