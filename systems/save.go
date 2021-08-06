@@ -108,13 +108,11 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 
 	saveFileName, err := dialog.File().Filter(".save files", "save").Title("Load saved game").Load()
 	if err != nil {
-		gs.ScreenState = gamestate.GameScreen
 		return err
 	}
 
 	contents, err2 := os.ReadFile(saveFileName)
 	if err2 != nil {
-		gs.ScreenState = gamestate.GameScreen
 		return err2
 	}
 
@@ -139,7 +137,6 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	gs.Player = engine.Entities.GetEntity([]string{constants.Player})
 	gs.LogLines = save.LogLines
 
-	gs.ScreenState = gamestate.GameScreen
 	return nil
 }
 

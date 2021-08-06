@@ -2,5 +2,6 @@
     "files.eol": "\n",
     "gopls": {
         "build.experimentalWorkspaceModule": true
-    }
+    },
+    "editor.multiCursorModifier": "alt",
 }

@@ -62,9 +62,13 @@ func (g *Game) Update() error {
 			case ebiten.KeyZ:
 				g.GameState.ScreenState = gamestate.TargetingScreen
 			case ebiten.KeyS:
-				systems.SaveGame(g.Engine, g.GameState)
+				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+					systems.SaveGame(g.Engine, g.GameState)
+				}
 			case ebiten.KeyL:
-				g.GameState.ScreenState = gamestate.LoadGameScreen
+				if inpututil.IsKeyJustPressed(ebiten.KeyL) {
+					go systems.LoadGame(g.Engine, g.GameState)
+				}
 			}
 
 			if movementKey {
@@ -166,8 +170,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.RenderInventoryScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.TestScreen {
 		systems.RenderTestScreen(g.Engine, g.GameState, screen)
-	} else if g.GameState.ScreenState == gamestate.LoadGameScreen {
-		go systems.LoadGame(g.Engine, g.GameState)
 	}
 
 }

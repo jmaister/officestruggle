@@ -20,7 +20,6 @@ const (
 	GameScreen      ScreenState = "game"
 	TargetingScreen ScreenState = "target"
 	InventoryScreen ScreenState = "inventory"
-	LoadGameScreen  ScreenState = "loadGame"
 	TestScreen      ScreenState = "test"
 )
 
