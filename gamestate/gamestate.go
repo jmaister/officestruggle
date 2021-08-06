@@ -10,6 +10,7 @@ import (
 	"jordiburgos.com/officestruggle/grid"
 )
 
+const GameVersion = "1.0.0"
 const SaveGamePrefix = "officestruggle"
 
 type ScreenState string
@@ -19,6 +20,7 @@ const (
 	GameScreen      ScreenState = "game"
 	TargetingScreen ScreenState = "target"
 	InventoryScreen ScreenState = "inventory"
+	LoadGameScreen  ScreenState = "loadGame"
 	TestScreen      ScreenState = "test"
 )
 

@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/lucasb-eyer/go-colorful"
+	"github.com/sqweek/dialog"
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -16,6 +18,7 @@ import (
 )
 
 type Save struct {
+	GameVersion  string
 	Entities     ecs.EntityList
 	Grid         grid.Grid
 	ScreenWidth  int
@@ -24,6 +27,9 @@ type Save struct {
 	TileHeight   int
 	LogLines     []gamestate.LogLine
 }
+
+// YYYYMMDD_hhmmss
+const dateTimeLayout = "20060102_150405"
 
 func registerGob() {
 
@@ -68,6 +74,7 @@ func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	encoder := gob.NewEncoder(&buffer)
 
 	save := Save{
+		GameVersion:  gamestate.GameVersion,
 		Entities:     engine.Entities,
 		Grid:         *gs.Grid,
 		ScreenWidth:  gs.ScreenWidth,
@@ -84,7 +91,8 @@ func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	}
 
 	home, err := os.UserHomeDir()
-	saveFileName := path.Join(home, gamestate.SaveGamePrefix+".save")
+	filename := fmt.Sprintf("%s-%s.save", gamestate.SaveGamePrefix, time.Now().Format(dateTimeLayout))
+	saveFileName := path.Join(home, filename)
 
 	err2 := os.WriteFile(saveFileName, buffer.Bytes(), 0666)
 	if err != nil {
@@ -98,15 +106,15 @@ func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	registerGob()
 
-	home, err := os.UserHomeDir()
+	saveFileName, err := dialog.File().Filter(".save files", "save").Title("Load saved game").Load()
 	if err != nil {
+		gs.ScreenState = gamestate.GameScreen
 		return err
 	}
 
-	saveFileName := path.Join(home, gamestate.SaveGamePrefix+".save")
-
 	contents, err2 := os.ReadFile(saveFileName)
 	if err2 != nil {
+		gs.ScreenState = gamestate.GameScreen
 		return err2
 	}
 
@@ -115,6 +123,10 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 
 	save := Save{}
 	decoder.Decode(&save)
+
+	if gamestate.GameVersion != save.GameVersion {
+		fmt.Printf("Warning: Game version [%s] differs from saved file version [%s]. You may have unexpected results.\n", gamestate.GameVersion, save.GameVersion)
+	}
 
 	engine.SetEntityList(save.Entities)
 
@@ -127,6 +139,7 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	gs.Player = engine.Entities.GetEntity([]string{constants.Player})
 	gs.LogLines = save.LogLines
 
+	gs.ScreenState = gamestate.GameScreen
 	return nil
 }
 

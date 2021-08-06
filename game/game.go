@@ -64,7 +64,7 @@ func (g *Game) Update() error {
 			case ebiten.KeyS:
 				systems.SaveGame(g.Engine, g.GameState)
 			case ebiten.KeyL:
-				systems.LoadGame(g.Engine, g.GameState)
+				g.GameState.ScreenState = gamestate.LoadGameScreen
 			}
 
 			if movementKey {
@@ -166,6 +166,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.RenderInventoryScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.TestScreen {
 		systems.RenderTestScreen(g.Engine, g.GameState, screen)
+	} else if g.GameState.ScreenState == gamestate.LoadGameScreen {
+		go systems.LoadGame(g.Engine, g.GameState)
 	}
 
 }
