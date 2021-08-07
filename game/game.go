@@ -29,13 +29,12 @@ func NewGame() *Game {
 
 func (g *Game) Update() error {
 
-	systems.ComputeFov(g.Engine, g.GameState)
-
 	// Update the logical state
 	keys := inpututil.PressedKeys()
 	hasPressedKeys := len(keys) > 0 && repeatingKeyPressed(keys[0])
 
 	if g.GameState.ScreenState == gamestate.GameScreen {
+		systems.ComputeFov(g.Engine, g.GameState)
 		if g.GameState.IsPlayerTurn && hasPressedKeys {
 			fmt.Println(keys)
 
@@ -148,6 +147,14 @@ func (g *Game) Update() error {
 		if hasPressedKeys {
 			fmt.Println(keys)
 		}
+	} else if g.GameState.ScreenState == gamestate.GameoverScreen {
+		if hasPressedKeys {
+			if keys[0] == ebiten.KeyEnter {
+				engine := ecs.NewEngine()
+				g.Engine = engine
+				g.GameState = NewGameState(engine)
+			}
+		}
 	}
 
 	return nil
@@ -175,6 +182,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.RenderTestScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.LoadingScreen {
 		systems.DrawText(screen, g.GameState, 10, 10, assets.LoadFontCached(40), "Loading ...", color.White, color.Black)
+	} else if g.GameState.ScreenState == gamestate.GameoverScreen {
+		systems.DrawText(screen, g.GameState, 10, 10, assets.LoadFontCached(40), "Game Over!", color.White, color.Black)
+		systems.DrawText(screen, g.GameState, 10, 20, assets.LoadFontCached(20), "You have been defeated.", color.White, color.Black)
+		systems.DrawText(screen, g.GameState, 10, 30, assets.LoadFontCached(20), "Press [ENTER] to continue.", color.White, color.Black)
 	}
 
 }

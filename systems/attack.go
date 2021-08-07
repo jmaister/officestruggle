@@ -88,7 +88,9 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 		apparence.Char = '%'
 		entity.ReplaceComponent(apparence)
 	}
-	// TODO: if player is killed, change screen state
+	if entity == gs.Player {
+		gs.ScreenState = gamestate.GameoverScreen
+	}
 }
 
 func CreateDamageAnimation(engine *ecs.Engine, source *ecs.Entity, target *ecs.Entity, str string) {

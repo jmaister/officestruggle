@@ -21,6 +21,7 @@ const (
 	TargetingScreen ScreenState = "target"
 	InventoryScreen ScreenState = "inventory"
 	LoadingScreen   ScreenState = "loading"
+	GameoverScreen  ScreenState = "gameover"
 	TestScreen      ScreenState = "test"
 )
 
