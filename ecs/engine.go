@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"jordiburgos.com/officestruggle/constants"
 )
 
 type Entity struct {
 	Id         int
-	components map[string]Component
+	Components map[string]Component
 	Engine     *Engine
 }
 
@@ -52,7 +54,7 @@ func NewEngine() *Engine {
 func (engine *Engine) NewEntity() *Entity {
 	newEntity := &Entity{
 		Id:         engine.currentId,
-		components: make(map[string]Component),
+		Components: make(map[string]Component),
 		Engine:     engine,
 	}
 	engine.currentId = engine.currentId + 1
@@ -62,13 +64,36 @@ func (engine *Engine) NewEntity() *Entity {
 
 func (engine *Engine) DestroyEntity(entity *Entity) {
 	// Remove all components to trigger possible actions
-	for k := range entity.components {
+	for k := range entity.Components {
 		entity.RemoveComponent(k)
 	}
 	engine.Entities.RemoveEntity(entity)
 
-	entity.components = nil
+	entity.Components = nil
 	entity.Engine = nil
+}
+
+// Used to load a game state
+func (engine *Engine) SetEntityList(entityList EntityList) {
+	engine.Entities = entityList
+	engine.currentId = len(entityList) + 1
+
+	// Set the engine for every entity
+	for _, entity := range entityList {
+		entity.Engine = engine
+	}
+
+	// Recreate the position cache
+	for k := range engine.PosCache.Entities {
+		delete(engine.PosCache.Entities, k)
+	}
+
+	found := engine.Entities.GetEntities([]string{constants.Position})
+	for _, f := range found {
+		cmp := f.GetComponent(constants.Position)
+		// Triggers position cache update
+		f.ReplaceComponent(cmp)
+	}
 }
 
 /**
@@ -77,7 +102,7 @@ func (engine *Engine) DestroyEntity(entity *Entity) {
 
 func (entity *Entity) String() string {
 	var str = "Entity " + strconv.Itoa(entity.Id) + "["
-	for _, c := range entity.components {
+	for _, c := range entity.Components {
 		str += c.ComponentType() + ","
 	}
 	str += "]"
@@ -85,7 +110,7 @@ func (entity *Entity) String() string {
 }
 
 func (entity *Entity) AddComponent(component Component) {
-	entity.components[component.ComponentType()] = component
+	entity.Components[component.ComponentType()] = component
 
 	// Call event if possible
 	cmp, ok := component.(OnAddComponent)
@@ -95,9 +120,9 @@ func (entity *Entity) AddComponent(component Component) {
 }
 
 func (entity *Entity) RemoveComponent(componentType string) {
-	component, ok := entity.components[componentType]
+	component, ok := entity.Components[componentType]
 	if ok {
-		delete(entity.components, componentType)
+		delete(entity.Components, componentType)
 
 		// Call event if possible
 		cmp, ok := component.(OnRemoveComponent)
@@ -113,7 +138,7 @@ func (entity *Entity) ReplaceComponent(newComponent Component) {
 }
 
 func (entity *Entity) HasComponent(componentType string) bool {
-	if _, ok := entity.components[componentType]; ok {
+	if _, ok := entity.Components[componentType]; ok {
 		return true
 	} else {
 		return false
@@ -137,7 +162,7 @@ func (entity *Entity) HasComponents(componentTypes []string) bool {
 }
 
 func (entity *Entity) GetComponent(componentType string) Component {
-	if cmp, ok := entity.components[componentType]; ok {
+	if cmp, ok := entity.Components[componentType]; ok {
 		return cmp
 	} else {
 		return nil
@@ -164,6 +189,7 @@ func (entityList *EntityList) GetEntity(types []string) *Entity {
 	if len(found) == 1 {
 		return found[0]
 	}
+	fmt.Println("entities found", found)
 	fmt.Println("Warning, more than one entity found for types: " + strings.Join(types, ","))
 	return nil
 }

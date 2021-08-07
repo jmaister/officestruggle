@@ -10,6 +10,9 @@ import (
 	"jordiburgos.com/officestruggle/grid"
 )
 
+const GameVersion = "1.0.0"
+const SaveGamePrefix = "officestruggle"
+
 type ScreenState string
 
 const (
@@ -17,6 +20,7 @@ const (
 	GameScreen      ScreenState = "game"
 	TargetingScreen ScreenState = "target"
 	InventoryScreen ScreenState = "inventory"
+	LoadingScreen   ScreenState = "loading"
 	TestScreen      ScreenState = "test"
 )
 
@@ -50,7 +54,7 @@ type GameState struct {
 	ScreenHeight         int
 	TileWidth            int
 	TileHeight           int
-	logLines             []LogLine
+	LogLines             []LogLine
 }
 
 type LogLine struct {
@@ -60,22 +64,22 @@ type LogLine struct {
 }
 
 func (gs *GameState) Log(t constants.LogType, s string) {
-	n := len(gs.logLines)
+	n := len(gs.LogLines)
 	if n > 0 {
-		if gs.logLines[n-1].Msg == s {
-			gs.logLines[n-1].Count++
+		if gs.LogLines[n-1].Msg == s {
+			gs.LogLines[n-1].Count++
 			return
 		}
 	}
-	gs.logLines = append(gs.logLines, LogLine{Msg: s, Count: 1, Type: t})
+	gs.LogLines = append(gs.LogLines, LogLine{Msg: s, Count: 1, Type: t})
 }
 
 func (gs *GameState) GetLog(lineNumber int) []LogLine {
-	n := len(gs.logLines)
+	n := len(gs.LogLines)
 	if lineNumber <= n {
-		return gs.logLines[n-lineNumber : n]
+		return gs.LogLines[n-lineNumber : n]
 	}
-	return gs.logLines
+	return gs.LogLines
 }
 
 // Implement the GridMap interface for the Fov.

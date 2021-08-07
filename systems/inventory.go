@@ -58,13 +58,13 @@ func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 	return nil, false
 }
 
-func InventoryConsume(gs *gamestate.GameState) {
+func InventoryConsume(engine *ecs.Engine, gs *gamestate.GameState) {
 
 	consumable, ok := getCurrentInventoryItem(gs)
 	if ok {
 		consumed := ConsumeConsumableComponent(gs, consumable)
 		if consumed {
-			removeAndDestroy(gs, consumable)
+			removeAndDestroy(engine, gs, consumable)
 		}
 
 		updateInventorySelection(gs, 0)
@@ -73,7 +73,7 @@ func InventoryConsume(gs *gamestate.GameState) {
 	}
 }
 
-func removeAndDestroy(gs *gamestate.GameState, consumable *ecs.Entity) {
+func removeAndDestroy(engine *ecs.Engine, gs *gamestate.GameState, consumable *ecs.Entity) {
 	player := gs.Player
 	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
@@ -82,9 +82,7 @@ func removeAndDestroy(gs *gamestate.GameState, consumable *ecs.Entity) {
 	gs.Player.ReplaceComponent(inventory)
 
 	// Destroy entity
-	engine := consumable.Engine
 	engine.DestroyEntity(consumable)
-
 }
 
 func InventoryDrop(gs *gamestate.GameState) {

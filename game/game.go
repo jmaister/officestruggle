@@ -2,9 +2,11 @@ package game
 
 import (
 	"fmt"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/systems"
@@ -61,6 +63,15 @@ func (g *Game) Update() error {
 				g.GameState.ScreenState = gamestate.InventoryScreen
 			case ebiten.KeyZ:
 				g.GameState.ScreenState = gamestate.TargetingScreen
+			case ebiten.KeyS:
+				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+					systems.SaveGame(g.Engine, g.GameState)
+				}
+			case ebiten.KeyL:
+				if inpututil.IsKeyJustPressed(ebiten.KeyL) {
+					g.GameState.ScreenState = gamestate.LoadingScreen
+					go systems.LoadGame(g.Engine, g.GameState)
+				}
 			}
 
 			if movementKey {
@@ -111,7 +122,7 @@ func (g *Game) Update() error {
 				systems.InventoryKeyRight(g.GameState)
 			} else if keys[0] == ebiten.KeyC {
 				// Consume
-				systems.InventoryConsume(g.GameState)
+				systems.InventoryConsume(g.Engine, g.GameState)
 			} else if keys[0] == ebiten.KeyD {
 				// Drop
 				systems.InventoryDrop(g.GameState)
@@ -162,6 +173,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.RenderInventoryScreen(g.Engine, g.GameState, screen)
 	} else if g.GameState.ScreenState == gamestate.TestScreen {
 		systems.RenderTestScreen(g.Engine, g.GameState, screen)
+	} else if g.GameState.ScreenState == gamestate.LoadingScreen {
+		systems.DrawText(screen, g.GameState, 10, 10, assets.LoadFontCached(40), "Loading ...", color.White, color.Black)
 	}
 
 }
