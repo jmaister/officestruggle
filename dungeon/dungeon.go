@@ -17,7 +17,20 @@ func randBetween(min int, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func CreateDungeon(m grid.Rect, opts DungeonOptions) ([]grid.Tile, grid.Tile) {
+func CreateDungeon(m grid.Rect, opts DungeonOptions, levels int) ([]grid.Tile, grid.Tile) {
+	tileList := []grid.Tile{}
+	center := grid.Tile{}
+	for i := 0; i < levels; i++ {
+		levelTiles, levelCenter := createLevel(m, opts, i)
+		tileList = append(tileList, levelTiles...)
+		if i == 0 {
+			center = levelCenter
+		}
+	}
+	return tileList, center
+}
+
+func createLevel(m grid.Rect, opts DungeonOptions, level int) ([]grid.Tile, grid.Tile) {
 
 	_, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
 		Sprite: grid.Wall,
@@ -72,6 +85,7 @@ func CreateDungeon(m grid.Rect, opts DungeonOptions) ([]grid.Tile, grid.Tile) {
 
 	tileList := make([]grid.Tile, len(tiles))
 	for _, tile := range tiles {
+		t := grid.Grid
 		tileList = append(tileList, tile)
 	}
 

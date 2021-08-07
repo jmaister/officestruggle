@@ -40,11 +40,12 @@ var AllDirection = append(Cardinal, Diagonal...)
 type Tile struct {
 	X      int
 	Y      int
+	Z      int
 	Sprite TileType
 }
 
 func (t Tile) GetKey() string {
-	return strconv.Itoa(t.X) + "," + strconv.Itoa(t.Y)
+	return strconv.Itoa(t.X) + "," + strconv.Itoa(t.Y) + "," + strconv.Itoa(t.Z)
 }
 
 func IsInsideCircle(center Tile, tile Tile, radius int) bool {
@@ -154,6 +155,7 @@ type Rect struct {
 type Grid struct {
 	Width         int
 	Height        int
+	Levels        int
 	Map           Rect
 	MessageLog    Rect
 	PlayerHud     Rect

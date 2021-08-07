@@ -21,6 +21,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 	g := grid.Grid{
 		Width:  80,
 		Height: 34,
+		Levels: 2,
 		Map: grid.Rect{
 			X:      16,
 			Y:      8,
@@ -68,7 +69,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
 		MaxRoomCount: 40,
-	})
+	}, g.Levels)
 
 	for _, tile := range dungeonTiles {
 		tileEntity := engine.NewEntity()
