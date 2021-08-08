@@ -40,6 +40,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 		})
 
 		gs.Log(constants.Info, "Consumed "+state.GetLongDescription(consumable))
+		removeAndDestroy(gs.Engine, gs, consumable)
 		return true
 	} else if isConsumeEffect {
 		consumeEffect := consumable.GetComponent(constants.ConsumeEffect).(state.ConsumeEffectComponent)
@@ -72,6 +73,7 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 			} else {
 				gs.Log(constants.Warn, state.GetLongDescription(consumable)+" is used but no targets found.")
 			}
+			removeAndDestroy(gs.Engine, gs, consumable)
 			return true
 		default:
 			// TODO: add other target types
@@ -97,4 +99,16 @@ func getEnemiesInFov(gs *gamestate.GameState, consumeEffect state.ConsumeEffectC
 		}
 	}
 	return enemiesInFov
+}
+
+func removeAndDestroy(engine *ecs.Engine, gs *gamestate.GameState, consumable *ecs.Entity) {
+	player := gs.Player
+	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
+
+	// Remove from inventory
+	inventory.RemoveItem(consumable)
+	gs.Player.ReplaceComponent(inventory)
+
+	// Destroy entity
+	engine.DestroyEntity(consumable)
 }

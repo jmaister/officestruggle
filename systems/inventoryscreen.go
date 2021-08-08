@@ -6,11 +6,9 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
-	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -26,7 +24,7 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 	for _, item := range inventory.Items {
 		invStrItems = append(invStrItems, state.GetLongDescription(item))
 	}
-	drawList(screen, gameState, &gameState.InventoryScreenState.InventoryState, invStrItems, gameState.Grid.Inventory, inventoryTitle)
+	DrawSelectionList(screen, &gameState.InventoryScreenState.InventoryState, invStrItems, gameState.Grid.Inventory, inventoryTitle)
 
 	// Equipment
 	equipment, _ := gameState.Player.GetComponent(constants.Equipment).(state.EquipmentComponent)
@@ -40,41 +38,6 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 			equipStrItems = append(equipStrItems, fmt.Sprintf("%6s: - empty -", position))
 		}
 	}
-	drawList(screen, gameState, &gameState.InventoryScreenState.EquipmentState, equipStrItems, gameState.Grid.Equipment, equipmentTitle)
+	DrawSelectionList(screen, &gameState.InventoryScreenState.EquipmentState, equipStrItems, gameState.Grid.Equipment, equipmentTitle)
 
-}
-
-func drawList(screen *ebiten.Image, gs *gamestate.GameState, listState *gamestate.ListState, items []string, position grid.Rect, title string) {
-	fontSize := 12
-	font := assets.MplusFont(float64(fontSize))
-
-	y := position.Y
-	text.Draw(screen, title, font, (position.X)*fontSize, y*fontSize, color.White)
-
-	if len(items) > 0 {
-		for i, itemStr := range items {
-			selected := (i == listState.Selected)
-
-			str := fmt.Sprintf("%2d - %s", i+1, itemStr)
-			px := (position.X) * fontSize
-			py := (y + 1) * fontSize
-			if selected && listState.IsFocused {
-				DrawTextRect(screen, str, px, py, font, color.White)
-				text.Draw(screen, str, font, px, py, color.Black)
-			} else {
-				text.Draw(screen, str, font, px, py, color.White)
-			}
-			y++
-		}
-	} else {
-		str := "- No items -"
-		px := (position.X) * fontSize
-		py := (y + 1) * fontSize
-		if listState.IsFocused {
-			DrawTextRect(screen, str, px, py, font, color.White)
-			text.Draw(screen, str, font, px, py, color.Black)
-		} else {
-			text.Draw(screen, str, font, px, py, color.White)
-		}
-	}
 }

@@ -22,6 +22,7 @@ const (
 	InventoryScreen ScreenState = "inventory"
 	LoadingScreen   ScreenState = "loading"
 	GameoverScreen  ScreenState = "gameover"
+	ActionDialog    ScreenState = "actiondialog"
 	TestScreen      ScreenState = "test"
 )
 
@@ -42,6 +43,11 @@ type InventoryScreenState struct {
 	EquipmentState ListState
 }
 
+type ActionScreenState struct {
+	Actions ListState
+	Items   ecs.EntityList
+}
+
 type GameState struct {
 	Engine               *ecs.Engine
 	Fov                  *fov.View
@@ -50,6 +56,7 @@ type GameState struct {
 	CurrentZ             int
 	ScreenState          ScreenState
 	InventoryScreenState InventoryScreenState
+	ActionScreenState    ActionScreenState
 	IsPlayerTurn         bool
 	L                    *log.Logger
 	ScreenWidth          int
