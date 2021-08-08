@@ -371,3 +371,11 @@ func (a ParalizeComponent) EffectInfo() string {
 func (a ParalizeComponent) EffectInfoColor() color.Color {
 	return palette.PColor(palette.Orange, 0.7)
 }
+
+type StairsComponent struct {
+	GoingUp bool
+}
+
+func (a StairsComponent) ComponentType() string {
+	return constants.Stairs
+}

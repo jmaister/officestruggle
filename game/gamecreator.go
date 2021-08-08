@@ -77,6 +77,10 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			state.NewWall(tileEntity, tile.X, tile.Y, tile.Z)
 		} else if tile.Sprite == grid.Floor {
 			state.NewFloor(tileEntity, tile.X, tile.Y, tile.Z)
+		} else if tile.Sprite == grid.Upstairs {
+			state.NewUpstairs(tileEntity, tile.X, tile.Y, tile.Z)
+		} else if tile.Sprite == grid.Downstairs {
+			state.NewDownstairs(tileEntity, tile.X, tile.Y, tile.Z)
 		}
 	}
 
@@ -87,6 +91,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 	for level := 0; level < g.Levels; level++ {
 		visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
 		visitables = systems.FilterZ(visitables, level)
+
 		// Enemies
 		for i := 0; i < 10; i++ {
 			v := visitables[rand.Intn(len(visitables))]

@@ -30,6 +30,7 @@ const (
 	Animated      = "animated"
 	ConsumeEffect = "consumeEffect"
 	Paralize      = "paralize"
+	Stairs        = "stairs"
 )
 
 type LogType string

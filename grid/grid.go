@@ -83,9 +83,11 @@ func GetCircle(center Tile, radius int) []Tile {
 type TileType string
 
 const (
-	Wall      TileType = "Wall"
-	Floor     TileType = "Floor"
-	Undefined TileType = "Undef"
+	Wall       TileType = "Wall"
+	Floor      TileType = "Floor"
+	Upstairs   TileType = "Upstairs"
+	Downstairs TileType = "Downstairs"
+	Undefined  TileType = "Undef"
 )
 
 type RectangleOptions struct {

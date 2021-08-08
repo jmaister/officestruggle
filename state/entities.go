@@ -134,3 +134,21 @@ func NewFloor(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
 	entity.AddComponent(ApparenceComponent{Color: "#e3e3e3", Char: '.'})
 	return entity
 }
+
+func NewUpstairs(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
+	applyVisitableEntity(entity)
+	entity.AddComponent(DescriptionComponent{Name: "Stairs going up"})
+	entity.AddComponent(StairsComponent{GoingUp: true})
+	entity.AddComponent(ApparenceComponent{Color: "#a0522d", Char: '<'})
+	return entity
+}
+
+func NewDownstairs(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
+	applyVisitableEntity(entity)
+	entity.AddComponent(DescriptionComponent{Name: "Stairs going down"})
+	entity.AddComponent(StairsComponent{GoingUp: false})
+	entity.AddComponent(ApparenceComponent{Color: "#a0522d", Char: '>'})
+	return entity
+}
