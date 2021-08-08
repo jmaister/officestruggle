@@ -38,6 +38,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	// Reset visibility
 	visitables := engine.Entities.GetEntities([]string{constants.Visitable})
+	visitables = FilterZ(visitables, gameState.CurrentZ)
 	setVisibleEntities(visitables, false)
 
 	// Update visibility
@@ -55,6 +56,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 	for _, layer := range layers {
 		renderable := []string{constants.Position, constants.Apparence, layer}
 		entities := engine.Entities.GetEntities(renderable)
+		entities = FilterZ(entities, gameState.CurrentZ)
 
 		v := renderEntities(entities, gameState, screen)
 

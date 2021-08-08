@@ -129,6 +129,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		Fov:         fov.New(),
 		Grid:        &g,
 		Player:      player,
+		CurrentZ:    0,
 		ScreenState: gamestate.WelcomeScreen,
 		InventoryScreenState: gamestate.InventoryScreenState{
 			InventoryState: gamestate.ListState{

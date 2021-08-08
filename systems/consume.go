@@ -86,7 +86,11 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 
 func getEnemiesInFov(gs *gamestate.GameState, consumeEffect state.ConsumeEffectComponent) ecs.EntityList {
 	enemiesInFov := ecs.EntityList{}
-	for _, enemy := range gs.Engine.Entities.GetEntities(consumeEffect.TargetTypes) {
+
+	enemies := gs.Engine.Entities.GetEntities(consumeEffect.TargetTypes)
+	enemies = FilterZ(enemies, gs.CurrentZ)
+
+	for _, enemy := range enemies {
 		position := enemy.GetComponent(constants.Position).(state.PositionComponent)
 		if gs.Fov.IsVisible(position.X, position.Y) {
 			enemiesInFov = append(enemiesInFov, enemy)

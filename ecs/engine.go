@@ -173,16 +173,7 @@ func (entity *Entity) GetComponent(componentType string) Component {
  * EntityList
  */
 
-func (entityList *EntityList) GetEntitiesZ(types []string, z int) EntityList {
-	var found EntityList
-	for _, entity := range *entityList {
-		if entity.HasComponents(types) {
-			found = append(found, entity)
-		}
-	}
-	return found
-}
-
+// TODO: move to GameState to allow queries with values, ie Z=1
 func (entityList *EntityList) GetEntities(types []string) EntityList {
 	var found EntityList
 	for _, entity := range *entityList {

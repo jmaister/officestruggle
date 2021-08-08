@@ -71,6 +71,8 @@ func (t *CachedTile) String() string {
 
 func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 	visitables := engine.Entities.GetEntities([]string{constants.Visitable})
+	visitables = FilterZ(visitables, gameState.CurrentZ)
+
 	tiles := map[int]*CachedTile{}
 	for _, visitable := range visitables {
 		if !visitable.HasComponent(constants.IsBlocking) {
@@ -92,6 +94,8 @@ func AI(engine *ecs.Engine, gameState *gamestate.GameState) {
 	to := tiles[toTileEntity.Id]
 
 	aiEntities := engine.Entities.GetEntities([]string{constants.AI})
+	aiEntities = FilterZ(aiEntities, gameState.CurrentZ)
+
 	for _, enemy := range aiEntities {
 		fromTileEntity := getTileOfEntity(enemy)
 		from := tiles[fromTileEntity.Id]
@@ -138,6 +142,7 @@ func getTileOfEntity(entity *ecs.Entity) *ecs.Entity {
 
 func SimpleAI(engine *ecs.Engine, gameState *gamestate.GameState) {
 	aiEntities := engine.Entities.GetEntities([]string{constants.AI})
+	aiEntities = FilterZ(aiEntities, gameState.CurrentZ)
 	for _, enemy := range aiEntities {
 		wander(enemy)
 	}

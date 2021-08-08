@@ -15,9 +15,8 @@ func HandleMovementKey(engine *ecs.Engine, gs *gamestate.GameState, dx int, dy i
 }
 
 func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
-	movable := []string{constants.Move}
-
-	for _, entity := range engine.Entities.GetEntities(movable) {
+	entities := engine.Entities.GetEntities([]string{constants.Move})
+	for _, entity := range entities {
 		move := entity.GetComponent(constants.Move).(state.MoveComponent)
 		entity.RemoveComponent(constants.Move)
 
