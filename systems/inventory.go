@@ -11,7 +11,7 @@ func InventoryPickUp(gs *gamestate.GameState) {
 	player := gs.Player
 	position := player.GetComponent(constants.Position).(state.PositionComponent)
 
-	pickables, ok := gs.Engine.PosCache.GetByCoordAndComponents(position.X, position.Y, []string{constants.IsPickup})
+	pickables, ok := gs.Engine.PosCache.GetByCoordAndComponents(position.X, position.Y, position.Z, []string{constants.IsPickup})
 	if ok && len(pickables) > 0 {
 		inventory := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 		for _, pickable := range pickables {
@@ -103,6 +103,7 @@ func InventoryDrop(gs *gamestate.GameState) {
 		invetoryItem.AddComponent(state.PositionComponent{
 			X: position.X,
 			Y: position.Y,
+			Z: position.Z,
 		})
 		invetoryItem.AddComponent(state.IsPickupComponent{})
 

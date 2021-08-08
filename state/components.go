@@ -33,6 +33,7 @@ func (a ApparenceComponent) ComponentType() string {
 type PositionComponent struct {
 	X int
 	Y int
+	Z int
 }
 
 func (a PositionComponent) ComponentType() string {
@@ -44,7 +45,7 @@ func GetPosition(entity *ecs.Entity) PositionComponent {
 }
 
 func (a PositionComponent) GetKey() string {
-	return strconv.Itoa(a.X) + "," + strconv.Itoa(a.Y)
+	return strconv.Itoa(a.X) + "," + strconv.Itoa(a.Y) + "," + strconv.Itoa(a.Z)
 }
 
 func (a PositionComponent) String() string {
@@ -62,6 +63,7 @@ func (a PositionComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 type MoveComponent struct {
 	X int
 	Y int
+	Z int
 }
 
 func (a MoveComponent) ComponentType() string {

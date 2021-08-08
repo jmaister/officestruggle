@@ -34,6 +34,7 @@ func createLevel(m grid.Rect, opts DungeonOptions, level int) ([]grid.Tile, grid
 
 	_, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
 		Sprite: grid.Wall,
+		Z:      level,
 	})
 
 	var tiles map[string]grid.Tile = make(map[string]grid.Tile)
@@ -52,6 +53,7 @@ func createLevel(m grid.Rect, opts DungeonOptions, level int) ([]grid.Tile, grid
 		// Create a candidate room
 		candidate, candidateTiles := grid.GetRectangle(rx, ry, rw, rh, true, grid.RectangleOptions{
 			Sprite: grid.Floor,
+			Z:      level,
 		})
 
 		// test if candidate is overlapping with any existing rooms
@@ -75,24 +77,23 @@ func createLevel(m grid.Rect, opts DungeonOptions, level int) ([]grid.Tile, grid
 		prev := rooms[r-1].Center
 		curr := rooms[r].Center
 
-		for _, tile := range digHorizontalPassage(prev.X, curr.X, curr.Y) {
+		for _, tile := range digHorizontalPassage(prev.X, curr.X, curr.Y, level) {
 			tiles[tile.GetKey()] = tile
 		}
-		for _, tile := range digVerticalPassage(prev.Y, curr.Y, prev.X) {
+		for _, tile := range digVerticalPassage(prev.Y, curr.Y, prev.X, level) {
 			tiles[tile.GetKey()] = tile
 		}
 	}
 
-	tileList := make([]grid.Tile, len(tiles))
+	tileList := []grid.Tile{}
 	for _, tile := range tiles {
-		t := grid.Grid
 		tileList = append(tileList, tile)
 	}
 
 	return tileList, rooms[0].Center
 }
 
-func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
+func digHorizontalPassage(x1 int, x2 int, y int, z int) []grid.Tile {
 	var tiles []grid.Tile
 	start := math.Min(float64(x1), float64(x2))
 	end := int(math.Max(float64(x1), float64(x2)) + 1)
@@ -102,6 +103,7 @@ func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
 		tile := grid.Tile{
 			X:      x,
 			Y:      y,
+			Z:      z,
 			Sprite: grid.Floor,
 		}
 		tiles = append(tiles, tile)
@@ -111,7 +113,7 @@ func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
 	return tiles
 }
 
-func digVerticalPassage(y1 int, y2 int, x int) []grid.Tile {
+func digVerticalPassage(y1 int, y2 int, x int, z int) []grid.Tile {
 	var tiles []grid.Tile
 	start := math.Min(float64(y1), float64(y2))
 	end := int(math.Max(float64(y1), float64(y2)) + 1)
@@ -121,6 +123,7 @@ func digVerticalPassage(y1 int, y2 int, x int) []grid.Tile {
 		tile := grid.Tile{
 			X:      x,
 			Y:      y,
+			Z:      z,
 			Sprite: grid.Floor,
 		}
 		tiles = append(tiles, tile)

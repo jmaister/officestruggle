@@ -173,6 +173,16 @@ func (entity *Entity) GetComponent(componentType string) Component {
  * EntityList
  */
 
+func (entityList *EntityList) GetEntitiesZ(types []string, z int) EntityList {
+	var found EntityList
+	for _, entity := range *entityList {
+		if entity.HasComponents(types) {
+			found = append(found, entity)
+		}
+	}
+	return found
+}
+
 func (entityList *EntityList) GetEntities(types []string) EntityList {
 	var found EntityList
 	for _, entity := range *entityList {
@@ -241,13 +251,13 @@ func (c *PositionCache) Delete(key string, value *Entity) {
 	}
 }
 
-func (c *PositionCache) GetByCoord(x int, y int) (EntityList, bool) {
-	key := strconv.Itoa(x) + "," + strconv.Itoa(y)
+func (c *PositionCache) GetByCoord(x int, y int, z int) (EntityList, bool) {
+	key := createKey(x, y, z)
 	return c.Get(key)
 }
 
-func (c *PositionCache) GetByCoordAndComponents(x int, y int, cmpTypes []string) (EntityList, bool) {
-	key := strconv.Itoa(x) + "," + strconv.Itoa(y)
+func (c *PositionCache) GetByCoordAndComponents(x int, y int, z int, cmpTypes []string) (EntityList, bool) {
+	key := createKey(x, y, z)
 	entityList, ok := c.Get(key)
 	if ok {
 		return entityList.GetEntities(cmpTypes), true
@@ -255,8 +265,8 @@ func (c *PositionCache) GetByCoordAndComponents(x int, y int, cmpTypes []string)
 	return EntityList{}, false
 }
 
-func (c *PositionCache) GetOneByCoordAndComponents(x int, y int, cmpTypes []string) (*Entity, bool) {
-	key := strconv.Itoa(x) + "," + strconv.Itoa(y)
+func (c *PositionCache) GetOneByCoordAndComponents(x int, y int, z int, cmpTypes []string) (*Entity, bool) {
+	key := createKey(x, y, z)
 	entityList, ok := c.Get(key)
 	if ok {
 		found := entityList.GetEntities(cmpTypes)
@@ -265,6 +275,10 @@ func (c *PositionCache) GetOneByCoordAndComponents(x int, y int, cmpTypes []stri
 		}
 	}
 	return &Entity{}, false
+}
+
+func createKey(x int, y int, z int) string {
+	return strconv.Itoa(x) + "," + strconv.Itoa(y) + "," + strconv.Itoa(z)
 }
 
 func (c *PositionCache) Get(key string) (EntityList, bool) {
@@ -277,4 +291,19 @@ func (c *PositionCache) Get(key string) (EntityList, bool) {
 
 	}
 	return entities, ok
+}
+
+func (c *PositionCache) GetZ(z int) EntityList {
+	suffix := "," + strconv.Itoa(z)
+	entities := []*Entity{}
+	for k, v := range c.Entities {
+		if strings.HasSuffix(k, suffix) {
+			for entity, present := range v {
+				if present {
+					entities = append(entities, entity)
+				}
+			}
+		}
+	}
+	return entities
 }

@@ -90,6 +90,7 @@ const (
 
 type RectangleOptions struct {
 	Sprite TileType
+	Z      int
 }
 
 func GetRectangle(x int, y int, width int, height int, hasWalls bool, opts RectangleOptions) (Rectangle, []Tile) {
@@ -103,14 +104,14 @@ func GetRectangle(x int, y int, width int, height int, hasWalls bool, opts Recta
 	if hasWalls {
 		for yi := y1 + 1; yi <= y2-1; yi++ {
 			for xi := x1 + 1; xi <= x2-1; xi++ {
-				thisTile := Tile{X: xi, Y: yi, Sprite: opts.Sprite}
+				thisTile := Tile{X: xi, Y: yi, Z: opts.Z, Sprite: opts.Sprite}
 				tiles = append(tiles, thisTile)
 			}
 		}
 	} else {
 		for yi := y1; yi <= y2; yi++ {
 			for xi := x1; xi <= x2; xi++ {
-				thisTile := Tile{X: xi, Y: yi, Sprite: opts.Sprite}
+				thisTile := Tile{X: xi, Y: yi, Z: opts.Z, Sprite: opts.Sprite}
 				tiles = append(tiles, thisTile)
 			}
 		}
@@ -119,6 +120,7 @@ func GetRectangle(x int, y int, width int, height int, hasWalls bool, opts Recta
 	center := Tile{
 		X: int(math.Round(float64(x1+x2) / 2.0)),
 		Y: int(math.Round(float64(y1+y2) / 2.0)),
+		Z: opts.Z,
 	}
 
 	return Rectangle{x1, x2, y1, y2, center}, tiles
@@ -182,11 +184,11 @@ func IsOnMapEdge(x int, y int, rect Rect) bool {
 	return false
 }
 
-func GetNeighbors(x int, y int, directions []Direction, grid Grid) []Tile {
+func GetNeighbors(x int, y int, z int, directions []Direction, grid Grid) []Tile {
 	var tiles []Tile
 
 	for _, dir := range directions {
-		candidate := Tile{X: x + dir.X, Y: y + dir.Y}
+		candidate := Tile{X: x + dir.X, Y: y + dir.Y, Z: z}
 		if candidate.X >= 0 &&
 			candidate.X < grid.Width &&
 			candidate.Y >= 0 &&
@@ -211,5 +213,6 @@ func RandomNeighbor(start Tile) Tile {
 	return Tile{
 		X: start.X + dir.X,
 		Y: start.Y + dir.Y,
+		Z: start.Z,
 	}
 }

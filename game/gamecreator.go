@@ -74,51 +74,54 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 	for _, tile := range dungeonTiles {
 		tileEntity := engine.NewEntity()
 		if tile.Sprite == grid.Wall {
-			state.NewWall(tileEntity, tile.X, tile.Y)
+			state.NewWall(tileEntity, tile.X, tile.Y, tile.Z)
 		} else if tile.Sprite == grid.Floor {
-			state.NewFloor(tileEntity, tile.X, tile.Y)
+			state.NewFloor(tileEntity, tile.X, tile.Y, tile.Z)
 		}
 	}
 
 	// Player
 	player := state.NewPlayer(engine.NewEntity())
-	state.ApplyPosition(player, startingTile.X, startingTile.Y)
+	state.ApplyPosition(player, startingTile.X, startingTile.Y, startingTile.Z)
 
-	visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
-	// Enemies
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		goblin := state.NewGlobin(engine.NewEntity())
-		state.ApplyPosition(goblin, pos.X, pos.Y)
-	}
-	// Health potions
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		potion := state.NewHealthPotion(engine.NewEntity())
-		state.ApplyPosition(potion, pos.X, pos.Y)
-	}
-	// Swords
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		potion := state.NewSword(engine.NewEntity())
-		state.ApplyPosition(potion, pos.X, pos.Y)
-	}
-	// Lightning Scroll
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		scroll := systems.NewLightningScroll(engine.NewEntity())
-		state.ApplyPosition(scroll, pos.X, pos.Y)
-	}
-	// Paralize Scroll
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		scroll := systems.NewParalizeScroll(engine.NewEntity())
-		state.ApplyPosition(scroll, pos.X, pos.Y)
+	for level := 0; level < g.Levels; level++ {
+		visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
+		visitables = systems.FilterZ(visitables, level)
+		// Enemies
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			goblin := state.NewGlobin(engine.NewEntity())
+			state.ApplyPosition(goblin, pos.X, pos.Y, pos.Z)
+		}
+		// Health potions
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			potion := state.NewHealthPotion(engine.NewEntity())
+			state.ApplyPosition(potion, pos.X, pos.Y, pos.Z)
+		}
+		// Swords
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			potion := state.NewSword(engine.NewEntity())
+			state.ApplyPosition(potion, pos.X, pos.Y, pos.Z)
+		}
+		// Lightning Scroll
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			scroll := systems.NewLightningScroll(engine.NewEntity())
+			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
+		}
+		// Paralize Scroll
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			scroll := systems.NewParalizeScroll(engine.NewEntity())
+			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
+		}
 	}
 
 	return &gamestate.GameState{

@@ -25,16 +25,19 @@ func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
 
 		mx := position.X + move.X
 		my := position.Y + move.Y
+		mz := position.Z + move.Z
 
 		// Check map boundaries
 		m := g.Map
 		mx = int(math.Min(float64(m.Width+m.X-1), math.Max(float64(m.X), float64(mx))))
 		my = int(math.Min(float64(m.Height+m.Y-1), math.Max(float64(m.Y), float64(my))))
+		mz = int(math.Min(float64(gs.Grid.Levels), math.Max(0, float64(mz))))
 
 		// Check for blockers
 		newPosition := state.PositionComponent{
 			X: mx,
 			Y: my,
+			Z: mz,
 		}
 		entitiesOnPosition, _ := engine.PosCache.Get(newPosition.GetKey())
 		blockersOnPosition := entitiesOnPosition.GetEntities([]string{constants.IsBlocking})
@@ -44,6 +47,11 @@ func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
 			Attack(engine, gs, entity, blockersOnPosition)
 		} else {
 			entity.ReplaceComponent(newPosition)
+		}
+
+		// Update gs.CurrentZ if it is player's movement
+		if entity == gs.Player {
+			gs.CurrentZ = mz
 		}
 	}
 

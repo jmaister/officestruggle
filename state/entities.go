@@ -32,8 +32,8 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	return entity
 }
 
-func ApplyPosition(entity *ecs.Entity, x int, y int) *ecs.Entity {
-	entity.AddComponent(PositionComponent{X: x, Y: y})
+func ApplyPosition(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	entity.AddComponent(PositionComponent{X: x, Y: y, Z: z})
 	return entity
 }
 
@@ -117,8 +117,8 @@ func applyVisitableEntity(entity *ecs.Entity) *ecs.Entity {
 	return entity
 }
 
-func NewWall(entity *ecs.Entity, x int, y int) *ecs.Entity {
-	ApplyPosition(entity, x, y)
+func NewWall(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
 	applyVisitableEntity(entity)
 	entity.AddComponent(DescriptionComponent{Name: "Wall"})
 	entity.AddComponent(IsBlockingComponent{})
@@ -126,8 +126,8 @@ func NewWall(entity *ecs.Entity, x int, y int) *ecs.Entity {
 	return entity
 }
 
-func NewFloor(entity *ecs.Entity, x int, y int) *ecs.Entity {
-	ApplyPosition(entity, x, y)
+func NewFloor(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
 	applyVisitableEntity(entity)
 	entity.AddComponent(DescriptionComponent{Name: "Floor"})
 	entity.AddComponent(IsFloorComponent{})

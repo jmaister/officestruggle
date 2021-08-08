@@ -47,6 +47,7 @@ type GameState struct {
 	Fov                  *fov.View
 	Grid                 *grid.Grid
 	Player               *ecs.Entity
+	CurrentZ             int
 	ScreenState          ScreenState
 	InventoryScreenState InventoryScreenState
 	IsPlayerTurn         bool
@@ -91,7 +92,7 @@ func (gs *GameState) InBounds(x int, y int) bool {
 }
 
 func (gs *GameState) IsOpaque(x int, y int) bool {
-	_, ok := gs.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{constants.Visitable, constants.IsBlocking})
+	_, ok := gs.Engine.PosCache.GetOneByCoordAndComponents(x, y, gs.CurrentZ, []string{constants.Visitable, constants.IsBlocking})
 	return ok
 }
 
