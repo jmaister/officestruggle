@@ -120,6 +120,9 @@ func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
 			player.ReplaceComponent(inventory)
 		}
 
+		// Remove position if came from the floor
+		item.RemoveComponent(constants.Position)
+
 		// Add to equip
 		equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 		current, ok := equipment.Items[equipable.EquipSlot]
