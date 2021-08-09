@@ -179,8 +179,11 @@ func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 
 	player := gs.Player
 	stats, ok := player.GetComponent(constants.Stats).(state.StatsComponent)
+
+	msg := fmt.Sprintf("Player: %s - Current floor: %d", stats.String(), gs.CurrentZ+1)
+
 	if ok {
-		DrawText(screen, gs, position.X, position.Y, font, stats.String(), ParseHexColorFast("#00AA00"), color.Black)
+		DrawText(screen, gs, position.X, position.Y, font, msg, ParseHexColorFast("#00AA00"), color.Black)
 	}
 	DrawGridRect(screen, gs, position, color.White)
 }
