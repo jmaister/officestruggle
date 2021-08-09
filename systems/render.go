@@ -104,37 +104,34 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		visitable, isVisitable := entity.GetComponent(constants.Visitable).(state.VisitableComponent)
 
 		fg := apparence.Color
-		if fg == "" || len(fg) == 0 {
-			fg = "#FFFFFF"
+		if fg == nil {
+			fg = color.White
 		}
 		bg := apparence.Bg
-		if bg == "" || len(bg) == 0 {
-			bg = "#000000"
+		if bg == nil {
+			bg = color.Black
 		}
 		ch := string(apparence.Char)
 
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				bgColor := ParseHexColorFast(bg)
+				bgColor := bg
 				if entity.HasComponent(constants.IsBlocking) {
 					distance := CalcDistance(position.X, position.Y, pp.X, pp.Y)
 					mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
 					bgColor = ColorBlend(lightColor, bgColor, mix)
 				}
 
-				fgColor := ParseHexColorFast(fg)
-				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
+				DrawChar(screen, gameState, position.X, position.Y, font, ch, fg, bgColor)
 			} else if visitable.Explored {
-				bgColor := ParseHexColorFast("#000000")
-				fgColor := ParseHexColorFast("#555555")
+				bgColor := color.Black
+				fgColor := palette.PColor(palette.Gray, 0.3)
 				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
-				bgColor := ParseHexColorFast(bg)
-				fgColor := ParseHexColorFast(fg)
-				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
+				DrawChar(screen, gameState, position.X, position.Y, font, ch, fg, bg)
 
 				visibleEntities = append(visibleEntities, entity)
 			}
