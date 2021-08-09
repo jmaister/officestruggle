@@ -21,6 +21,7 @@ func (a PlayerComponent) ComponentType() string {
 }
 
 type ApparenceComponent struct {
+	// TODO: change to color.Color
 	Color string
 	Bg    string
 	Char  rune
@@ -33,6 +34,7 @@ func (a ApparenceComponent) ComponentType() string {
 type PositionComponent struct {
 	X int
 	Y int
+	Z int
 }
 
 func (a PositionComponent) ComponentType() string {
@@ -44,7 +46,7 @@ func GetPosition(entity *ecs.Entity) PositionComponent {
 }
 
 func (a PositionComponent) GetKey() string {
-	return strconv.Itoa(a.X) + "," + strconv.Itoa(a.Y)
+	return strconv.Itoa(a.X) + "," + strconv.Itoa(a.Y) + "," + strconv.Itoa(a.Z)
 }
 
 func (a PositionComponent) String() string {
@@ -60,8 +62,10 @@ func (a PositionComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 }
 
 type MoveComponent struct {
-	X int
-	Y int
+	X        int
+	Y        int
+	Z        int
+	Absolute bool // default false: incremental, true: absolute
 }
 
 func (a MoveComponent) ComponentType() string {
@@ -368,4 +372,15 @@ func (a ParalizeComponent) EffectInfo() string {
 }
 func (a ParalizeComponent) EffectInfoColor() color.Color {
 	return palette.PColor(palette.Orange, 0.7)
+}
+
+type StairsComponent struct {
+	GoingUp bool
+	TargetX int
+	TargetY int
+	TargetZ int
+}
+
+func (a StairsComponent) ComponentType() string {
+	return constants.Stairs
 }

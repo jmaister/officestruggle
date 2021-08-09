@@ -37,8 +37,8 @@ func RenderTargetingScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 		if CalcDistance(plPosition.X, plPosition.Y, tile.X, tile.Y) >= fov {
 			break
 		}
-		_, blocked := engine.PosCache.GetOneByCoordAndComponents(tile.X, tile.Y, []string{constants.IsBlocking})
 		DrawTile(screen, gameState, tile.X, tile.Y, bg)
+		_, blocked := engine.PosCache.GetOneByCoordAndComponents(tile.X, tile.Y, gameState.CurrentZ, []string{constants.IsBlocking})
 		if blocked {
 			break
 		}
@@ -49,7 +49,7 @@ func TargetingMouseClick(engine *ecs.Engine, gameState *gamestate.GameState, mou
 
 	x, y := ToTile(gameState, mouseX, mouseY)
 
-	targetEntities, ok := engine.PosCache.GetByCoord(x, y)
+	targetEntities, ok := engine.PosCache.GetByCoord(x, y, gameState.CurrentZ)
 	if ok {
 		fmt.Println("targets", targetEntities)
 	} else {

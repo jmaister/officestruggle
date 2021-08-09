@@ -21,6 +21,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 	g := grid.Grid{
 		Width:  80,
 		Height: 34,
+		Levels: 2,
 		Map: grid.Rect{
 			X:      16,
 			Y:      8,
@@ -64,60 +65,70 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			Height: 29,
 		},
 	}
-	dungeonTiles, startingTile := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
+	dungeonTiles, startingTile, goingUp, goingDown := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
 		MaxRoomCount: 40,
-	})
+	}, g.Levels)
 
 	for _, tile := range dungeonTiles {
 		tileEntity := engine.NewEntity()
 		if tile.Sprite == grid.Wall {
-			state.NewWall(tileEntity, tile.X, tile.Y)
+			state.NewWall(tileEntity, tile.X, tile.Y, tile.Z)
 		} else if tile.Sprite == grid.Floor {
-			state.NewFloor(tileEntity, tile.X, tile.Y)
+			state.NewFloor(tileEntity, tile.X, tile.Y, tile.Z)
+		} else if tile.Sprite == grid.Upstairs {
+			target := goingDown[tile.Z+1]
+			state.NewUpstairs(tileEntity, tile.X, tile.Y, tile.Z, target.X, target.Y, target.Z)
+		} else if tile.Sprite == grid.Downstairs {
+			target := goingUp[tile.Z-1]
+			state.NewDownstairs(tileEntity, tile.X, tile.Y, tile.Z, target.X, target.Y, target.Z)
 		}
 	}
 
 	// Player
 	player := state.NewPlayer(engine.NewEntity())
-	state.ApplyPosition(player, startingTile.X, startingTile.Y)
+	state.ApplyPosition(player, startingTile.X, startingTile.Y, startingTile.Z)
 
-	visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
-	// Enemies
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		goblin := state.NewGlobin(engine.NewEntity())
-		state.ApplyPosition(goblin, pos.X, pos.Y)
-	}
-	// Health potions
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		potion := state.NewHealthPotion(engine.NewEntity())
-		state.ApplyPosition(potion, pos.X, pos.Y)
-	}
-	// Swords
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		potion := state.NewSword(engine.NewEntity())
-		state.ApplyPosition(potion, pos.X, pos.Y)
-	}
-	// Lightning Scroll
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		scroll := systems.NewLightningScroll(engine.NewEntity())
-		state.ApplyPosition(scroll, pos.X, pos.Y)
-	}
-	// Paralize Scroll
-	for i := 0; i < 10; i++ {
-		v := visitables[rand.Intn(len(visitables))]
-		pos := state.GetPosition(v)
-		scroll := systems.NewParalizeScroll(engine.NewEntity())
-		state.ApplyPosition(scroll, pos.X, pos.Y)
+	for level := 0; level < g.Levels; level++ {
+		visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
+		visitables = systems.FilterZ(visitables, level)
+
+		// Enemies
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			goblin := state.NewGlobin(engine.NewEntity())
+			state.ApplyPosition(goblin, pos.X, pos.Y, pos.Z)
+		}
+		// Health potions
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			potion := state.NewHealthPotion(engine.NewEntity())
+			state.ApplyPosition(potion, pos.X, pos.Y, pos.Z)
+		}
+		// Swords
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			potion := state.NewSword(engine.NewEntity())
+			state.ApplyPosition(potion, pos.X, pos.Y, pos.Z)
+		}
+		// Lightning Scroll
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			scroll := systems.NewLightningScroll(engine.NewEntity())
+			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
+		}
+		// Paralize Scroll
+		for i := 0; i < 10; i++ {
+			v := visitables[rand.Intn(len(visitables))]
+			pos := state.GetPosition(v)
+			scroll := systems.NewParalizeScroll(engine.NewEntity())
+			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
+		}
 	}
 
 	return &gamestate.GameState{
@@ -125,6 +136,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		Fov:         fov.New(),
 		Grid:        &g,
 		Player:      player,
+		CurrentZ:    0,
 		ScreenState: gamestate.WelcomeScreen,
 		InventoryScreenState: gamestate.InventoryScreenState{
 			InventoryState: gamestate.ListState{

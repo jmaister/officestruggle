@@ -17,10 +17,27 @@ func randBetween(min int, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func CreateDungeon(m grid.Rect, opts DungeonOptions) ([]grid.Tile, grid.Tile) {
+func CreateDungeon(m grid.Rect, opts DungeonOptions, levels int) ([]grid.Tile, grid.Tile, map[int]grid.Tile, map[int]grid.Tile) {
+	goingUp := map[int]grid.Tile{}
+	goingDown := map[int]grid.Tile{}
+
+	tileList := []grid.Tile{}
+	center := grid.Tile{}
+	for i := 0; i < levels; i++ {
+		levelTiles, levelCenter := createLevel(m, opts, i, levels, goingUp, goingDown)
+		tileList = append(tileList, levelTiles...)
+		if i == 0 {
+			center = levelCenter
+		}
+	}
+	return tileList, center, goingUp, goingDown
+}
+
+func createLevel(m grid.Rect, opts DungeonOptions, level int, maxLevel int, goingUp map[int]grid.Tile, goingDown map[int]grid.Tile) ([]grid.Tile, grid.Tile) {
 
 	_, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
 		Sprite: grid.Wall,
+		Z:      level,
 	})
 
 	var tiles map[string]grid.Tile = make(map[string]grid.Tile)
@@ -39,6 +56,7 @@ func CreateDungeon(m grid.Rect, opts DungeonOptions) ([]grid.Tile, grid.Tile) {
 		// Create a candidate room
 		candidate, candidateTiles := grid.GetRectangle(rx, ry, rw, rh, true, grid.RectangleOptions{
 			Sprite: grid.Floor,
+			Z:      level,
 		})
 
 		// test if candidate is overlapping with any existing rooms
@@ -62,15 +80,32 @@ func CreateDungeon(m grid.Rect, opts DungeonOptions) ([]grid.Tile, grid.Tile) {
 		prev := rooms[r-1].Center
 		curr := rooms[r].Center
 
-		for _, tile := range digHorizontalPassage(prev.X, curr.X, curr.Y) {
+		for _, tile := range digHorizontalPassage(prev.X, curr.X, curr.Y, level) {
 			tiles[tile.GetKey()] = tile
 		}
-		for _, tile := range digVerticalPassage(prev.Y, curr.Y, prev.X) {
+		for _, tile := range digVerticalPassage(prev.Y, curr.Y, prev.X, level) {
 			tiles[tile.GetKey()] = tile
 		}
 	}
 
-	tileList := make([]grid.Tile, len(tiles))
+	// Upstairs
+	if level < maxLevel-1 {
+		lastRoom := rooms[len(rooms)-1]
+		tile := tiles[lastRoom.Center.GetKey()]
+		tile.Sprite = grid.Upstairs
+		tiles[lastRoom.Center.GetKey()] = tile
+		goingUp[level] = tile
+	}
+	// Downstairs
+	if level > 0 {
+		nextRoom := rooms[1]
+		tile := tiles[nextRoom.Center.GetKey()]
+		tile.Sprite = grid.Downstairs
+		tiles[nextRoom.Center.GetKey()] = tile
+		goingDown[level] = tile
+	}
+
+	tileList := []grid.Tile{}
 	for _, tile := range tiles {
 		tileList = append(tileList, tile)
 	}
@@ -78,7 +113,7 @@ func CreateDungeon(m grid.Rect, opts DungeonOptions) ([]grid.Tile, grid.Tile) {
 	return tileList, rooms[0].Center
 }
 
-func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
+func digHorizontalPassage(x1 int, x2 int, y int, z int) []grid.Tile {
 	var tiles []grid.Tile
 	start := math.Min(float64(x1), float64(x2))
 	end := int(math.Max(float64(x1), float64(x2)) + 1)
@@ -88,6 +123,7 @@ func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
 		tile := grid.Tile{
 			X:      x,
 			Y:      y,
+			Z:      z,
 			Sprite: grid.Floor,
 		}
 		tiles = append(tiles, tile)
@@ -97,7 +133,7 @@ func digHorizontalPassage(x1 int, x2 int, y int) []grid.Tile {
 	return tiles
 }
 
-func digVerticalPassage(y1 int, y2 int, x int) []grid.Tile {
+func digVerticalPassage(y1 int, y2 int, x int, z int) []grid.Tile {
 	var tiles []grid.Tile
 	start := math.Min(float64(y1), float64(y2))
 	end := int(math.Max(float64(y1), float64(y2)) + 1)
@@ -107,6 +143,7 @@ func digVerticalPassage(y1 int, y2 int, x int) []grid.Tile {
 		tile := grid.Tile{
 			X:      x,
 			Y:      y,
+			Z:      z,
 			Sprite: grid.Floor,
 		}
 		tiles = append(tiles, tile)

@@ -22,6 +22,7 @@ const (
 	InventoryScreen ScreenState = "inventory"
 	LoadingScreen   ScreenState = "loading"
 	GameoverScreen  ScreenState = "gameover"
+	ActionDialog    ScreenState = "actiondialog"
 	TestScreen      ScreenState = "test"
 )
 
@@ -42,13 +43,20 @@ type InventoryScreenState struct {
 	EquipmentState ListState
 }
 
+type ActionScreenState struct {
+	Actions ListState
+	Items   ecs.EntityList
+}
+
 type GameState struct {
 	Engine               *ecs.Engine
 	Fov                  *fov.View
 	Grid                 *grid.Grid
 	Player               *ecs.Entity
+	CurrentZ             int
 	ScreenState          ScreenState
 	InventoryScreenState InventoryScreenState
+	ActionScreenState    ActionScreenState
 	IsPlayerTurn         bool
 	L                    *log.Logger
 	ScreenWidth          int
@@ -91,7 +99,7 @@ func (gs *GameState) InBounds(x int, y int) bool {
 }
 
 func (gs *GameState) IsOpaque(x int, y int) bool {
-	_, ok := gs.Engine.PosCache.GetOneByCoordAndComponents(x, y, []string{constants.Visitable, constants.IsBlocking})
+	_, ok := gs.Engine.PosCache.GetOneByCoordAndComponents(x, y, gs.CurrentZ, []string{constants.Visitable, constants.IsBlocking})
 	return ok
 }
 

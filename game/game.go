@@ -63,14 +63,21 @@ func (g *Game) Update() error {
 			case ebiten.KeyZ:
 				g.GameState.ScreenState = gamestate.TargetingScreen
 			case ebiten.KeyS:
+				// Save game
 				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
 					systems.SaveGame(g.Engine, g.GameState)
 				}
 			case ebiten.KeyL:
+				// Load game
 				if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 					g.GameState.ScreenState = gamestate.LoadingScreen
 					go systems.LoadGame(g.Engine, g.GameState)
 				}
+			case ebiten.KeyEnter:
+				g.GameState.ActionScreenState.Actions.IsFocused = true
+				g.GameState.ActionScreenState.Actions.Selected = 0
+				g.GameState.ActionScreenState.Items = nil
+				g.GameState.ScreenState = gamestate.ActionDialog
 			}
 
 			if movementKey {
@@ -155,6 +162,25 @@ func (g *Game) Update() error {
 				g.GameState = NewGameState(engine)
 			}
 		}
+	} else if g.GameState.ScreenState == gamestate.ActionDialog {
+		if hasPressedKeys {
+			if keys[0] == ebiten.KeyUp {
+				// Selected item up
+				systems.ActionDialogKeyUp(g.GameState)
+			} else if keys[0] == ebiten.KeyDown {
+				// Selected item down
+				systems.ActionDialogKeyDown(g.GameState)
+			} else if keys[0] == ebiten.KeyEnter {
+				// Selected item down
+				systems.ActionDialogActivate(g.GameState)
+				systems.Movement(g.Engine, g.GameState, g.GameState.Grid)
+
+				g.GameState.IsPlayerTurn = false
+			} else if keys[0] == ebiten.KeyEscape || keys[0] == ebiten.KeyQ {
+				// Selected item down
+				systems.ActionDialogExit(g.GameState)
+			}
+		}
 	}
 
 	return nil
@@ -167,6 +193,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.EffectInfoSystem(g.Engine, g.GameState, screen)
 		// Update active animations
 		systems.AnimationSystem(g.Engine, g.GameState, screen)
+	} else if g.GameState.ScreenState == gamestate.ActionDialog {
+		// Render the screen
+		systems.Render(g.Engine, g.GameState, screen)
+		if g.GameState.ScreenState == gamestate.ActionDialog {
+			systems.DrawActionDialog(g.Engine, g.GameState, screen)
+		}
 	} else if g.GameState.ScreenState == gamestate.TargetingScreen {
 		// Render the screen
 		systems.Render(g.Engine, g.GameState, screen)

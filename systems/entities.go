@@ -13,6 +13,19 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
+func FilterZ(entitylist ecs.EntityList, z int) ecs.EntityList {
+	filteredList := ecs.EntityList{}
+
+	for _, e := range entitylist {
+		pos, ok := e.GetComponent(constants.Position).(state.PositionComponent)
+		if ok && pos.Z == z {
+			filteredList = append(filteredList, e)
+		}
+	}
+
+	return filteredList
+}
+
 func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(state.IsPickupComponent{})
 	entity.AddComponent(state.DescriptionComponent{Name: "Lightning Scroll"})

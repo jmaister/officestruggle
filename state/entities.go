@@ -32,8 +32,8 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	return entity
 }
 
-func ApplyPosition(entity *ecs.Entity, x int, y int) *ecs.Entity {
-	entity.AddComponent(PositionComponent{X: x, Y: y})
+func ApplyPosition(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	entity.AddComponent(PositionComponent{X: x, Y: y, Z: z})
 	return entity
 }
 
@@ -117,8 +117,8 @@ func applyVisitableEntity(entity *ecs.Entity) *ecs.Entity {
 	return entity
 }
 
-func NewWall(entity *ecs.Entity, x int, y int) *ecs.Entity {
-	ApplyPosition(entity, x, y)
+func NewWall(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
 	applyVisitableEntity(entity)
 	entity.AddComponent(DescriptionComponent{Name: "Wall"})
 	entity.AddComponent(IsBlockingComponent{})
@@ -126,11 +126,39 @@ func NewWall(entity *ecs.Entity, x int, y int) *ecs.Entity {
 	return entity
 }
 
-func NewFloor(entity *ecs.Entity, x int, y int) *ecs.Entity {
-	ApplyPosition(entity, x, y)
+func NewFloor(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
 	applyVisitableEntity(entity)
 	entity.AddComponent(DescriptionComponent{Name: "Floor"})
 	entity.AddComponent(IsFloorComponent{})
 	entity.AddComponent(ApparenceComponent{Color: "#e3e3e3", Char: '.'})
+	return entity
+}
+
+func NewUpstairs(entity *ecs.Entity, x int, y int, z int, targetX int, targetY int, targetZ int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
+	applyVisitableEntity(entity)
+	entity.AddComponent(DescriptionComponent{Name: "Stairs going up"})
+	entity.AddComponent(StairsComponent{
+		GoingUp: true,
+		TargetX: targetX,
+		TargetY: targetY,
+		TargetZ: targetZ,
+	})
+	entity.AddComponent(ApparenceComponent{Color: "#a0522d", Char: '<'})
+	return entity
+}
+
+func NewDownstairs(entity *ecs.Entity, x int, y int, z int, targetX int, targetY int, targetZ int) *ecs.Entity {
+	ApplyPosition(entity, x, y, z)
+	applyVisitableEntity(entity)
+	entity.AddComponent(DescriptionComponent{Name: "Stairs going down"})
+	entity.AddComponent(StairsComponent{
+		GoingUp: false,
+		TargetX: targetX,
+		TargetY: targetY,
+		TargetZ: targetZ,
+	})
+	entity.AddComponent(ApparenceComponent{Color: "#a0522d", Char: '>'})
 	return entity
 }
