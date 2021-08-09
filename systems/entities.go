@@ -83,7 +83,6 @@ func NewParalizeScroll(entity *ecs.Entity) *ecs.Entity {
 				turnsLeft = turnsLeft + current.TurnsLeft
 			}
 
-			// TODO: add visual tags to ecs.Entity to show paralized, freezed, dizzy, blind, ...
 			target.ReplaceComponent(state.ParalizeComponent{
 				TurnsLeft: turnsLeft,
 			})
