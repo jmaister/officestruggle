@@ -1,13 +1,16 @@
 package state
 
 import (
+	"image/color"
+
 	"jordiburgos.com/officestruggle/ecs"
+	"jordiburgos.com/officestruggle/palette"
 )
 
 func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(PlayerComponent{})
 	entity.AddComponent(DescriptionComponent{Name: "Player"})
-	entity.AddComponent(ApparenceComponent{Color: "#ffffff", Char: '@'})
+	entity.AddComponent(ApparenceComponent{Color: color.White, Char: '@'})
 	entity.AddComponent(Layer400Component{})
 	entity.AddComponent(StatsComponent{
 		StatsValues: &StatsValues{},
@@ -41,7 +44,7 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(AIComponent{})
 	entity.AddComponent(DescriptionComponent{Name: "Goblin"})
 	entity.AddComponent(IsBlockingComponent{})
-	entity.AddComponent(ApparenceComponent{Color: "#00FC00", Char: 'g'})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Green, 0.6), Char: 'g'})
 	entity.AddComponent(Layer400Component{})
 	entity.AddComponent(StatsComponent{
 		StatsValues: &StatsValues{
@@ -85,7 +88,7 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 		},
 	})
 	entity.AddComponent(DescriptionComponent{Name: "Health Potion"})
-	entity.AddComponent(ApparenceComponent{Color: "#FF0000", Char: 'o'})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Red, 0.5), Char: 'o'})
 	entity.AddComponent(Layer300Component{})
 	return entity
 }
@@ -106,7 +109,7 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 		},
 	})
 	entity.AddComponent(DescriptionComponent{Name: "Sword"})
-	entity.AddComponent(ApparenceComponent{Color: "#1EFFFF", Char: '/'})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Cyan, 0.5), Char: '/'})
 	entity.AddComponent(Layer300Component{})
 	return entity
 }
@@ -122,7 +125,7 @@ func NewWall(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
 	applyVisitableEntity(entity)
 	entity.AddComponent(DescriptionComponent{Name: "Wall"})
 	entity.AddComponent(IsBlockingComponent{})
-	entity.AddComponent(ApparenceComponent{Color: "#1a1aff", Char: '#'})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Blue, 0.5), Char: '#'})
 	return entity
 }
 
@@ -131,7 +134,7 @@ func NewFloor(entity *ecs.Entity, x int, y int, z int) *ecs.Entity {
 	applyVisitableEntity(entity)
 	entity.AddComponent(DescriptionComponent{Name: "Floor"})
 	entity.AddComponent(IsFloorComponent{})
-	entity.AddComponent(ApparenceComponent{Color: "#e3e3e3", Char: '.'})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Gray, 0.7), Char: '.'})
 	return entity
 }
 
@@ -145,7 +148,7 @@ func NewUpstairs(entity *ecs.Entity, x int, y int, z int, targetX int, targetY i
 		TargetY: targetY,
 		TargetZ: targetZ,
 	})
-	entity.AddComponent(ApparenceComponent{Color: "#a0522d", Char: '<'})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Sepia, 0.2), Char: '<'})
 	return entity
 }
 
@@ -159,6 +162,6 @@ func NewDownstairs(entity *ecs.Entity, x int, y int, z int, targetX int, targetY
 		TargetY: targetY,
 		TargetZ: targetZ,
 	})
-	entity.AddComponent(ApparenceComponent{Color: "#a0522d", Char: '>'})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Sepia, 0.2), Char: '>'})
 	return entity
 }

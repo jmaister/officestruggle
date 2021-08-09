@@ -29,7 +29,7 @@ func FilterZ(entitylist ecs.EntityList, z int) ecs.EntityList {
 func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(state.IsPickupComponent{})
 	entity.AddComponent(state.DescriptionComponent{Name: "Lightning Scroll"})
-	entity.AddComponent(state.ApparenceComponent{Color: "#DAA520", Char: '♪'})
+	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Orange, 0.2), Char: '♪'})
 	entity.AddComponent(state.Layer300Component{})
 	entity.AddComponent(state.ConsumeEffectComponent{
 		Targeting:   gamestate.RandomAcquisitionType,
@@ -57,7 +57,7 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 func NewParalizeScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(state.IsPickupComponent{})
 	entity.AddComponent(state.DescriptionComponent{Name: "Paralize Scroll"})
-	entity.AddComponent(state.ApparenceComponent{Color: "#FFB0B0", Char: '♪'})
+	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Pink, 0.6), Char: '♪'})
 	entity.AddComponent(state.Layer300Component{})
 	entity.AddComponent(state.ConsumeEffectComponent{
 		// Targeting:   gamestate.ManualAcquisitionType,
