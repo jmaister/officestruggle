@@ -94,37 +94,45 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
 		visitables = systems.FilterZ(visitables, level)
 
+		rand.Shuffle(len(visitables), func(i, j int) { visitables[i], visitables[j] = visitables[j], visitables[i] })
+
+		currentV := 0
 		// Enemies
 		for i := 0; i < 10; i++ {
-			v := visitables[rand.Intn(len(visitables))]
+			v := visitables[currentV]
+			currentV++
 			pos := state.GetPosition(v)
 			goblin := state.NewGlobin(engine.NewEntity())
 			state.ApplyPosition(goblin, pos.X, pos.Y, pos.Z)
 		}
 		// Health potions
 		for i := 0; i < 10; i++ {
-			v := visitables[rand.Intn(len(visitables))]
+			v := visitables[currentV]
+			currentV++
 			pos := state.GetPosition(v)
 			potion := state.NewHealthPotion(engine.NewEntity())
 			state.ApplyPosition(potion, pos.X, pos.Y, pos.Z)
 		}
 		// Swords
 		for i := 0; i < 10; i++ {
-			v := visitables[rand.Intn(len(visitables))]
+			v := visitables[currentV]
+			currentV++
 			pos := state.GetPosition(v)
 			potion := state.NewSword(engine.NewEntity())
 			state.ApplyPosition(potion, pos.X, pos.Y, pos.Z)
 		}
 		// Lightning Scroll
 		for i := 0; i < 10; i++ {
-			v := visitables[rand.Intn(len(visitables))]
+			v := visitables[currentV]
+			currentV++
 			pos := state.GetPosition(v)
 			scroll := systems.NewLightningScroll(engine.NewEntity())
 			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
 		}
 		// Paralize Scroll
 		for i := 0; i < 10; i++ {
-			v := visitables[rand.Intn(len(visitables))]
+			v := visitables[currentV]
+			currentV++
 			pos := state.GetPosition(v)
 			scroll := systems.NewParalizeScroll(engine.NewEntity())
 			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
