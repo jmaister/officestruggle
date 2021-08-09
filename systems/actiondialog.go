@@ -74,7 +74,7 @@ func updateActionSelection(gs *gamestate.GameState, change int) {
 	gs.ActionScreenState.Actions.Selected = selected
 }
 
-func ActionActivate(gs *gamestate.GameState) {
+func ActionDialogActivate(gs *gamestate.GameState) {
 	activatedEntity := gs.ActionScreenState.Items[gs.ActionScreenState.Actions.Selected]
 
 	if activatedEntity.HasComponent(constants.Consumable) || activatedEntity.HasComponent(constants.ConsumeEffect) {
@@ -82,8 +82,13 @@ func ActionActivate(gs *gamestate.GameState) {
 		gs.ScreenState = gamestate.GameScreen
 	} else if activatedEntity.HasComponent(constants.Equipable) {
 		EquipEntity(gs, activatedEntity)
+	} else if activatedEntity.HasComponent(constants.Stairs) {
+		UseStairs(gs, activatedEntity)
 	}
-	// TODO: stairs
 
+	gs.ScreenState = gamestate.GameScreen
+}
+
+func ActionDialogExit(gs *gamestate.GameState) {
 	gs.ScreenState = gamestate.GameScreen
 }

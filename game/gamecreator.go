@@ -65,7 +65,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			Height: 29,
 		},
 	}
-	dungeonTiles, startingTile := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
+	dungeonTiles, startingTile, goingUp, goingDown := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
 		MaxRoomCount: 40,
@@ -78,9 +78,11 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		} else if tile.Sprite == grid.Floor {
 			state.NewFloor(tileEntity, tile.X, tile.Y, tile.Z)
 		} else if tile.Sprite == grid.Upstairs {
-			state.NewUpstairs(tileEntity, tile.X, tile.Y, tile.Z)
+			target := goingDown[tile.Z+1]
+			state.NewUpstairs(tileEntity, tile.X, tile.Y, tile.Z, target.X, target.Y, target.Z)
 		} else if tile.Sprite == grid.Downstairs {
-			state.NewDownstairs(tileEntity, tile.X, tile.Y, tile.Z)
+			target := goingUp[tile.Z-1]
+			state.NewDownstairs(tileEntity, tile.X, tile.Y, tile.Z, target.X, target.Y, target.Z)
 		}
 	}
 

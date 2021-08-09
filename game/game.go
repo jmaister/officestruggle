@@ -172,7 +172,13 @@ func (g *Game) Update() error {
 				systems.ActionDialogKeyDown(g.GameState)
 			} else if keys[0] == ebiten.KeyEnter {
 				// Selected item down
-				systems.ActionActivate(g.GameState)
+				systems.ActionDialogActivate(g.GameState)
+				systems.Movement(g.Engine, g.GameState, g.GameState.Grid)
+
+				g.GameState.IsPlayerTurn = false
+			} else if keys[0] == ebiten.KeyEscape || keys[0] == ebiten.KeyQ {
+				// Selected item down
+				systems.ActionDialogExit(g.GameState)
 			}
 		}
 	}

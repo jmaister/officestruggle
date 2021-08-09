@@ -17,20 +17,23 @@ func randBetween(min int, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func CreateDungeon(m grid.Rect, opts DungeonOptions, levels int) ([]grid.Tile, grid.Tile) {
+func CreateDungeon(m grid.Rect, opts DungeonOptions, levels int) ([]grid.Tile, grid.Tile, map[int]grid.Tile, map[int]grid.Tile) {
+	goingUp := map[int]grid.Tile{}
+	goingDown := map[int]grid.Tile{}
+
 	tileList := []grid.Tile{}
 	center := grid.Tile{}
 	for i := 0; i < levels; i++ {
-		levelTiles, levelCenter := createLevel(m, opts, i, levels)
+		levelTiles, levelCenter := createLevel(m, opts, i, levels, goingUp, goingDown)
 		tileList = append(tileList, levelTiles...)
 		if i == 0 {
 			center = levelCenter
 		}
 	}
-	return tileList, center
+	return tileList, center, goingUp, goingDown
 }
 
-func createLevel(m grid.Rect, opts DungeonOptions, level int, maxLevel int) ([]grid.Tile, grid.Tile) {
+func createLevel(m grid.Rect, opts DungeonOptions, level int, maxLevel int, goingUp map[int]grid.Tile, goingDown map[int]grid.Tile) ([]grid.Tile, grid.Tile) {
 
 	_, dungeonTiles := grid.GetRectangle(m.X, m.Y, m.Width, m.Height, false, grid.RectangleOptions{
 		Sprite: grid.Wall,
@@ -91,6 +94,7 @@ func createLevel(m grid.Rect, opts DungeonOptions, level int, maxLevel int) ([]g
 		tile := tiles[lastRoom.Center.GetKey()]
 		tile.Sprite = grid.Upstairs
 		tiles[lastRoom.Center.GetKey()] = tile
+		goingUp[level] = tile
 	}
 	// Downstairs
 	if level > 0 {
@@ -98,6 +102,7 @@ func createLevel(m grid.Rect, opts DungeonOptions, level int, maxLevel int) ([]g
 		tile := tiles[nextRoom.Center.GetKey()]
 		tile.Sprite = grid.Downstairs
 		tiles[nextRoom.Center.GetKey()] = tile
+		goingDown[level] = tile
 	}
 
 	tileList := []grid.Tile{}

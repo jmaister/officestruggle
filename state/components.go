@@ -61,9 +61,10 @@ func (a PositionComponent) OnRemove(engine *ecs.Engine, entity *ecs.Entity) {
 }
 
 type MoveComponent struct {
-	X int
-	Y int
-	Z int
+	X        int
+	Y        int
+	Z        int
+	Absolute bool // default false: incremental, true: absolute
 }
 
 func (a MoveComponent) ComponentType() string {
@@ -374,6 +375,9 @@ func (a ParalizeComponent) EffectInfoColor() color.Color {
 
 type StairsComponent struct {
 	GoingUp bool
+	TargetX int
+	TargetY int
+	TargetZ int
 }
 
 func (a StairsComponent) ComponentType() string {

@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"fmt"
 	"math"
 
 	"jordiburgos.com/officestruggle/constants"
@@ -22,22 +23,32 @@ func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
 
 		position, _ := entity.GetComponent(constants.Position).(state.PositionComponent)
 
-		mx := position.X + move.X
-		my := position.Y + move.Y
-		mz := position.Z + move.Z
+		var newPosition state.PositionComponent
+		if move.Absolute {
+			newPosition = state.PositionComponent{
+				X: move.X,
+				Y: move.Y,
+				Z: move.Z,
+			}
+		} else {
+			mx := position.X + move.X
+			my := position.Y + move.Y
+			mz := position.Z + move.Z
 
-		// Check map boundaries
-		m := g.Map
-		mx = int(math.Min(float64(m.Width+m.X-1), math.Max(float64(m.X), float64(mx))))
-		my = int(math.Min(float64(m.Height+m.Y-1), math.Max(float64(m.Y), float64(my))))
-		mz = int(math.Min(float64(gs.Grid.Levels), math.Max(0, float64(mz))))
+			// Check map boundaries
+			m := g.Map
+			mx = int(math.Min(float64(m.Width+m.X-1), math.Max(float64(m.X), float64(mx))))
+			my = int(math.Min(float64(m.Height+m.Y-1), math.Max(float64(m.Y), float64(my))))
+			mz = int(math.Min(float64(gs.Grid.Levels), math.Max(0, float64(mz))))
 
-		// Check for blockers
-		newPosition := state.PositionComponent{
-			X: mx,
-			Y: my,
-			Z: mz,
+			// Check for blockers
+			newPosition = state.PositionComponent{
+				X: mx,
+				Y: my,
+				Z: mz,
+			}
 		}
+
 		entitiesOnPosition, _ := engine.PosCache.Get(newPosition.GetKey())
 		blockersOnPosition := entitiesOnPosition.GetEntities([]string{constants.IsBlocking})
 		isBlocked := len(blockersOnPosition) > 0
@@ -49,8 +60,9 @@ func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
 		}
 
 		// Update gs.CurrentZ if it is player's movement
-		if entity == gs.Player {
-			gs.CurrentZ = mz
+		if entity == gs.Player && newPosition.Z != gs.CurrentZ {
+			gs.Log(constants.Good, fmt.Sprintf("Moving to floor %d.", newPosition.Z+1))
+			gs.CurrentZ = newPosition.Z
 		}
 	}
 
