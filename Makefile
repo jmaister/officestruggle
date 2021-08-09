@@ -20,3 +20,8 @@ clean:
 
 deps:
 	go install
+
+profile: build
+    ${BINARY_NAME} -cpuprofile profile/cpu.prof -memprofile profile/mem.prof
+	go tool pprof --pdf ${BINARY_NAME} profile/cpu.prof > profile/cpu.pdf
+	go tool pprof --pdf ${BINARY_NAME} profile/mem.prof > profile/mem.pdf
