@@ -21,6 +21,7 @@ func (a PlayerComponent) ComponentType() string {
 }
 
 type ApparenceComponent struct {
+	// TODO: change to color.Color
 	Color string
 	Bg    string
 	Char  rune
