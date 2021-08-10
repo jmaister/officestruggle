@@ -2,10 +2,12 @@ package systems
 
 import (
 	"fmt"
+	"time"
 
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/interfaces"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -23,8 +25,18 @@ func GiveXP(gs *gamestate.GameState, target *ecs.Entity, fromEntity *ecs.Entity)
 				gs.Log(constants.Good, fmt.Sprintf("You gained %d experience points.", xpIncrease))
 			}
 			if hasIncreasedLevel {
-				// TODO: trigger level increase animation
+				// TODO: Update players stats current and max
 				gs.Log(constants.Good, fmt.Sprintf("You advance to level %d.", newLevelingCmp.CurrentLevel))
+				// Trigger level increase animation
+				target.AddComponent(state.AnimatedComponent{
+					Animation: LevelUpAnimation{
+						AnimationInfo: interfaces.AnimationInfo{
+							StartTime: time.Now(),
+							Duration:  750 * time.Millisecond,
+							Source:    target,
+						},
+					},
+				})
 			}
 			target.ReplaceComponent(newLevelingCmp)
 		} else {

@@ -31,7 +31,7 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 
 			remaining := end.Sub(now).Milliseconds()
 			if remaining >= 0 {
-				percent := float64(remaining) / float64(animation.GetAnimationInfo().Duration.Milliseconds())
+				percent := 1.0 - (float64(remaining) / float64(animation.GetAnimationInfo().Duration.Milliseconds()))
 				animation.Update(percent, gameState, screen)
 			} else {
 				entity.RemoveComponent(constants.Animated)
@@ -65,8 +65,8 @@ func (a DamageAnimation) Update(percent float64, gs *gamestate.GameState, screen
 	pos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
 	x, y := toPixel(gs, pos.X+a.Direction.X, pos.Y+a.Direction.Y)
 
-	x = x + int(float64(3*gs.TileWidth)*(1-percent))*a.Direction.X
-	y = y + int(float64(3*gs.TileHeight)*(1-percent))*a.Direction.Y
+	x = x + int(float64(3*gs.TileWidth)*(percent))*a.Direction.X
+	y = y + int(float64(3*gs.TileHeight)*(percent))*a.Direction.Y
 
 	fnt := assets.MplusFont(20)
 	text.Draw(screen, a.Damage, fnt, x, y, palette.PColor(palette.Red, percent))
@@ -145,7 +145,7 @@ func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, s
 	tgtPos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
 	line := BresenhamLine(srcPos.X, srcPos.Y, tgtPos.X, tgtPos.Y)
 
-	current := len(line) * int((1-percent)*100) / 100
+	current := len(line) * int((percent)*100) / 100
 	if current < 0 {
 		current = 0
 	} else if current > len(line)-1 {
@@ -169,4 +169,44 @@ func (a FallingCharAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, e
 
 func randInt(min int, max int) int {
 	return min + rand.Intn(max-min)
+}
+
+// LevelUp animation
+
+type LevelUpAnimation struct {
+	interfaces.AnimationInfo
+}
+
+func (a LevelUpAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
+	return a
+}
+func (a LevelUpAnimation) NeedsInit() bool {
+	return false
+}
+
+func (a LevelUpAnimation) GetAnimationInfo() interfaces.AnimationInfo {
+	return a.AnimationInfo
+}
+
+func (a LevelUpAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
+	srcPos := a.Source.GetComponent(constants.Position).(state.PositionComponent)
+
+	minRadius := 1.0
+	maxRadius := 5.0
+	radius := int(lerp(minRadius, maxRadius, percent))
+
+	circle := grid.GetCircle(grid.Tile{
+		X: srcPos.X,
+		Y: srcPos.Y,
+	}, radius)
+	for _, tile := range circle {
+		cl := palette.PColor(palette.Yellow, rand.Float64())
+		DrawTile(screen, gs, tile.X, tile.Y, cl)
+	}
+}
+func (a LevelUpAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
+}
+
+func lerp(v0 float64, v1 float64, t float64) float64 {
+	return (1-t)*v0 + t*v1
 }

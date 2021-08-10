@@ -140,6 +140,7 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 	return visibleEntities
 }
 
+// TODO: deprecated
 func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face, bgColor color.Color) {
 	rect := text.BoundString(font, str)
 	padL := 0
