@@ -31,6 +31,8 @@ const (
 	ConsumeEffect = "consumeEffect"
 	Paralize      = "paralize"
 	Stairs        = "stairs"
+	Leveling      = "leveling"
+	XPGiver       = "xpGiver"
 )
 
 type LogType string

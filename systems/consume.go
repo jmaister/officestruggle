@@ -105,6 +105,10 @@ func removeAndDestroy(engine *ecs.Engine, gs *gamestate.GameState, consumable *e
 	player := gs.Player
 	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
+	if consumable.HasComponent(constants.XPGiver) {
+		GiveXP(gs, gs.Player, consumable)
+	}
+
 	// Remove from inventory
 	inventory.RemoveItem(consumable)
 	gs.Player.ReplaceComponent(inventory)

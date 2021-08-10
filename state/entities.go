@@ -32,6 +32,12 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 		},
 		Items: map[EquipPosition]*ecs.Entity{},
 	})
+	entity.AddComponent(LevelingComponent{
+		CurrentLevel:  1,
+		CurrentXP:     0,
+		LevelUpBase:   0,
+		LevelUpFactor: 150,
+	})
 	return entity
 }
 
@@ -70,6 +76,11 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 			MaxFov:     0,
 		},
 	})
+	entity.AddComponent(XPGiverComponent{
+		XPBase:     10,
+		XPPerLevel: 20,
+		Level:      1,
+	})
 	return entity
 }
 
@@ -90,6 +101,11 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(DescriptionComponent{Name: "Health Potion"})
 	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Red, 0.5), Char: 'o'})
 	entity.AddComponent(Layer300Component{})
+	entity.AddComponent(XPGiverComponent{
+		XPBase:     5,
+		XPPerLevel: 0,
+		Level:      1,
+	})
 	return entity
 }
 

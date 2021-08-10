@@ -29,7 +29,7 @@ func FilterZ(entitylist ecs.EntityList, z int) ecs.EntityList {
 func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(state.IsPickupComponent{})
 	entity.AddComponent(state.DescriptionComponent{Name: "Lightning Scroll"})
-	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Orange, 0.2), Char: '♪'})
+	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Orange, 0.6), Char: '♪'})
 	entity.AddComponent(state.Layer300Component{})
 	entity.AddComponent(state.ConsumeEffectComponent{
 		Targeting:   gamestate.RandomAcquisitionType,
@@ -51,6 +51,12 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 			AttackWithItem(gs.Engine, gs, gs.Player, target, item, 10)
 		},
 	})
+	entity.AddComponent(state.XPGiverComponent{
+		XPBase:     5,
+		XPPerLevel: 10,
+		Level:      1,
+	})
+
 	return entity
 }
 
@@ -88,6 +94,11 @@ func NewParalizeScroll(entity *ecs.Entity) *ecs.Entity {
 			})
 			gs.Log(constants.Info, fmt.Sprintf("%s got paralized for %d turns.", state.GetDescription(target), turnsLeft))
 		},
+	})
+	entity.AddComponent(state.XPGiverComponent{
+		XPBase:     5,
+		XPPerLevel: 10,
+		Level:      1,
 	})
 	return entity
 }

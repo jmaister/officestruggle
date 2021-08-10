@@ -24,7 +24,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		Levels: 2,
 		Map: grid.Rect{
 			X:      16,
-			Y:      8,
+			Y:      9,
 			Width:  74,
 			Height: 30,
 		},
@@ -38,7 +38,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			X:      0,
 			Y:      6,
 			Width:  79,
-			Height: 1,
+			Height: 2,
 		},
 		InfoBar: grid.Rect{
 			X:      16,
@@ -48,7 +48,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		},
 		GameInventory: grid.Rect{
 			X:      0,
-			Y:      8,
+			Y:      9,
 			Width:  15,
 			Height: 40,
 		},
