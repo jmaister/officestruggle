@@ -1,1 +1,7 @@
-err.log
+
+# Built executables
+officestruggle.exe
+officestruggle
+
+# Profile files
+profile/
