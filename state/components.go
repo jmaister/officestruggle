@@ -383,3 +383,37 @@ type StairsComponent struct {
 func (a StairsComponent) ComponentType() string {
 	return constants.Stairs
 }
+
+type LevelingComponent struct {
+	CurrentLevel  int // Current entity level
+	CurrentXP     int // Current entity experience points
+	LevelUpBase   int // The base number we decide for leveling up
+	LevelUpFactor int // The number to multiply against the entity's current level
+}
+
+func (a LevelingComponent) GetNextLevelXP() int {
+	return a.LevelUpBase + a.CurrentLevel*a.LevelUpFactor
+}
+
+func (a LevelingComponent) RequiresLevelUp() bool {
+	return a.CurrentLevel >= a.GetNextLevelXP()
+}
+
+func (a LevelingComponent) ComponentType() string {
+	return constants.Leveling
+}
+
+type XPGiverComponent struct {
+	// XP given: XPBase + (XPPerLevel * Level)
+	XPBase     int // XP given when entity dies/consumed
+	XPPerLevel int // XP per level
+	Level      int // Level of the XP giver
+}
+
+func (a XPGiverComponent) Calculate() int {
+	return a.XPBase + (a.XPPerLevel * a.Level)
+}
+
+func (a XPGiverComponent) ComponentType() string {
+	return constants.XPGiver
+}

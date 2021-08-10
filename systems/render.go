@@ -176,12 +176,16 @@ func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 
 	player := gs.Player
 	stats, ok := player.GetComponent(constants.Stats).(state.StatsComponent)
-
-	msg := fmt.Sprintf("Player: %s - Floor: %d of %d", stats.String(), gs.CurrentZ+1, gs.Grid.Levels)
-
 	if ok {
+		msg := fmt.Sprintf("Player: %s - Floor: %d of %d", stats.String(), gs.CurrentZ+1, gs.Grid.Levels)
 		DrawText(screen, gs, position.X, position.Y, font, msg, ParseHexColorFast("#00AA00"), color.Black)
 	}
+	lvl, ok := player.GetComponent(constants.Leveling).(state.LevelingComponent)
+	if ok {
+		msg := fmt.Sprintf("Current level: %d - XP: %d of %d", lvl.CurrentLevel, lvl.CurrentXP, lvl.GetNextLevelXP())
+		DrawText(screen, gs, position.X, position.Y+1, font, msg, ParseHexColorFast("#00AA00"), color.Black)
+	}
+
 	DrawGridRect(screen, gs, position, color.White)
 }
 

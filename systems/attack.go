@@ -32,7 +32,7 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 					CreateDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
 
 					if newHealth <= 0 {
-						Kill(gs, blocker)
+						Kill(gs, attacker, blocker)
 					} else {
 						bStats.Health = newHealth
 						blocker.ReplaceComponent(bStats)
@@ -60,7 +60,7 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 			newHealth := bStats.Health - damage
 
 			if newHealth <= 0 {
-				Kill(gs, blocker)
+				Kill(gs, attacker, blocker)
 			} else {
 				bStats.Health = newHealth
 				blocker.ReplaceComponent(bStats)
@@ -73,7 +73,7 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 	}
 }
 
-func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
+func Kill(gs *gamestate.GameState, attacker *ecs.Entity, entity *ecs.Entity) {
 	gs.Log(constants.Good, state.GetDescription(entity)+" is dead.")
 	entity.RemoveComponent(constants.AI)
 	entity.RemoveComponent(constants.IsBlocking)
@@ -83,6 +83,11 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 	entity.AddComponent(state.DeadComponent{})
 	entity.AddComponent(state.IsPickupComponent{})
 
+	// Default XP for eating a corpse
+	entity.ReplaceComponent(state.XPGiverComponent{
+		XPBase: 10,
+	})
+
 	apparence, ok := entity.GetComponent(constants.Apparence).(state.ApparenceComponent)
 	if ok {
 		apparence.Char = '%'
@@ -90,6 +95,10 @@ func Kill(gs *gamestate.GameState, entity *ecs.Entity) {
 	}
 	if entity == gs.Player {
 		gs.ScreenState = gamestate.GameoverScreen
+	} else if attacker == gs.Player {
+		if entity.HasComponent(constants.XPGiver) {
+			GiveXP(gs, gs.Player, entity)
+		}
 	}
 }
 
