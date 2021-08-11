@@ -282,34 +282,17 @@ func (a InventoryComponent) ComponentType() string {
 type EquipableComponent struct {
 	*StatsValues
 
-	EquipSlot EquipPosition
+	EquipSlot constants.EquipSlot
+	MinLevel  int
 }
 
 func (a EquipableComponent) ComponentType() string {
 	return constants.Equipable
 }
 
-type EquipPosition string
-
-const (
-	EquipHead   EquipPosition = "head"
-	EquipShield EquipPosition = "shield"
-	EquipWeapon EquipPosition = "weapon"
-	EquipBoots  EquipPosition = "boot"
-	EquipArmor  EquipPosition = "armor"
-)
-
-var EquipmentPositions = []EquipPosition{
-	EquipHead,
-	EquipShield,
-	EquipWeapon,
-	EquipBoots,
-	EquipArmor,
-}
-
 type EquipmentComponent struct {
 	Base  StatsValues
-	Items map[EquipPosition]*ecs.Entity
+	Items map[constants.EquipSlot]*ecs.Entity
 }
 
 func (e *EquipmentComponent) UpdateStats(player *ecs.Entity) {

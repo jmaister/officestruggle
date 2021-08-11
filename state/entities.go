@@ -3,6 +3,7 @@ package state
 import (
 	"image/color"
 
+	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/palette"
 )
@@ -30,7 +31,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 			Fov:        10,
 			MaxFov:     20,
 		},
-		Items: map[EquipPosition]*ecs.Entity{},
+		Items: map[constants.EquipSlot]*ecs.Entity{},
 	})
 	entity.AddComponent(LevelingComponent{
 		CurrentLevel:  1,
@@ -112,7 +113,7 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 func NewSword(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(IsPickupComponent{})
 	entity.AddComponent(EquipableComponent{
-		EquipSlot: EquipWeapon,
+		EquipSlot: constants.EquipWeapon,
 		StatsValues: &StatsValues{
 			Health:     0,
 			MaxHealth:  1,

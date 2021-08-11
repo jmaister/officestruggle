@@ -30,7 +30,7 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 	equipment, _ := gameState.Player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 	equipmentTitle := "Equipment"
 	equipStrItems := []string{}
-	for _, position := range state.EquipmentPositions {
+	for _, position := range constants.EquipmentSlots {
 		item, ok := equipment.Items[position]
 		if ok {
 			equipStrItems = append(equipStrItems, fmt.Sprintf("%6s: %s", position, state.GetLongDescription(item)))

@@ -48,8 +48,8 @@ func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 	equipment, _ := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 
 	sel := gs.InventoryScreenState.EquipmentState.Selected
-	if sel >= 0 && sel < len(state.EquipmentPositions) {
-		pos := state.EquipmentPositions[sel]
+	if sel >= 0 && sel < len(constants.EquipmentSlots) {
+		pos := constants.EquipmentSlots[sel]
 		item, ok := equipment.Items[pos]
 		if ok {
 			return item, true
@@ -183,7 +183,7 @@ func updateInventorySelection(gs *gamestate.GameState, change int) {
 func updateEquipmentSelection(gs *gamestate.GameState, change int) {
 
 	selected := gs.InventoryScreenState.EquipmentState.Selected + change
-	max := len(state.EquipmentPositions)
+	max := len(constants.EquipmentSlots)
 	if selected < 0 {
 		selected = 0
 	} else if max > 0 && selected >= max {

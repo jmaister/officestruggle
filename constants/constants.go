@@ -52,3 +52,21 @@ var LogColors = map[LogType]color.Color{
 	Danger: palette.PColor(palette.Red, 0.3),
 	Good:   palette.PColor(palette.Green, 0.6),
 }
+
+type EquipSlot string
+
+const (
+	EquipHead   EquipSlot = "head"
+	EquipShield EquipSlot = "shield"
+	EquipWeapon EquipSlot = "weapon"
+	EquipBoots  EquipSlot = "boot"
+	EquipArmor  EquipSlot = "armor"
+)
+
+var EquipmentSlots = []EquipSlot{
+	EquipHead,
+	EquipShield,
+	EquipWeapon,
+	EquipBoots,
+	EquipArmor,
+}
