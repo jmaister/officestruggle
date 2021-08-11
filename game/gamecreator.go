@@ -115,13 +115,11 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		}
 		// Items
 		for i := 0; i < 2; i++ {
-			// potion := state.NewSword(engine.NewEntity())
 			for _, item := range state.GenerateEquipables(engine, i+1) {
 				v := visitables[currentV]
 				currentV++
 				pos := state.GetPosition(v)
 				state.ApplyPosition(item, pos.X, pos.Y, pos.Z)
-
 			}
 		}
 		// Lightning Scroll

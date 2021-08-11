@@ -9,9 +9,47 @@ import (
 	"jordiburgos.com/officestruggle/palette"
 )
 
-var setNames = map[int]string{
-	1: "Black Sheep",
-	2: "Red Eagle",
+type EquipmentSet struct {
+	Name          string
+	ItemLevel     int
+	MinLevel      int
+	MaxLevel      int
+	ImprovedStats StatsValues
+}
+
+var equipmentSets = []EquipmentSet{
+	{
+		Name:      "Black Sheep",
+		ItemLevel: 1,
+		MinLevel:  1,
+		MaxLevel:  5,
+		ImprovedStats: StatsValues{
+			Health:     0,
+			MaxHealth:  0,
+			Defense:    2,
+			MaxDefense: 3,
+			Power:      0,
+			MaxPower:   0,
+			Fov:        0,
+			MaxFov:     0,
+		},
+	},
+	{
+		Name:      "Red Eagle",
+		ItemLevel: 2,
+		MinLevel:  2,
+		MaxLevel:  5,
+		ImprovedStats: StatsValues{
+			Health:     0,
+			MaxHealth:  0,
+			Defense:    0,
+			MaxDefense: 0,
+			Power:      1,
+			MaxPower:   2,
+			Fov:        1,
+			MaxFov:     2,
+		},
+	},
 }
 
 // Generates a set of items for an specific level. Level starts at 1
@@ -19,33 +57,37 @@ func GenerateEquipables(engine *ecs.Engine, level int) ecs.EntityList {
 
 	generated := ecs.EntityList{}
 
-	setName := setNames[level]
-	for _, slot := range constants.EquipmentSlots {
-		name := fmt.Sprintf("%s %s", setName, getSlotElementName(slot))
-		char := getSlotChar(slot)
-		clr := getSlotColor(slot)
+	for _, equipmentSet := range equipmentSets {
+		if level >= equipmentSet.MinLevel && level <= equipmentSet.MaxLevel {
+			for _, slot := range constants.EquipmentSlots {
+				name := fmt.Sprintf("%s %s", equipmentSet.Name, getSlotElementName(slot))
+				char := getSlotChar(slot)
+				clr := getSlotColor(slot)
 
-		entity := engine.NewEntity()
-		entity.AddComponent(IsPickupComponent{})
-		entity.AddComponent(Layer300Component{})
-		entity.AddComponent(EquipableComponent{
-			EquipSlot: slot,
-			MinLevel:  level,
-			StatsValues: &StatsValues{
-				Health:     0,
-				MaxHealth:  1,
-				Defense:    0,
-				MaxDefense: 0,
-				Power:      5,
-				MaxPower:   5,
-				Fov:        1,
-				MaxFov:     1,
-			},
-		})
-		entity.AddComponent(DescriptionComponent{Name: name})
-		entity.AddComponent(ApparenceComponent{Color: clr, Char: char})
+				entity := engine.NewEntity()
+				entity.AddComponent(IsPickupComponent{})
+				entity.AddComponent(Layer300Component{})
+				entity.AddComponent(EquipableComponent{
+					EquipSlot: slot,
+					MinLevel:  level,
+					StatsValues: &StatsValues{
+						Health:     (1 + equipmentSet.ImprovedStats.Health) * equipmentSet.ItemLevel,
+						MaxHealth:  (1 + equipmentSet.ImprovedStats.MaxHealth) * equipmentSet.ItemLevel,
+						Defense:    (1 + equipmentSet.ImprovedStats.Defense) * equipmentSet.ItemLevel,
+						MaxDefense: (1 + equipmentSet.ImprovedStats.MaxDefense) * equipmentSet.ItemLevel,
+						Power:      (1 + equipmentSet.ImprovedStats.Power) * equipmentSet.ItemLevel,
+						MaxPower:   (1 + equipmentSet.ImprovedStats.MaxPower) * equipmentSet.ItemLevel,
+						Fov:        (1 + equipmentSet.ImprovedStats.Fov) * equipmentSet.ItemLevel,
+						MaxFov:     (1 + equipmentSet.ImprovedStats.MaxFov) * equipmentSet.ItemLevel,
+					},
+				})
+				entity.AddComponent(DescriptionComponent{Name: name})
+				entity.AddComponent(ApparenceComponent{Color: clr, Char: char})
 
-		generated = append(generated, entity)
+				generated = append(generated, entity)
+			}
+
+		}
 	}
 
 	return generated
