@@ -71,6 +71,7 @@ func GenerateEquipables(engine *ecs.Engine, level int) ecs.EntityList {
 					EquipSlot: slot,
 					MinLevel:  level,
 					StatsValues: &StatsValues{
+						// TODO: add SLOT modifier, ie. weapon more power, shield more defense
 						Health:     (1 + equipmentSet.ImprovedStats.Health) * equipmentSet.ItemLevel,
 						MaxHealth:  (1 + equipmentSet.ImprovedStats.MaxHealth) * equipmentSet.ItemLevel,
 						Defense:    (1 + equipmentSet.ImprovedStats.Defense) * equipmentSet.ItemLevel,
