@@ -7,9 +7,7 @@ import (
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
 
 	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/constants"
@@ -89,7 +87,6 @@ func showDebug(screen *ebiten.Image, gs *gamestate.GameState) {
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) []*ecs.Entity {
 
-	// font := assets.LoadFontCached(float64(18))
 	font := assets.MplusFont(float64(18))
 
 	visibleEntities := []*ecs.Entity{}
@@ -140,15 +137,6 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 	return visibleEntities
 }
 
-// TODO: deprecated
-func DrawTextRect(screen *ebiten.Image, str string, x int, y int, font font.Face, bgColor color.Color) {
-	rect := text.BoundString(font, str)
-	padL := 0
-	padR := padL * 2
-	ebitenutil.DrawRect(screen, float64(x+rect.Min.X-padL), float64(y+rect.Min.Y-padL), float64(rect.Max.X-rect.Min.X+padR), float64(rect.Max.Y-rect.Min.Y+padR), bgColor)
-
-}
-
 func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
 	fontSize := 14
@@ -156,7 +144,7 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
 	position := gs.Grid.MessageLog
 
-	lines := gs.GetLog(position.Height)
+	lines := gs.GetLogLines(position.Height)
 	for i, line := range lines {
 		fgColor := constants.LogColors[line.Type]
 		logStr := line.Msg

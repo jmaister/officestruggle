@@ -36,12 +36,12 @@ func ToPixelRect(gs *gamestate.GameState, x int, y int) (int, int, int, int) {
 
 func DrawTile(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, color color.Color) {
 	x1, y1 := ToPixel(gs, x, y)
-	ebitenutil.DrawRect(screen, float64(x1), float64(y1), float64(gs.TileWidth-1), float64(gs.TileHeight-1), color)
+	ebitenutil.DrawRect(screen, float64(x1), float64(y1), float64(gs.TileWidth), float64(gs.TileHeight), color)
 }
 
 func DrawChar(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font font.Face, str string, fgColor color.Color, bgColor color.Color) {
 	x1, y1 := ToPixel(gs, x, y)
-	ebitenutil.DrawRect(screen, float64(x1), float64(y1), float64(gs.TileWidth-1), float64(gs.TileHeight-1), bgColor)
+	ebitenutil.DrawRect(screen, float64(x1), float64(y1), float64(gs.TileWidth), float64(gs.TileHeight), bgColor)
 
 	// rect := text.BoundString(font, str)
 	// rect.Dx(), rect.Dy()
