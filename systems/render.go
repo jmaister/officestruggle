@@ -196,11 +196,22 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 
 	position := gs.Grid.InfoBar
 
+	plPos := state.GetPosition(gs.Player)
+
 	y := position.Y
 	for _, entity := range visibleEntities {
 		if !entity.HasComponent(constants.Player) {
-			str := state.GetLongDescription(entity)
-			DrawText(screen, gs, position.X, y, font, str, color.White, color.Black)
+			entPos := state.GetPosition(entity)
+			isOnPlayerTile := plPos.X == entPos.X && plPos.Y == entPos.Y
+			var cl color.Color = color.White
+			onSameTile := " "
+			if isOnPlayerTile {
+				cl = palette.PColor(palette.Green, 0.5)
+				onSameTile = "*"
+			}
+
+			str := fmt.Sprintf("%s%s", onSameTile, state.GetLongDescription(entity))
+			DrawText(screen, gs, position.X, y, font, str, cl, color.Black)
 			y++
 		}
 	}
