@@ -283,7 +283,8 @@ type EquipableComponent struct {
 	*StatsValues
 
 	EquipSlot constants.EquipSlot
-	MinLevel  int
+	Level     int
+	SetName   string
 }
 
 func (a EquipableComponent) ComponentType() string {
