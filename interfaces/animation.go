@@ -19,6 +19,7 @@ type Animation interface {
 type AnimationInfo struct {
 	StartTime time.Time
 	Duration  time.Duration
-	Source    *ecs.Entity
-	Target    *ecs.Entity
+	// TODO: change source and target to positions to avoid nullpointers if the entity is consumed/destroyed and the animation still active
+	Source *ecs.Entity
+	Target *ecs.Entity
 }

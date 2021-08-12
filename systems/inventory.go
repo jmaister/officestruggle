@@ -1,6 +1,8 @@
 package systems
 
 import (
+	"fmt"
+
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -48,8 +50,8 @@ func getCurrentEquipmentItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
 	equipment, _ := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 
 	sel := gs.InventoryScreenState.EquipmentState.Selected
-	if sel >= 0 && sel < len(state.EquipmentPositions) {
-		pos := state.EquipmentPositions[sel]
+	if sel >= 0 && sel < len(constants.EquipmentSlots) {
+		pos := constants.EquipmentSlots[sel]
 		item, ok := equipment.Items[pos]
 		if ok {
 			return item, true
@@ -110,30 +112,38 @@ func InventoryEquip(gs *gamestate.GameState) {
 func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
 	player := gs.Player
 	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
+	leveling, _ := player.GetComponent(constants.Leveling).(state.LevelingComponent)
 
 	equipable, isEquipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
 
 	if isEquipable {
-		// Remove from inventory
-		removed := inventory.RemoveItem(item)
-		if removed {
-			player.ReplaceComponent(inventory)
+		isLevelCorrect := leveling.CurrentLevel >= equipable.MinLevel
+		if isLevelCorrect {
+			// Remove from inventory
+			removed := inventory.RemoveItem(item)
+			if removed {
+				player.ReplaceComponent(inventory)
+			}
+
+			// Remove position if came from the floor
+			item.RemoveComponent(constants.Position)
+
+			// Add to equip
+			equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
+			current, ok := equipment.Items[equipable.EquipSlot]
+			if ok {
+				inventory.AddItem(current)
+				player.ReplaceComponent(inventory)
+			}
+			equipment.Items[equipable.EquipSlot] = item
+			player.ReplaceComponent(equipment)
+
+			gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
+
+		} else {
+			gs.Log(constants.Warn, fmt.Sprintf("%s can't be equiped. You must be at least level %d.", state.GetDescription(item), equipable.MinLevel))
 		}
 
-		// Remove position if came from the floor
-		item.RemoveComponent(constants.Position)
-
-		// Add to equip
-		equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
-		current, ok := equipment.Items[equipable.EquipSlot]
-		if ok {
-			inventory.AddItem(current)
-			player.ReplaceComponent(inventory)
-		}
-		equipment.Items[equipable.EquipSlot] = item
-		player.ReplaceComponent(equipment)
-
-		gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
 	} else {
 		gs.Log(constants.Warn, state.GetDescription(item)+" can't be equiped.")
 	}
@@ -183,7 +193,7 @@ func updateInventorySelection(gs *gamestate.GameState, change int) {
 func updateEquipmentSelection(gs *gamestate.GameState, change int) {
 
 	selected := gs.InventoryScreenState.EquipmentState.Selected + change
-	max := len(state.EquipmentPositions)
+	max := len(constants.EquipmentSlots)
 	if selected < 0 {
 		selected = 0
 	} else if max > 0 && selected >= max {

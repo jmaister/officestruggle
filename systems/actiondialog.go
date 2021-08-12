@@ -20,7 +20,7 @@ func DrawActionDialog(engine *ecs.Engine, gs *gamestate.GameState, screen *ebite
 		for _, item := range gs.ActionScreenState.Items {
 			invStrItems = append(invStrItems, state.GetLongDescription(item))
 		}
-		DrawSelectionList(screen, &gs.ActionScreenState.Actions, invStrItems, gs.Grid.Inventory, title)
+		DrawSelectionList(screen, gs, &gs.ActionScreenState.Actions, invStrItems, gs.Grid.Inventory, title)
 	} else {
 		noActionsAvailable(gs)
 	}

@@ -83,10 +83,10 @@ func (gs *GameState) Log(t constants.LogType, s string) {
 	gs.LogLines = append(gs.LogLines, LogLine{Msg: s, Count: 1, Type: t})
 }
 
-func (gs *GameState) GetLog(lineNumber int) []LogLine {
+func (gs *GameState) GetLogLines(lineCount int) []LogLine {
 	n := len(gs.LogLines)
-	if lineNumber <= n {
-		return gs.LogLines[n-lineNumber : n]
+	if lineCount <= n {
+		return gs.LogLines[n-lineCount : n]
 	}
 	return gs.LogLines
 }
