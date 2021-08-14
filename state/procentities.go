@@ -12,8 +12,6 @@ import (
 type EquipmentSet struct {
 	Name          string
 	ItemLevel     int
-	MinLevel      int
-	MaxLevel      int
 	ImprovedStats StatsValues
 }
 
@@ -21,8 +19,6 @@ var equipmentSets = []EquipmentSet{
 	{
 		Name:      "Black Sheep",
 		ItemLevel: 1,
-		MinLevel:  1,
-		MaxLevel:  5,
 		ImprovedStats: StatsValues{
 			Health:     0,
 			MaxHealth:  0,
@@ -37,8 +33,6 @@ var equipmentSets = []EquipmentSet{
 	{
 		Name:      "Red Eagle",
 		ItemLevel: 2,
-		MinLevel:  2,
-		MaxLevel:  5,
 		ImprovedStats: StatsValues{
 			Health:     0,
 			MaxHealth:  0,
@@ -58,36 +52,34 @@ func GenerateEquipables(engine *ecs.Engine, level int) ecs.EntityList {
 	generated := ecs.EntityList{}
 
 	for _, equipmentSet := range equipmentSets {
-		if level >= equipmentSet.MinLevel && level <= equipmentSet.MaxLevel {
-			for _, slot := range constants.EquipmentSlots {
-				name := fmt.Sprintf("%s %s", equipmentSet.Name, getSlotElementName(slot))
-				char := getSlotChar(slot)
-				clr := getSlotColor(slot)
+		for _, slot := range constants.EquipmentSlots {
+			name := fmt.Sprintf("%s %s", equipmentSet.Name, getSlotElementName(slot))
+			char := getSlotChar(slot)
+			clr := getSlotColor(slot)
 
-				entity := engine.NewEntity()
-				entity.AddComponent(IsPickupComponent{})
-				entity.AddComponent(Layer300Component{})
-				entity.AddComponent(EquipableComponent{
-					EquipSlot: slot,
-					MinLevel:  level,
-					StatsValues: &StatsValues{
-						// TODO: add SLOT modifier, ie. weapon more power, shield more defense
-						Health:     (1 + equipmentSet.ImprovedStats.Health) * equipmentSet.ItemLevel,
-						MaxHealth:  (1 + equipmentSet.ImprovedStats.MaxHealth) * equipmentSet.ItemLevel,
-						Defense:    (1 + equipmentSet.ImprovedStats.Defense) * equipmentSet.ItemLevel,
-						MaxDefense: (1 + equipmentSet.ImprovedStats.MaxDefense) * equipmentSet.ItemLevel,
-						Power:      (1 + equipmentSet.ImprovedStats.Power) * equipmentSet.ItemLevel,
-						MaxPower:   (1 + equipmentSet.ImprovedStats.MaxPower) * equipmentSet.ItemLevel,
-						Fov:        (1 + equipmentSet.ImprovedStats.Fov) * equipmentSet.ItemLevel,
-						MaxFov:     (1 + equipmentSet.ImprovedStats.MaxFov) * equipmentSet.ItemLevel,
-					},
-				})
-				entity.AddComponent(DescriptionComponent{Name: name})
-				entity.AddComponent(ApparenceComponent{Color: clr, Char: char})
+			entity := engine.NewEntity()
+			entity.AddComponent(IsPickupComponent{})
+			entity.AddComponent(Layer300Component{})
+			entity.AddComponent(EquipableComponent{
+				EquipSlot: slot,
+				Level:     equipmentSet.ItemLevel,
+				SetName:   equipmentSet.Name,
+				StatsValues: &StatsValues{
+					// TODO: add SLOT modifier, ie. weapon more power, shield more defense
+					Health:     (1 + equipmentSet.ImprovedStats.Health) * equipmentSet.ItemLevel,
+					MaxHealth:  (1 + equipmentSet.ImprovedStats.MaxHealth) * equipmentSet.ItemLevel,
+					Defense:    (1 + equipmentSet.ImprovedStats.Defense) * equipmentSet.ItemLevel,
+					MaxDefense: (1 + equipmentSet.ImprovedStats.MaxDefense) * equipmentSet.ItemLevel,
+					Power:      (1 + equipmentSet.ImprovedStats.Power) * equipmentSet.ItemLevel,
+					MaxPower:   (1 + equipmentSet.ImprovedStats.MaxPower) * equipmentSet.ItemLevel,
+					Fov:        (1 + equipmentSet.ImprovedStats.Fov) * equipmentSet.ItemLevel,
+					MaxFov:     (1 + equipmentSet.ImprovedStats.MaxFov) * equipmentSet.ItemLevel,
+				},
+			})
+			entity.AddComponent(DescriptionComponent{Name: name})
+			entity.AddComponent(ApparenceComponent{Color: clr, Char: char})
 
-				generated = append(generated, entity)
-			}
-
+			generated = append(generated, entity)
 		}
 	}
 

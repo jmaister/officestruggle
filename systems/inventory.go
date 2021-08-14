@@ -117,7 +117,7 @@ func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
 	equipable, isEquipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
 
 	if isEquipable {
-		isLevelCorrect := leveling.CurrentLevel >= equipable.MinLevel
+		isLevelCorrect := leveling.CurrentLevel >= equipable.Level
 		if isLevelCorrect {
 			// Remove from inventory
 			removed := inventory.RemoveItem(item)
@@ -141,7 +141,7 @@ func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
 			gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
 
 		} else {
-			gs.Log(constants.Warn, fmt.Sprintf("%s can't be equiped. You must be at least level %d.", state.GetDescription(item), equipable.MinLevel))
+			gs.Log(constants.Warn, fmt.Sprintf("%s can't be equiped. You must be at least level %d.", state.GetDescription(item), equipable.Level))
 		}
 
 	} else {
