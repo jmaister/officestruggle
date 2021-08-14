@@ -98,21 +98,20 @@ func drawEquipDiff(screen *ebiten.Image, gs *gamestate.GameState, candidate *ecs
 			DrawText(screen, gs, x+d, y+1, fnt, equippedEquipable.SetName, setColor, color.Black)
 		}
 		DrawText(screen, gs, x+d, y+2, fnt, fmt.Sprintf("Level %d", equippedEquipable.Level), color.White, color.Black)
-		drawStat(screen, gs, x+d, y+3, "Health", equippedStats.Health, equippedStats.MaxHealth)
-		drawStat(screen, gs, x+d, y+4, "Def   ", equippedStats.Defense, equippedStats.MaxDefense)
-		drawStat(screen, gs, x+d, y+5, "Power ", equippedStats.Power, equippedStats.MaxPower)
-		drawStat(screen, gs, x+d, y+6, "FOV   ", equippedStats.Fov, equippedStats.MaxFov)
+		drawStatImprovement(screen, gs, x+d, y+3, "Health", equippedStats.Health, equippedStats.MaxHealth, candidateStats.Health, candidateStats.MaxHealth)
+		drawStatImprovement(screen, gs, x+d, y+4, "Def   ", equippedStats.Defense, equippedStats.MaxDefense, candidateStats.Defense, candidateStats.MaxDefense)
+		drawStatImprovement(screen, gs, x+d, y+5, "Power ", equippedStats.Power, equippedStats.MaxPower, candidateStats.Power, candidateStats.MaxPower)
+		drawStatImprovement(screen, gs, x+d, y+6, "FOV   ", equippedStats.Fov, equippedStats.MaxFov, candidateStats.Fov, candidateStats.MaxFov)
+
 	}
 }
 
-func drawStatImprovement(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, name string, candidate int, candidateMax int, current int, currentMax int) {
+func drawStatImprovement(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, name string, itemValue int, itemValueMax int, valueCompared int, valueComparedMax int) {
 	var cl color.Color = color.White
-	if (candidate > current || candidateMax > currentMax) && current != -1 {
+	if (itemValue > valueCompared || itemValueMax > valueComparedMax) && valueCompared != -1 {
 		cl = palette.PColor(palette.Green, 0.6)
+	} else if itemValue < valueCompared || itemValueMax < valueComparedMax {
+		cl = palette.PColor(palette.Orange, 0.6)
 	}
-	DrawText(screen, gs, x, y, fnt, fmt.Sprintf("%s +%d/+%d", name, candidate, candidateMax), cl, color.Black)
-}
-
-func drawStat(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, name string, current int, currentMax int) {
-	DrawText(screen, gs, x, y, fnt, fmt.Sprintf("%s +%d/+%d", name, current, currentMax), color.White, color.Black)
+	DrawText(screen, gs, x, y, fnt, fmt.Sprintf("%s +%d/+%d", name, itemValue, itemValueMax), cl, color.Black)
 }
