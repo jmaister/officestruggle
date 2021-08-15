@@ -225,6 +225,10 @@ func (entityList *EntityList) RemoveDuplicates() EntityList {
 	}
 }
 
+func (entityList *EntityList) Concat(other EntityList) EntityList {
+	return append(*entityList, other...)
+}
+
 /**
  * Component
  */

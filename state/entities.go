@@ -2,7 +2,6 @@ package state
 
 import (
 	"image/color"
-	"math/rand"
 
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
@@ -82,10 +81,6 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 		XPBase:     10,
 		XPPerLevel: 20,
 		Level:      1,
-	})
-	entity.AddComponent(LootDropComponent{
-		Entities: []*ecs.Entity{},
-		Coins:    rand.Intn(1000) + 1000,
 	})
 	return entity
 }

@@ -99,10 +99,17 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 	for level := 0; level < g.Levels; level++ {
 		visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
 		visitables = systems.FilterZ(visitables, level)
+		currentV := 0
 
 		rand.Shuffle(len(visitables), func(i, j int) { visitables[i], visitables[j] = visitables[j], visitables[i] })
 
-		currentV := 0
+		lootPool := ecs.EntityList{}
+		lootPool = lootPool.Concat(state.GenerateEquipables(engine, level+1))
+		lootPool = lootPool.Concat(state.GenerateEquipables(engine, level+1))
+		currentLoot := 0
+
+		rand.Shuffle(len(lootPool), func(i, j int) { lootPool[i], lootPool[j] = lootPool[j], lootPool[i] })
+
 		// Enemies
 		for i := 0; i < 10; i++ {
 			v := visitables[currentV]
@@ -110,6 +117,14 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			pos := state.GetPosition(v)
 			goblin := state.NewGlobin(engine.NewEntity())
 			state.ApplyPosition(goblin, pos.X, pos.Y, pos.Z)
+			goblin.AddComponent(state.LootDropComponent{
+				Entities: []*ecs.Entity{
+					lootPool[currentLoot],
+				},
+				Coins: rand.Intn(1000) + 1000,
+			})
+			currentLoot++
+
 		}
 		// Health potions
 		for i := 0; i < 10; i++ {
