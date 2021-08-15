@@ -149,8 +149,8 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			v := visitables[currentV]
 			currentV++
 			pos := state.GetPosition(v)
-			scroll := state.NewMoneyAmount(engine.NewEntity(), rand.Intn(100))
-			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
+			money := state.NewMoneyAmount(engine.NewEntity(), rand.Intn(100))
+			state.ApplyPosition(money, pos.X, pos.Y, pos.Z)
 		}
 	}
 

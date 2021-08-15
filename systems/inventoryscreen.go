@@ -6,15 +6,12 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
 	"jordiburgos.com/officestruggle/palette"
 	"jordiburgos.com/officestruggle/state"
 )
-
-var fnt = assets.MplusFont(20)
 
 func RenderInventoryScreen(engine *ecs.Engine, gs *gamestate.GameState, screen *ebiten.Image) {
 
