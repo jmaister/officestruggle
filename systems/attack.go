@@ -21,7 +21,8 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 
 		// Check every blocker if it has Stats
 		for _, blocker := range blockers {
-			if blocker.HasComponent(constants.Stats) {
+			// Attacks can be done by the player or to the player, avoid fights between mobs
+			if blocker.HasComponent(constants.Stats) && (attacker.HasComponent(constants.Player) || blocker.HasComponent(constants.Player)) {
 				bStats := blocker.GetComponent(constants.Stats).(state.StatsComponent)
 
 				// Damage calculation and attack
