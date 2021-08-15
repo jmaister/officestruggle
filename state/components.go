@@ -139,10 +139,6 @@ func GetLongDescription(entity *ecs.Entity) string {
 	if ok {
 		str := cmp.Name
 
-		if entity.HasComponent(constants.Dead) {
-			str = str + " corpse"
-		}
-
 		if entity.HasComponent(constants.Stats) {
 			stats := entity.GetComponent(constants.Stats).(StatsComponent)
 			str = str + " (" + stats.String() + ")"
@@ -255,6 +251,7 @@ func (a DeadComponent) ComponentType() string {
 type InventoryComponent struct {
 	Items    ecs.EntityList
 	MaxItems int
+	Coins    int
 }
 
 func (a *InventoryComponent) AddItem(entity *ecs.Entity) bool {
@@ -400,4 +397,26 @@ func (a XPGiverComponent) Calculate() int {
 
 func (a XPGiverComponent) ComponentType() string {
 	return constants.XPGiver
+}
+
+type LootDropComponent struct {
+	Entities ecs.EntityList
+	Coins    int
+}
+
+func (a LootDropComponent) ComponentType() string {
+	return constants.LootDrop
+}
+
+/*
+ * Coins are in Copper units.
+ * 100 Copper = 1 Silver
+ * 100 Silver = 1 Gold
+ */
+type MoneyComponent struct {
+	Coins int
+}
+
+func (a MoneyComponent) ComponentType() string {
+	return constants.Money
 }

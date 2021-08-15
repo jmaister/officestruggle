@@ -2,6 +2,7 @@ package state
 
 import (
 	"image/color"
+	"math/rand"
 
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
@@ -81,6 +82,10 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 		XPBase:     10,
 		XPPerLevel: 20,
 		Level:      1,
+	})
+	entity.AddComponent(LootDropComponent{
+		Entities: []*ecs.Entity{},
+		Coins:    rand.Intn(1000) + 1000,
 	})
 	return entity
 }
@@ -180,5 +185,16 @@ func NewDownstairs(entity *ecs.Entity, x int, y int, z int, targetX int, targetY
 		TargetZ: targetZ,
 	})
 	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Sepia, 0.2), Char: '>'})
+	return entity
+}
+
+func NewMoneyAmount(entity *ecs.Entity, amount int) *ecs.Entity {
+	entity.AddComponent(IsPickupComponent{})
+	entity.AddComponent(DescriptionComponent{Name: "Money amount"})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Amber, 0.6), Char: '$'})
+	entity.AddComponent(Layer300Component{})
+	entity.AddComponent(MoneyComponent{
+		Coins: amount,
+	})
 	return entity
 }

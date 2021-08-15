@@ -33,6 +33,8 @@ const (
 	Stairs        = "stairs"
 	Leveling      = "leveling"
 	XPGiver       = "xpGiver"
+	LootDrop      = "lootDrop"
+	Money         = "money"
 )
 
 type LogType string

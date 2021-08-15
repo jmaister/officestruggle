@@ -64,6 +64,12 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			Width:  20,
 			Height: 29,
 		},
+		Money: grid.Rect{
+			X:      3,
+			Y:      3,
+			Width:  30,
+			Height: 1,
+		},
 	}
 	dungeonTiles, startingTile, goingUp, goingDown := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
@@ -136,6 +142,14 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			currentV++
 			pos := state.GetPosition(v)
 			scroll := systems.NewParalizeScroll(engine.NewEntity())
+			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
+		}
+		// Money
+		for i := 0; i < 50; i++ {
+			v := visitables[currentV]
+			currentV++
+			pos := state.GetPosition(v)
+			scroll := state.NewMoneyAmount(engine.NewEntity(), rand.Intn(100))
 			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
 		}
 	}

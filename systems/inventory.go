@@ -12,20 +12,39 @@ import (
 func InventoryPickUp(gs *gamestate.GameState) {
 	player := gs.Player
 	position := player.GetComponent(constants.Position).(state.PositionComponent)
+	inventory := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
 	pickables, ok := gs.Engine.PosCache.GetByCoordAndComponents(position.X, position.Y, position.Z, []string{constants.IsPickup})
 	if ok && len(pickables) > 0 {
-		inventory := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 		for _, pickable := range pickables {
-			pickUpOk := inventory.AddItem(pickable)
-			if pickUpOk {
-				gs.Log(constants.Info, state.GetDescription(player)+" picks up "+state.GetLongDescription(pickable))
-
-				pickable.RemoveComponent(constants.IsPickup)
-				pickable.RemoveComponent(constants.Position)
+			moneyComponent, isMoney := pickable.GetComponent(constants.Money).(state.MoneyComponent)
+			if isMoney {
+				inventory.Coins += moneyComponent.Coins
+				gold, silver, copper := Coins(moneyComponent.Coins)
+				moneyStr := ""
+				if gold > 0 {
+					moneyStr += fmt.Sprintf("%d Gold ", gold)
+				}
+				if silver > 0 {
+					moneyStr += fmt.Sprintf("%d Silver ", silver)
+				}
+				if copper > 0 {
+					moneyStr += fmt.Sprintf("%d Copper", copper)
+				}
+				gs.Log(constants.Good, fmt.Sprintf("You found %s coins.", moneyStr))
+				ecs.NewEngine().DestroyEntity(pickable)
 			} else {
-				gs.Log(constants.Bad, state.GetDescription(player)+" can't pickup, inventory is full.")
+				pickUpOk := inventory.AddItem(pickable)
+				if pickUpOk {
+					gs.Log(constants.Info, state.GetDescription(player)+" picks up "+state.GetLongDescription(pickable))
+
+					pickable.RemoveComponent(constants.IsPickup)
+					pickable.RemoveComponent(constants.Position)
+				} else {
+					gs.Log(constants.Bad, state.GetDescription(player)+" can't pickup, inventory is full.")
+				}
 			}
+
 		}
 		player.ReplaceComponent(inventory)
 	} else {

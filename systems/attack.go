@@ -75,6 +75,7 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 
 func Kill(gs *gamestate.GameState, attacker *ecs.Entity, entity *ecs.Entity) {
 	gs.Log(constants.Good, state.GetDescription(entity)+" is dead.")
+
 	entity.RemoveComponent(constants.AI)
 	entity.RemoveComponent(constants.IsBlocking)
 	entity.RemoveComponent(constants.Layer400)
@@ -88,17 +89,37 @@ func Kill(gs *gamestate.GameState, attacker *ecs.Entity, entity *ecs.Entity) {
 		XPBase: 10,
 	})
 
-	apparence, ok := entity.GetComponent(constants.Apparence).(state.ApparenceComponent)
-	if ok {
-		apparence.Char = '%'
-		entity.ReplaceComponent(apparence)
-	}
+	description := entity.GetComponent(constants.Description).(state.DescriptionComponent)
+	description.Name += " corpse"
+	entity.ReplaceComponent(description)
+
+	apparence := entity.GetComponent(constants.Apparence).(state.ApparenceComponent)
+	apparence.Char = '%'
+	entity.ReplaceComponent(apparence)
+
 	if entity == gs.Player {
 		gs.ScreenState = gamestate.GameoverScreen
 	} else if attacker == gs.Player {
 		if entity.HasComponent(constants.XPGiver) {
 			GiveXP(gs, gs.Player, entity)
 		}
+	}
+
+	// LootDrop
+	if entity.HasComponent(constants.LootDrop) {
+		lootDrop := entity.GetComponent(constants.LootDrop).(state.LootDropComponent)
+		position := entity.GetComponent(constants.Position).(state.PositionComponent)
+
+		// Items
+		for _, item := range lootDrop.Entities {
+			item.AddComponent(position)
+		}
+
+		// Money
+		money := state.NewMoneyAmount(gs.Engine.NewEntity(), lootDrop.Coins)
+		money.AddComponent(position)
+
+		entity.RemoveComponent(constants.LootDrop)
 	}
 }
 

@@ -71,6 +71,7 @@ func (engine *Engine) DestroyEntity(entity *Entity) {
 
 	entity.Components = nil
 	entity.Engine = nil
+	entity = nil
 }
 
 // Used to load a game state
