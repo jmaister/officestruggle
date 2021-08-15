@@ -32,8 +32,6 @@ func ConsumeConsumableComponent(engine *ecs.Engine, gs *gamestate.GameState, con
 				AnimationInfo: interfaces.AnimationInfo{
 					StartTime: time.Now(),
 					Duration:  1 * time.Second,
-					Source:    &ecs.Entity{},
-					Target:    &ecs.Entity{},
 				},
 				StartingApparence: apparence,
 			},

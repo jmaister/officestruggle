@@ -63,8 +63,6 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 			AnimationInfo: interfaces.AnimationInfo{
 				StartTime: time.Time{},
 				Duration:  750 * time.Millisecond,
-				Source:    &ecs.Entity{},
-				Target:    &ecs.Entity{},
 			},
 			Direction: grid.DOWN,
 			Char:      "♪",
@@ -98,8 +96,6 @@ func NewParalizeScroll(entity *ecs.Entity) *ecs.Entity {
 			AnimationInfo: interfaces.AnimationInfo{
 				StartTime: time.Time{},
 				Duration:  750 * time.Millisecond,
-				Source:    &ecs.Entity{},
-				Target:    &ecs.Entity{},
 			},
 			Direction: grid.DOWN,
 			Char:      "♪",

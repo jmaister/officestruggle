@@ -62,7 +62,7 @@ func (a DamageAnimation) GetAnimationInfo() interfaces.AnimationInfo {
 	return a.AnimationInfo
 }
 func (a DamageAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
-	pos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
+	pos := a.Target
 	x, y := toPixel(gs, pos.X+a.Direction.X, pos.Y+a.Direction.Y)
 
 	x = x + int(float64(3*gs.TileWidth)*(percent))*a.Direction.X
@@ -128,8 +128,20 @@ type FallingCharAnimation struct {
 
 func (a FallingCharAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
 	a.StartTime = time.Now()
-	a.Source = source
-	a.Target = target
+	if source != nil {
+		srcPos := state.GetPosition(source)
+		a.Source = interfaces.Point{
+			X: srcPos.X,
+			Y: srcPos.Y,
+		}
+	}
+	if target != nil {
+		targetPos := state.GetPosition(target)
+		a.Target = interfaces.Point{
+			X: targetPos.X,
+			Y: targetPos.Y,
+		}
+	}
 	return a
 }
 func (a FallingCharAnimation) NeedsInit() bool {
@@ -141,8 +153,8 @@ func (a FallingCharAnimation) GetAnimationInfo() interfaces.AnimationInfo {
 }
 
 func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
-	srcPos := a.Source.GetComponent(constants.Position).(state.PositionComponent)
-	tgtPos := a.Target.GetComponent(constants.Position).(state.PositionComponent)
+	srcPos := a.Source
+	tgtPos := a.Target
 	line := BresenhamLine(srcPos.X, srcPos.Y, tgtPos.X, tgtPos.Y)
 
 	current := len(line) * int((percent)*100) / 100
@@ -189,15 +201,13 @@ func (a LevelUpAnimation) GetAnimationInfo() interfaces.AnimationInfo {
 }
 
 func (a LevelUpAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
-	srcPos := a.Source.GetComponent(constants.Position).(state.PositionComponent)
-
 	minRadius := 1.0
 	maxRadius := 5.0
 	radius := int(lerp(minRadius, maxRadius, percent))
 
 	circle := grid.GetCircle(grid.Tile{
-		X: srcPos.X,
-		Y: srcPos.Y,
+		X: a.Source.X,
+		Y: a.Source.Y,
 	}, radius)
 	for _, tile := range circle {
 		cl := palette.PColor(palette.Yellow, rand.Float64())

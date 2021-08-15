@@ -8,6 +8,11 @@ import (
 	"jordiburgos.com/officestruggle/gamestate"
 )
 
+type Point struct {
+	X int
+	Y int
+}
+
 type Animation interface {
 	GetAnimationInfo() AnimationInfo
 	NeedsInit() bool
@@ -19,7 +24,6 @@ type Animation interface {
 type AnimationInfo struct {
 	StartTime time.Time
 	Duration  time.Duration
-	// TODO: change source and target to positions to avoid nullpointers if the entity is consumed/destroyed and the animation still active
-	Source *ecs.Entity
-	Target *ecs.Entity
+	Source    Point
+	Target    Point
 }

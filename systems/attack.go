@@ -31,7 +31,15 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 					gs.Log(constants.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
 
-					CreateDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
+					aPos := state.GetPosition(attacker)
+					bPos := state.GetPosition(blocker)
+					CreateDamageAnimation(engine, interfaces.Point{
+						X: aPos.X,
+						Y: aPos.Y,
+					}, interfaces.Point{
+						X: bPos.X,
+						Y: bPos.Y,
+					}, strconv.Itoa(damage))
 
 					if newHealth <= 0 {
 						Kill(engine, gs, attacker, blocker)
@@ -127,12 +135,12 @@ func Kill(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, ent
 	}
 }
 
-func CreateDamageAnimation(engine *ecs.Engine, source *ecs.Entity, target *ecs.Entity, str string) {
+func CreateDamageAnimation(engine *ecs.Engine, source interfaces.Point, target interfaces.Point, str string) {
 	animationEntity := engine.NewEntity()
 	animationEntity.AddComponent(state.Layer500Component{})
 
-	aPos := source.GetComponent(constants.Position).(state.PositionComponent)
-	bPos := target.GetComponent(constants.Position).(state.PositionComponent)
+	aPos := source
+	bPos := target
 
 	dir := grid.UP
 	if aPos.X == bPos.X {

@@ -28,12 +28,16 @@ func GiveXP(gs *gamestate.GameState, target *ecs.Entity, fromEntity *ecs.Entity)
 				// TODO: Update players stats current and max
 				gs.Log(constants.Good, fmt.Sprintf("You advance to level %d.", newLevelingCmp.CurrentLevel))
 				// Trigger level increase animation
+				pos := state.GetPosition(target)
 				target.AddComponent(state.AnimatedComponent{
 					Animation: LevelUpAnimation{
 						AnimationInfo: interfaces.AnimationInfo{
 							StartTime: time.Now(),
 							Duration:  750 * time.Millisecond,
-							Source:    target,
+							Source: interfaces.Point{
+								X: pos.X,
+								Y: pos.Y,
+							},
 						},
 					},
 				})
