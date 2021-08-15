@@ -19,6 +19,7 @@ import (
 
 var fnt20 = assets.LoadFontCached(float64(20))
 var fnt40 = assets.LoadFontCached(float64(40))
+var fnt = assets.MplusFont(18)
 
 func setVisibleEntities(entities ecs.EntityList, isVisible bool) {
 	for _, e := range entities {
@@ -32,6 +33,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	showDebug(screen, gameState)
 
+	// Order of drawing the layers
 	layers := []string{constants.Layer100, constants.Layer300, constants.Layer400, constants.Layer500}
 
 	// Reset visibility
@@ -64,7 +66,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	drawMessageLog(screen, gameState)
 	drawPlayerHud(screen, gameState)
-	drawInfo(screen, gameState, visibleEntities)
+	drawInfo(screen, engine, gameState, visibleEntities)
 	drawGameInventory(screen, gameState)
 }
 
@@ -87,12 +89,10 @@ func showDebug(screen *ebiten.Image, gs *gamestate.GameState) {
 
 func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, screen *ebiten.Image) []*ecs.Entity {
 
-	font := assets.MplusFont(float64(18))
-
 	visibleEntities := []*ecs.Entity{}
 
-	pp := gameState.Player.GetComponent(constants.Position).(state.PositionComponent)
-	pStats := gameState.Player.GetComponent(constants.Stats).(state.StatsComponent)
+	plPos := gameState.Player.GetComponent(constants.Position).(state.PositionComponent)
+	plStats := gameState.Player.GetComponent(constants.Stats).(state.StatsComponent)
 	lightColor := palette.PColor(palette.Yellow, 0.5)
 
 	for _, entity := range entities {
@@ -115,20 +115,20 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 			if visitable.Visible {
 				bgColor := bg
 				if entity.HasComponent(constants.IsBlocking) {
-					distance := CalcDistance(position.X, position.Y, pp.X, pp.Y)
-					mix := (float64(pStats.Fov) - float64(distance)) / float64(pStats.Fov)
+					distance := CalcDistance(position.X, position.Y, plPos.X, plPos.Y)
+					mix := (float64(plStats.Fov) - float64(distance)) / float64(plStats.Fov)
 					bgColor = ColorBlend(lightColor, bgColor, mix)
 				}
 
-				DrawChar(screen, gameState, position.X, position.Y, font, ch, fg, bgColor)
+				DrawChar(screen, gameState, position.X, position.Y, fnt, ch, fg, bgColor)
 			} else if visitable.Explored {
 				bgColor := color.Black
 				fgColor := palette.PColor(palette.Gray, 0.3)
-				DrawChar(screen, gameState, position.X, position.Y, font, ch, fgColor, bgColor)
+				DrawChar(screen, gameState, position.X, position.Y, fnt, ch, fgColor, bgColor)
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
-				DrawChar(screen, gameState, position.X, position.Y, font, ch, fg, bg)
+				DrawChar(screen, gameState, position.X, position.Y, fnt, ch, fg, bg)
 
 				visibleEntities = append(visibleEntities, entity)
 			}
@@ -139,9 +139,6 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 
 func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
-	fontSize := 14
-	font := assets.MplusFont(float64(fontSize))
-
 	position := gs.Grid.MessageLog
 
 	lines := gs.GetLogLines(position.Height)
@@ -151,15 +148,13 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 		if line.Count > 1 {
 			logStr = strconv.Itoa(line.Count) + "x " + line.Msg
 		}
-		DrawText(screen, gs, position.X, position.Y+i, font, logStr, fgColor, color.Black)
+		DrawText(screen, gs, position.X, position.Y+i, fnt, logStr, fgColor, color.Black)
 	}
 	DrawGridRect(screen, gs, position, color.White)
 
 }
 
 func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
-	fontSize := 18
-	font := assets.MplusFont(float64(fontSize))
 
 	position := gs.Grid.PlayerHud
 
@@ -167,20 +162,29 @@ func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 	stats, ok := player.GetComponent(constants.Stats).(state.StatsComponent)
 	if ok {
 		msg := fmt.Sprintf("Player: %s - Floor: %d of %d", stats.String(), gs.CurrentZ+1, gs.Grid.Levels)
-		DrawText(screen, gs, position.X, position.Y, font, msg, ParseHexColorFast("#00AA00"), color.Black)
+		DrawText(screen, gs, position.X, position.Y, fnt, msg, ParseHexColorFast("#00AA00"), color.Black)
 	}
 	lvl, ok := player.GetComponent(constants.Leveling).(state.LevelingComponent)
 	if ok {
 		msg := fmt.Sprintf("Current level: %d - XP: %d of %d", lvl.CurrentLevel, lvl.CurrentXP, lvl.GetNextLevelXP())
-		DrawText(screen, gs, position.X, position.Y+1, font, msg, ParseHexColorFast("#00AA00"), color.Black)
+		DrawText(screen, gs, position.X, position.Y+1, fnt, msg, ParseHexColorFast("#00AA00"), color.Black)
 	}
 
 	DrawGridRect(screen, gs, position, color.White)
 }
 
-func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*ecs.Entity) {
+func drawInfo(screen *ebiten.Image, engine *ecs.Engine, gs *gamestate.GameState, visibleEntities ecs.EntityList) {
 	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
+
+	visibleEntities = engine.Entities.GetEntities([]string{constants.Position, constants.Apparence})
+	visibleEntities.RemoveEntity(gs.Player)
+	visibleEntities = FilterNot(visibleEntities, constants.Visitable)
+	visibleEntities = FilterZ(visibleEntities, gs.CurrentZ)
+	visibleEntities = FilterFunc(visibleEntities, func(e *ecs.Entity) bool {
+		entPos := state.GetPosition(e)
+		return gs.Fov.IsVisible(entPos.X, entPos.Y)
+	})
 
 	position := gs.Grid.InfoBar
 
@@ -188,20 +192,18 @@ func drawInfo(screen *ebiten.Image, gs *gamestate.GameState, visibleEntities []*
 
 	y := position.Y
 	for _, entity := range visibleEntities {
-		if !entity.HasComponent(constants.Player) {
-			entPos := state.GetPosition(entity)
-			isOnPlayerTile := plPos.X == entPos.X && plPos.Y == entPos.Y
-			var cl color.Color = color.White
-			onSameTile := " "
-			if isOnPlayerTile {
-				cl = palette.PColor(palette.Green, 0.5)
-				onSameTile = "*"
-			}
-
-			str := fmt.Sprintf("%s%s", onSameTile, state.GetLongDescription(entity))
-			DrawText(screen, gs, position.X, y, font, str, cl, color.Black)
-			y++
+		entPos := state.GetPosition(entity)
+		isOnPlayerTile := plPos.X == entPos.X && plPos.Y == entPos.Y
+		var cl color.Color = color.White
+		onSameTile := " "
+		if isOnPlayerTile {
+			cl = palette.PColor(palette.Green, 0.5)
+			onSameTile = "*"
 		}
+
+		str := fmt.Sprintf("%s%s %d %p", onSameTile, state.GetLongDescription(entity), entity.Id, entity)
+		DrawText(screen, gs, position.X, y, font, str, cl, color.Black)
+		y++
 	}
 	DrawGridRect(screen, gs, position, color.White)
 }

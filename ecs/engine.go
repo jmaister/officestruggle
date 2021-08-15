@@ -77,7 +77,7 @@ func (engine *Engine) DestroyEntity(entity *Entity) {
 // Used to load a game state
 func (engine *Engine) SetEntityList(entityList EntityList) {
 	engine.Entities = entityList
-	engine.currentId = len(entityList) + 1
+	engine.currentId = entityList[len(entityList)-1].Id + 10
 
 	// Set the engine for every entity
 	for _, entity := range entityList {
@@ -176,7 +176,7 @@ func (entity *Entity) GetComponent(componentType string) Component {
 
 // TODO: move to GameState to allow queries with values, ie Z=1
 func (entityList *EntityList) GetEntities(types []string) EntityList {
-	var found EntityList
+	found := EntityList{}
 	for _, entity := range *entityList {
 		if entity.HasComponents(types) {
 			found = append(found, entity)
