@@ -33,6 +33,9 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	showDebug(screen, gameState)
 
+	// Fix that engine.Entities gets duplicated elements i.e. Money
+	engine.Entities = engine.Entities.RemoveDuplicates()
+
 	// Order of drawing the layers
 	layers := []string{constants.Layer100, constants.Layer300, constants.Layer400, constants.Layer500}
 

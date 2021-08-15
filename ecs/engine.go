@@ -207,6 +207,24 @@ func (entityList *EntityList) RemoveEntity(entity *Entity) {
 	entityList = &old
 }
 
+func (entityList *EntityList) RemoveDuplicates() EntityList {
+	entityMap := make(map[int]*Entity)
+
+	for _, entity := range *entityList {
+		entityMap[entity.Id] = entity
+	}
+	if len(*entityList) == len(entityMap) {
+		return *entityList
+	} else {
+		newList := EntityList{}
+		for _, v := range entityMap {
+			newList = append(newList, v)
+		}
+
+		return newList
+	}
+}
+
 /**
  * Component
  */

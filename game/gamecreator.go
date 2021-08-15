@@ -145,7 +145,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
 		}
 		// Money
-		for i := 0; i < 50; i++ {
+		for i := 0; i < 10; i++ {
 			v := visitables[currentV]
 			currentV++
 			pos := state.GetPosition(v)
