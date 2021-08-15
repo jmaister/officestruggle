@@ -57,7 +57,7 @@ var cache = map[float64]color.Color{}
 func calculateColor(h Hue, brightness float64) color.Color {
 	s := 0.85
 
-	// brightness from 0.0 to 1.0 into 0.1 to 0.9 to avoid extremes
+	// brightness transformed from 0.0 to 1.0 into 0.15 to 0.80 to avoid the extremes
 	if brightness < 0 || brightness > 1 {
 		brightness = 0.5
 	}
@@ -73,7 +73,7 @@ func calculateColor(h Hue, brightness float64) color.Color {
 }
 
 func PColor(h Hue, brightness float64) color.Color {
-	key := float64(h)*10.0 + brightness
+	key := float64(h)*100.0 + brightness
 	cl, ok := cache[key]
 	if ok {
 		return cl

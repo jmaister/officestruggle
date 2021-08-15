@@ -11,7 +11,7 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
-func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity) bool {
+func ConsumeConsumableComponent(engine *ecs.Engine, gs *gamestate.GameState, consumable *ecs.Entity) bool {
 
 	isConsumable := consumable.HasComponent(constants.Consumable)
 	isConsumeEffect := consumable.HasComponent(constants.ConsumeEffect)
@@ -41,6 +41,11 @@ func ConsumeConsumableComponent(gs *gamestate.GameState, consumable *ecs.Entity)
 
 		gs.Log(constants.Info, "Consumed "+state.GetLongDescription(consumable))
 		removeAndDestroy(gs.Engine, gs, consumable)
+
+		if newStats.Health <= 0 {
+			Kill(engine, gs, consumable, player)
+		}
+
 		return true
 	} else if isConsumeEffect {
 		consumeEffect := consumable.GetComponent(constants.ConsumeEffect).(state.ConsumeEffectComponent)

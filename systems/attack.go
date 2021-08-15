@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -32,7 +33,7 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 					CreateDamageAnimation(engine, attacker, blocker, strconv.Itoa(damage))
 
 					if newHealth <= 0 {
-						Kill(gs, attacker, blocker)
+						Kill(engine, gs, attacker, blocker)
 					} else {
 						bStats.Health = newHealth
 						blocker.ReplaceComponent(bStats)
@@ -60,7 +61,7 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 			newHealth := bStats.Health - damage
 
 			if newHealth <= 0 {
-				Kill(gs, attacker, blocker)
+				Kill(engine, gs, attacker, blocker)
 			} else {
 				bStats.Health = newHealth
 				blocker.ReplaceComponent(bStats)
@@ -73,32 +74,55 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 	}
 }
 
-func Kill(gs *gamestate.GameState, attacker *ecs.Entity, entity *ecs.Entity) {
+func Kill(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, entity *ecs.Entity) {
 	gs.Log(constants.Good, state.GetDescription(entity)+" is dead.")
+
+	entity.AddComponent(state.DeadComponent{})
 	entity.RemoveComponent(constants.AI)
+	entity.RemoveComponent(constants.Stats)
 	entity.RemoveComponent(constants.IsBlocking)
 	entity.RemoveComponent(constants.Layer400)
-	entity.RemoveComponent(constants.Stats)
 	entity.AddComponent(state.Layer300Component{})
-	entity.AddComponent(state.DeadComponent{})
 	entity.AddComponent(state.IsPickupComponent{})
 
-	// Default XP for eating a corpse
-	entity.ReplaceComponent(state.XPGiverComponent{
-		XPBase: 10,
-	})
+	description := entity.GetComponent(constants.Description).(state.DescriptionComponent)
+	description.Name += " corpse"
+	entity.ReplaceComponent(description)
 
-	apparence, ok := entity.GetComponent(constants.Apparence).(state.ApparenceComponent)
-	if ok {
-		apparence.Char = '%'
-		entity.ReplaceComponent(apparence)
-	}
+	apparence := entity.GetComponent(constants.Apparence).(state.ApparenceComponent)
+	apparence.Char = '%'
+	entity.ReplaceComponent(apparence)
+
 	if entity == gs.Player {
 		gs.ScreenState = gamestate.GameoverScreen
 	} else if attacker == gs.Player {
 		if entity.HasComponent(constants.XPGiver) {
 			GiveXP(gs, gs.Player, entity)
 		}
+	}
+
+	// Default XP for eating a corpse
+	entity.ReplaceComponent(state.XPGiverComponent{
+		XPBase: 10,
+	})
+
+	// LootDrop
+	if entity.HasComponent(constants.LootDrop) {
+		lootDrop := entity.GetComponent(constants.LootDrop).(state.LootDropComponent)
+		position := entity.GetComponent(constants.Position).(state.PositionComponent)
+		fmt.Println("loot", lootDrop)
+
+		// TODO: spawn the items around the corpse, not in the same position
+		// Items
+		for _, item := range lootDrop.Entities {
+			item.AddComponent(position)
+		}
+
+		// Money
+		money := state.NewMoneyAmount(gs.Engine.NewEntity(), lootDrop.Coins)
+		money.AddComponent(position)
+
+		entity.RemoveComponent(constants.LootDrop)
 	}
 }
 

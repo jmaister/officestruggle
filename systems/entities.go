@@ -26,6 +26,30 @@ func FilterZ(entitylist ecs.EntityList, z int) ecs.EntityList {
 	return filteredList
 }
 
+func FilterNot(entitylist ecs.EntityList, componentType string) ecs.EntityList {
+	filteredList := ecs.EntityList{}
+
+	for _, e := range entitylist {
+		if !e.HasComponent(componentType) {
+			filteredList = append(filteredList, e)
+		}
+	}
+
+	return filteredList
+}
+
+func FilterFunc(entitylist ecs.EntityList, fn func(*ecs.Entity) bool) ecs.EntityList {
+	filteredList := ecs.EntityList{}
+
+	for _, e := range entitylist {
+		if fn(e) {
+			filteredList = append(filteredList, e)
+		}
+	}
+
+	return filteredList
+}
+
 func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(state.IsPickupComponent{})
 	entity.AddComponent(state.DescriptionComponent{Name: "Lightning Scroll"})

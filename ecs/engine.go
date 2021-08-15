@@ -71,12 +71,13 @@ func (engine *Engine) DestroyEntity(entity *Entity) {
 
 	entity.Components = nil
 	entity.Engine = nil
+	entity = nil
 }
 
 // Used to load a game state
 func (engine *Engine) SetEntityList(entityList EntityList) {
 	engine.Entities = entityList
-	engine.currentId = len(entityList) + 1
+	engine.currentId = entityList[len(entityList)-1].Id + 10
 
 	// Set the engine for every entity
 	for _, entity := range entityList {
@@ -175,7 +176,7 @@ func (entity *Entity) GetComponent(componentType string) Component {
 
 // TODO: move to GameState to allow queries with values, ie Z=1
 func (entityList *EntityList) GetEntities(types []string) EntityList {
-	var found EntityList
+	found := EntityList{}
 	for _, entity := range *entityList {
 		if entity.HasComponents(types) {
 			found = append(found, entity)
@@ -204,6 +205,28 @@ func (entityList *EntityList) RemoveEntity(entity *Entity) {
 		}
 	}
 	entityList = &old
+}
+
+func (entityList *EntityList) RemoveDuplicates() EntityList {
+	entityMap := make(map[int]*Entity)
+
+	for _, entity := range *entityList {
+		entityMap[entity.Id] = entity
+	}
+	if len(*entityList) == len(entityMap) {
+		return *entityList
+	} else {
+		newList := EntityList{}
+		for _, v := range entityMap {
+			newList = append(newList, v)
+		}
+
+		return newList
+	}
+}
+
+func (entityList *EntityList) Concat(other EntityList) EntityList {
+	return append(*entityList, other...)
 }
 
 /**

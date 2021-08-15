@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"jordiburgos.com/officestruggle/assets"
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -14,22 +13,31 @@ import (
 	"jordiburgos.com/officestruggle/state"
 )
 
-func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.Image) {
+func RenderInventoryScreen(engine *ecs.Engine, gs *gamestate.GameState, screen *ebiten.Image) {
 
 	text.Draw(screen, "Inventory", fnt40, 30, 35, color.White)
 	text.Draw(screen, "(C) Consume    (D) Drop    (E) Equip     (U) Unequip", fnt20, 300, 40, color.White)
 
+	inventory, _ := gs.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
+
+	// Money
+	mx := gs.Grid.Money.X
+	my := gs.Grid.Money.Y
+	gold, silver, copper := Coins(inventory.Coins)
+	DrawText(screen, gs, mx, my, fnt, fmt.Sprintf("%5d Gold", gold), palette.PColor(palette.Amber, 0.5), color.Black)
+	DrawText(screen, gs, mx+11, my, fnt, fmt.Sprintf("%3d Silver", silver), palette.PColor(palette.Gray, 0.7), color.Black)
+	DrawText(screen, gs, mx+22, my, fnt, fmt.Sprintf("%3d Copper", copper), palette.PColor(palette.Sepia, 0.5), color.Black)
+
 	// Inventory
-	inventory, _ := gameState.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
 	inventoryTitle := fmt.Sprintf("Inventory %2d/%2d", len(inventory.Items), inventory.MaxItems)
 	invStrItems := []string{}
 	for _, item := range inventory.Items {
 		invStrItems = append(invStrItems, state.GetDescription(item))
 	}
-	DrawSelectionList(screen, gameState, &gameState.InventoryScreenState.InventoryState, invStrItems, gameState.Grid.Inventory, inventoryTitle)
+	DrawSelectionList(screen, gs, &gs.InventoryScreenState.InventoryState, invStrItems, gs.Grid.Inventory, inventoryTitle)
 
 	// Equipment
-	equipment, _ := gameState.Player.GetComponent(constants.Equipment).(state.EquipmentComponent)
+	equipment, _ := gs.Player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 	equipmentTitle := "Equipment"
 	equipStrItems := []string{}
 	for _, position := range constants.EquipmentSlots {
@@ -40,17 +48,15 @@ func RenderInventoryScreen(engine *ecs.Engine, gameState *gamestate.GameState, s
 			equipStrItems = append(equipStrItems, fmt.Sprintf("%6s: - empty -", position))
 		}
 	}
-	DrawSelectionList(screen, gameState, &gameState.InventoryScreenState.EquipmentState, equipStrItems, gameState.Grid.Equipment, equipmentTitle)
+	DrawSelectionList(screen, gs, &gs.InventoryScreenState.EquipmentState, equipStrItems, gs.Grid.Equipment, equipmentTitle)
 
-	if gameState.InventoryScreenState.InventoryState.Selected < len(inventory.Items) {
-		candidate := inventory.Items[gameState.InventoryScreenState.InventoryState.Selected]
+	if gs.InventoryScreenState.InventoryState.Selected < len(inventory.Items) {
+		candidate := inventory.Items[gs.InventoryScreenState.InventoryState.Selected]
 		if candidate != nil && candidate.HasComponent(constants.Equipable) {
-			drawEquipDiff(screen, gameState, candidate, equipment)
+			drawEquipDiff(screen, gs, candidate, equipment)
 		}
 	}
 }
-
-var fnt = assets.MplusFont(20)
 
 func drawEquipDiff(screen *ebiten.Image, gs *gamestate.GameState, candidate *ecs.Entity, equipment state.EquipmentComponent) {
 	y := 25
@@ -114,4 +120,14 @@ func drawStatImprovement(screen *ebiten.Image, gs *gamestate.GameState, x int, y
 		cl = palette.PColor(palette.Orange, 0.6)
 	}
 	DrawText(screen, gs, x, y, fnt, fmt.Sprintf("%s +%d/+%d", name, itemValue, itemValueMax), cl, color.Black)
+}
+
+func Coins(coins int) (int, int, int) {
+	gold := coins / (100 * 100)
+	coins = coins % (100 * 100)
+	silver := coins / 100
+	coins = coins % 100
+	copper := coins
+
+	return gold, silver, copper
 }

@@ -39,7 +39,7 @@ func (g *Game) Update() error {
 			fmt.Println(keys)
 
 			movementKey := false
-			inventoryKey := false
+			inventoryPickupKey := false
 
 			dx := 0
 			dy := 0
@@ -57,7 +57,7 @@ func (g *Game) Update() error {
 				dy = 1
 				movementKey = true
 			case ebiten.KeyG:
-				inventoryKey = true
+				inventoryPickupKey = true
 			case ebiten.KeyI:
 				g.GameState.ScreenState = gamestate.InventoryScreen
 			case ebiten.KeyZ:
@@ -85,8 +85,8 @@ func (g *Game) Update() error {
 				systems.Movement(g.Engine, g.GameState, g.GameState.Grid)
 
 				g.GameState.IsPlayerTurn = false
-			} else if inventoryKey {
-				systems.InventoryPickUp(g.GameState)
+			} else if inventoryPickupKey {
+				systems.InventoryPickUpItemsOnFloor(g.GameState)
 
 				g.GameState.IsPlayerTurn = false
 			}
@@ -172,7 +172,7 @@ func (g *Game) Update() error {
 				systems.ActionDialogKeyDown(g.GameState)
 			} else if keys[0] == ebiten.KeyEnter {
 				// Selected item down
-				systems.ActionDialogActivate(g.GameState)
+				systems.ActionDialogActivate(g.Engine, g.GameState)
 				systems.Movement(g.Engine, g.GameState, g.GameState.Grid)
 
 				g.GameState.IsPlayerTurn = false

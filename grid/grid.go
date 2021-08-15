@@ -167,6 +167,7 @@ type Grid struct {
 	GameInventory Rect
 	Inventory     Rect
 	Equipment     Rect
+	Money         Rect
 }
 
 func IsOnMapEdge(x int, y int, rect Rect) bool {

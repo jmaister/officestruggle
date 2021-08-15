@@ -36,6 +36,7 @@ func findActionableEntities(engine *ecs.Engine, gs *gamestate.GameState) {
 			if item.HasComponent(constants.Equipable) ||
 				item.HasComponent(constants.Consumable) ||
 				item.HasComponent(constants.ConsumeEffect) ||
+				item.HasComponent(constants.Money) ||
 				item.HasComponent(constants.Stairs) {
 				actionableEntities = append(actionableEntities, item)
 			}
@@ -74,16 +75,18 @@ func updateActionSelection(gs *gamestate.GameState, change int) {
 	gs.ActionScreenState.Actions.Selected = selected
 }
 
-func ActionDialogActivate(gs *gamestate.GameState) {
+func ActionDialogActivate(engine *ecs.Engine, gs *gamestate.GameState) {
 	activatedEntity := gs.ActionScreenState.Items[gs.ActionScreenState.Actions.Selected]
 
 	if activatedEntity.HasComponent(constants.Consumable) || activatedEntity.HasComponent(constants.ConsumeEffect) {
-		ConsumeConsumableComponent(gs, activatedEntity)
+		ConsumeConsumableComponent(engine, gs, activatedEntity)
 		gs.ScreenState = gamestate.GameScreen
 	} else if activatedEntity.HasComponent(constants.Equipable) {
 		EquipEntity(gs, activatedEntity)
 	} else if activatedEntity.HasComponent(constants.Stairs) {
 		UseStairs(gs, activatedEntity)
+	} else if activatedEntity.HasComponent(constants.Money) {
+		PickupEntity(gs, activatedEntity)
 	}
 
 	gs.ScreenState = gamestate.GameScreen

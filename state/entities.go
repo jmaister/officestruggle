@@ -182,3 +182,14 @@ func NewDownstairs(entity *ecs.Entity, x int, y int, z int, targetX int, targetY
 	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Sepia, 0.2), Char: '>'})
 	return entity
 }
+
+func NewMoneyAmount(entity *ecs.Entity, amount int) *ecs.Entity {
+	entity.AddComponent(IsPickupComponent{})
+	entity.AddComponent(DescriptionComponent{Name: "Money amount"})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Amber, 0.6), Char: '$'})
+	entity.AddComponent(Layer300Component{})
+	entity.AddComponent(MoneyComponent{
+		Coins: amount,
+	})
+	return entity
+}
