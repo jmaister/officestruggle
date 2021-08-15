@@ -12,14 +12,12 @@ import (
 func InventoryPickUpItemsOnFloor(gs *gamestate.GameState) {
 	player := gs.Player
 	position := player.GetComponent(constants.Position).(state.PositionComponent)
-	inventory := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 
 	pickables, ok := gs.Engine.PosCache.GetByCoordAndComponents(position.X, position.Y, position.Z, []string{constants.IsPickup})
 	if ok && len(pickables) > 0 {
 		for _, pickable := range pickables {
 			PickupEntity(gs, pickable)
 		}
-		player.ReplaceComponent(inventory)
 	} else {
 		gs.Log(constants.Warn, "No items to pickup found at this location.")
 	}
@@ -58,6 +56,7 @@ func PickupEntity(gs *gamestate.GameState, pickable *ecs.Entity) {
 	} else {
 		gs.Log(constants.Bad, fmt.Sprintf("%s can't be picked up.", state.GetDescription(pickable)))
 	}
+	player.ReplaceComponent(inventory)
 }
 
 func getCurrentInventoryItem(gs *gamestate.GameState) (*ecs.Entity, bool) {
