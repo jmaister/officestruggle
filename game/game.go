@@ -65,14 +65,20 @@ func (g *Game) Update() error {
 			case ebiten.KeyS:
 				// Save game
 				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-					systems.SaveGame(g.Engine, g.GameState)
+					saveFileName, err := systems.CreateTimestamSavegame()
+					if err != nil {
+						fmt.Printf("Error saving the game: %s\n", err)
+					} else {
+						systems.SaveGame(g.Engine, g.GameState, saveFileName)
+					}
 				}
-			case ebiten.KeyL:
-				// Load game
-				if inpututil.IsKeyJustPressed(ebiten.KeyL) {
-					g.GameState.ScreenState = gamestate.LoadingScreen
-					go systems.LoadGame(g.Engine, g.GameState)
-				}
+			/* case ebiten.KeyL:
+			// Load game
+			if inpututil.IsKeyJustPressed(ebiten.KeyL) {
+				g.GameState.ScreenState = gamestate.LoadingScreen
+				go systems.LoadGame(g.Engine, g.GameState)
+			}
+			*/
 			case ebiten.KeyEnter:
 				g.GameState.ActionScreenState.Actions.IsFocused = true
 				g.GameState.ActionScreenState.Actions.Selected = 0
