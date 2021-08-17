@@ -16,7 +16,7 @@ jobs:
         goos: linux
         goarch: amd64
         goversion: 1.16
-  release-linux-amd64:
+  release-macos-amd64:
     name: release macos/amd64
     runs-on: ubuntu-latest
     steps:
@@ -27,7 +27,7 @@ jobs:
         goos: darwin
         goarch: amd64
         goversion: 1.16
-  release-linux-amd64:
+  release-windows-amd64:
     name: release windows/amd64
     runs-on: ubuntu-latest
     steps:
