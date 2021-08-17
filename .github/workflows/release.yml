@@ -2,9 +2,11 @@
 
 # https://github.com/marketplace/actions/go-release-binaries
 
-on: 
-  release:
-    types: [created]
+on:
+  push:
+    branches:
+      - "*"
+      #- master
 
 jobs:
   releases-matrix:
