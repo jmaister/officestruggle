@@ -33,9 +33,6 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 	showDebug(screen, gameState)
 
-	// Fix that engine.Entities gets duplicated elements i.e. Money
-	engine.Entities = engine.Entities.RemoveDuplicates()
-
 	// Order of drawing the layers
 	layers := []string{constants.Layer100, constants.Layer300, constants.Layer400, constants.Layer500}
 
@@ -181,7 +178,7 @@ func drawInfo(screen *ebiten.Image, engine *ecs.Engine, gs *gamestate.GameState,
 	font := assets.MplusFont(float64(fontSize))
 
 	visibleEntities = engine.Entities.GetEntities([]string{constants.Position, constants.Apparence})
-	visibleEntities.RemoveEntity(gs.Player)
+	visibleEntities = visibleEntities.RemoveEntity(gs.Player)
 	visibleEntities = FilterNot(visibleEntities, constants.Visitable)
 	visibleEntities = FilterZ(visibleEntities, gs.CurrentZ)
 	visibleEntities = FilterFunc(visibleEntities, func(e *ecs.Entity) bool {
@@ -204,7 +201,7 @@ func drawInfo(screen *ebiten.Image, engine *ecs.Engine, gs *gamestate.GameState,
 			onSameTile = "*"
 		}
 
-		str := fmt.Sprintf("%s%s %d %p", onSameTile, state.GetLongDescription(entity), entity.Id, entity)
+		str := fmt.Sprintf("%s%s", onSameTile, state.GetLongDescription(entity))
 		DrawText(screen, gs, position.X, y, font, str, cl, color.Black)
 		y++
 	}

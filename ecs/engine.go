@@ -67,7 +67,7 @@ func (engine *Engine) DestroyEntity(entity *Entity) {
 	for k := range entity.Components {
 		entity.RemoveComponent(k)
 	}
-	engine.Entities.RemoveEntity(entity)
+	engine.Entities = engine.Entities.RemoveEntity(entity)
 
 	entity.Components = nil
 	entity.Engine = nil
@@ -196,33 +196,14 @@ func (entityList *EntityList) GetEntity(types []string) *Entity {
 	return nil
 }
 
-func (entityList *EntityList) RemoveEntity(entity *Entity) {
+func (entityList *EntityList) RemoveEntity(entity *Entity) EntityList {
 	old := *entityList
 	for i, e := range old {
 		if e.Id == entity.Id {
-			old = append(old[:i], old[i+1:]...)
-			break
+			return append(old[:i], old[i+1:]...)
 		}
 	}
-	entityList = &old
-}
-
-func (entityList *EntityList) RemoveDuplicates() EntityList {
-	entityMap := make(map[int]*Entity)
-
-	for _, entity := range *entityList {
-		entityMap[entity.Id] = entity
-	}
-	if len(*entityList) == len(entityMap) {
-		return *entityList
-	} else {
-		newList := EntityList{}
-		for _, v := range entityMap {
-			newList = append(newList, v)
-		}
-
-		return newList
-	}
+	return old
 }
 
 func (entityList *EntityList) Concat(other EntityList) EntityList {
