@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"image/color"
 	"os"
 	"path"
 	"time"
 
 	"github.com/lucasb-eyer/go-colorful"
-	"github.com/sqweek/dialog"
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
@@ -29,7 +29,18 @@ type Save struct {
 }
 
 // YYYYMMDD_hhmmss
-const dateTimeLayout = "20060102_150405"
+const saveDateTimeLayout = "20060102_150405"
+
+func CreateTimestamSavegame() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	filename := fmt.Sprintf("%s-%s.save", gamestate.SaveGamePrefix, time.Now().Format(saveDateTimeLayout))
+	return path.Join(home, filename), nil
+
+}
 
 func registerGob() {
 
@@ -53,19 +64,26 @@ func registerGob() {
 	gob.Register(state.Layer300Component{})
 	gob.Register(state.Layer400Component{})
 	gob.Register(state.Layer500Component{})
+	gob.Register(state.LevelingComponent{})
+	gob.Register(state.LootDropComponent{})
+	gob.Register(state.MoneyComponent{})
 	gob.Register(state.PlayerComponent{})
+	gob.Register(state.StairsComponent{})
 	gob.Register(state.StatsComponent{})
 	gob.Register(state.PositionComponent{})
 	gob.Register(state.VisitableComponent{})
+	gob.Register(state.XPGiverComponent{})
 
 	gob.Register(FallingCharAnimation{})
 	gob.Register(HealthPotionAnimation{})
 	gob.Register(DamageAnimation{})
 
 	gob.Register(colorful.Color{})
+
+	gob.Register(color.Gray16{})
 }
 
-func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
+func SaveGame(engine *ecs.Engine, gs *gamestate.GameState, filename string) error {
 	registerGob()
 
 	cleanCycles(engine, gs)
@@ -86,15 +104,12 @@ func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 
 	err := encoder.Encode(save)
 	if err != nil {
-		fmt.Println("Failed to save.")
+		fmt.Printf("Failed to save file %s\n", filename)
+		fmt.Println(err)
 		return err
 	}
 
-	home, err := os.UserHomeDir()
-	filename := fmt.Sprintf("%s-%s.save", gamestate.SaveGamePrefix, time.Now().Format(dateTimeLayout))
-	saveFileName := path.Join(home, filename)
-
-	err2 := os.WriteFile(saveFileName, buffer.Bytes(), 0666)
+	err2 := os.WriteFile(filename, buffer.Bytes(), 0666)
 	if err != nil {
 		return err2
 	}
@@ -103,15 +118,16 @@ func SaveGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	return nil
 }
 
-func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
+func LoadGame(engine *ecs.Engine, gs *gamestate.GameState, filename string) error {
 	registerGob()
 
-	saveFileName, err := dialog.File().Filter(".save files", "save").Title("Load saved game").Load()
-	if err != nil {
-		return err
-	}
+	// TODO: make the compilation on darwin/linux using "github.com/sqweek/dialog"
+	// filename, err := dialog.File().Filter(".save files", "save").Title("Load saved game").Load()
+	//if err != nil {
+	//	return err
+	// }
 
-	contents, err2 := os.ReadFile(saveFileName)
+	contents, err2 := os.ReadFile(filename)
 	if err2 != nil {
 		return err2
 	}
@@ -120,7 +136,12 @@ func LoadGame(engine *ecs.Engine, gs *gamestate.GameState) error {
 	decoder := gob.NewDecoder(buffer)
 
 	save := Save{}
-	decoder.Decode(&save)
+	err := decoder.Decode(&save)
+	if err != nil {
+		fmt.Printf("Failed to load %s\n", filename)
+		fmt.Println(err)
+		return err
+	}
 
 	if gamestate.GameVersion != save.GameVersion {
 		fmt.Printf("Warning: Game version [%s] differs from saved file version [%s]. You may have unexpected results.\n", gamestate.GameVersion, save.GameVersion)

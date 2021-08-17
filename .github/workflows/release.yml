@@ -1,40 +1,33 @@
 # .github/workflows/release.yaml
 
-on: 
-  release:
-    types: [created]
+# https://github.com/marketplace/actions/go-release-binaries
+
+on:
+  push:
+    branches:
+    - "*"
 
 jobs:
-  release-linux-amd64:
-    name: release linux/amd64
+  releases-matrix:
+    name: Release Go Binary
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build and publish in parallel: linux/386, linux/amd64, windows/386, windows/amd64, darwin/amd64 
+        # goos: [linux, windows, darwin]
+        goos: [windows]
+        goarch: ["386", amd64]
+        exclude:  
+          - goarch: "386"
+            goos: darwin 
     steps:
     - uses: actions/checkout@v2
     - uses: wangyoucao577/go-release-action@v1.19
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: linux
-        goarch: amd64
+        pre_command: apt update && apt install -y  build-essential libalut-dev libasound2-dev libc6-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev mesa-utils pkg-config xorg-dev xvfb && export CGO_ENABLED=0
+        overwrite: true
         goversion: 1.16
-  release-macos-amd64:
-    name: release macos/amd64
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: wangyoucao577/go-release-action@v1.19
-      with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: darwin
-        goarch: amd64
-        goversion: 1.16
-  release-windows-amd64:
-    name: release windows/amd64
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: wangyoucao577/go-release-action@v1.19
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: windows
-        goarch: amd64
-        goversion: 1.16
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        extra_files: README.md
