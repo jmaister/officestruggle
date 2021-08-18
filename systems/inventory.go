@@ -105,7 +105,6 @@ func InventoryDrop(gs *gamestate.GameState) {
 
 	invetoryItem, ok := getCurrentInventoryItem(gs)
 	if ok {
-		// TODO: move to it's own System
 		gs.Log(constants.Info, "You dropped "+state.GetLongDescription(invetoryItem))
 
 		// Remove from inventory
@@ -180,7 +179,6 @@ func InventoryUnequip(gs *gamestate.GameState) {
 
 	item, ok := getCurrentEquipmentItem(gs)
 	if ok {
-		// TODO: move to it's own System
 		gs.Log(constants.Info, "You unequipped "+state.GetLongDescription(item))
 
 		// Remove from equipment

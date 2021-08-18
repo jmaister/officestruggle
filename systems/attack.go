@@ -1,7 +1,7 @@
 package systems
 
 import (
-	"fmt"
+	"math/rand"
 	"strconv"
 	"time"
 
@@ -115,21 +115,42 @@ func Kill(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, ent
 		XPBase: 10,
 	})
 
+	// TODO: move to it's own system, allow to place any kind of entity
 	// LootDrop
 	if entity.HasComponent(constants.LootDrop) {
 		lootDrop := entity.GetComponent(constants.LootDrop).(state.LootDropComponent)
 		position := entity.GetComponent(constants.Position).(state.PositionComponent)
-		fmt.Println("loot", lootDrop)
-
-		// TODO: spawn the items around the corpse, not in the same position
-		// Items
-		for _, item := range lootDrop.Entities {
-			item.AddComponent(position)
-		}
 
 		// Money
 		money := state.NewMoneyAmount(gs.Engine.NewEntity(), lootDrop.Coins)
-		money.AddComponent(position)
+
+		itemsToPlace := append(lootDrop.Entities, money)
+
+		// Spawn the items and money around the corpse, not in the same position
+		for _, item := range itemsToPlace {
+			// Find a free position around the corpse
+			positioned := false
+			for radius := 1; radius < 5 && !positioned; radius++ {
+				candidates := grid.GetCircle(grid.Tile{
+					X: position.X,
+					Y: position.Y,
+				}, radius)
+				rand.Shuffle(len(candidates), func(i int, j int) { candidates[i], candidates[j] = candidates[j], candidates[i] })
+
+				for _, candidate := range candidates {
+					elems, found := engine.PosCache.GetByCoord(candidate.X, candidate.Y, gs.CurrentZ)
+					if found && (len(elems) == 1 && elems[0].HasComponent(constants.IsFloor)) {
+						item.AddComponent(state.PositionComponent{X: candidate.X, Y: candidate.Y, Z: gs.CurrentZ})
+						positioned = true
+						break
+					}
+				}
+			}
+			// If we have not found a valid position, place it in the same position as the corpse
+			if !positioned {
+				item.AddComponent(position)
+			}
+		}
 
 		entity.RemoveComponent(constants.LootDrop)
 	}

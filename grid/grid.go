@@ -47,6 +47,9 @@ type Tile struct {
 func (t Tile) GetKey() string {
 	return strconv.Itoa(t.X) + "," + strconv.Itoa(t.Y) + "," + strconv.Itoa(t.Z)
 }
+func (t Tile) String() string {
+	return t.GetKey()
+}
 
 func IsInsideCircle(center Tile, tile Tile, radius int) bool {
 	dx := center.X - tile.X
