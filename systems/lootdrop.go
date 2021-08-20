@@ -15,11 +15,14 @@ func LootDropSystem(engine *ecs.Engine, gs *gamestate.GameState, lootDropItem *e
 		lootDrop := lootDropItem.GetComponent(constants.LootDrop).(state.LootDropComponent)
 		position := lootDropItem.GetComponent(constants.Position).(state.PositionComponent)
 
+		// Remove corpse position to place it in an empty floor
+		lootDropItem.RemoveComponent(constants.Position)
+
 		// Money
 		money := state.NewMoneyAmount(gs.Engine.NewEntity(), lootDrop.Coins)
 
-		// Items + Money
-		itemsToPlace := append(lootDrop.Entities, money)
+		// Items + Money + corpse
+		itemsToPlace := append(lootDrop.Entities, money, lootDropItem)
 
 		SpawnEntities(engine, gs, position, itemsToPlace)
 
