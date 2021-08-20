@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="wasm_exec.js"></script>
+    <script>
+    // Polyfill
+    if (!WebAssembly.instantiateStreaming) {
+      WebAssembly.instantiateStreaming = async (resp, importObject) => {
+        const source = await (await resp).arrayBuffer();
+        return await WebAssembly.instantiate(source, importObject);
+      };
+    }
+    
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("officestruggle.wasm"), go.importObject).then(result => {
+      go.run(result.instance);
+    });
+    </script>
+
+    <title>Office Struggle</title>
+  </head>
+  <body></body>
+</html>

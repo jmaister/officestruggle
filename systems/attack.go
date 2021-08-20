@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -105,9 +104,7 @@ func Kill(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, ent
 	if entity == gs.Player {
 		gs.ScreenState = gamestate.GameoverScreen
 	} else if attacker == gs.Player {
-		if entity.HasComponent(constants.XPGiver) {
-			GiveXP(gs, gs.Player, entity)
-		}
+		GiveXP(gs, gs.Player, entity)
 	}
 
 	// Default XP for eating a corpse
@@ -116,23 +113,7 @@ func Kill(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, ent
 	})
 
 	// LootDrop
-	if entity.HasComponent(constants.LootDrop) {
-		lootDrop := entity.GetComponent(constants.LootDrop).(state.LootDropComponent)
-		position := entity.GetComponent(constants.Position).(state.PositionComponent)
-		fmt.Println("loot", lootDrop)
-
-		// TODO: spawn the items around the corpse, not in the same position
-		// Items
-		for _, item := range lootDrop.Entities {
-			item.AddComponent(position)
-		}
-
-		// Money
-		money := state.NewMoneyAmount(gs.Engine.NewEntity(), lootDrop.Coins)
-		money.AddComponent(position)
-
-		entity.RemoveComponent(constants.LootDrop)
-	}
+	LootDropSystem(engine, gs, entity)
 }
 
 func CreateDamageAnimation(engine *ecs.Engine, source interfaces.Point, target interfaces.Point, str string) {
