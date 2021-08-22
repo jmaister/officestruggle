@@ -1,18 +1,16 @@
 package game_test
 
 import (
-	"fmt"
 	"testing"
 
-	"jordiburgos.com/officestruggle/constants"
-	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/game"
+	"jordiburgos.com/officestruggle/gamestate"
 )
 
 func TestNewGame(t *testing.T) {
-	engine := ecs.NewEngine()
-	g := game.NewGameState(engine)
+	g := game.NewGame()
 
-	pos := g.Player.GetComponent(constants.Position)
-	fmt.Println(pos)
+	g.GameState.ScreenState = gamestate.GameScreen
+
+	g.Update()
 }
