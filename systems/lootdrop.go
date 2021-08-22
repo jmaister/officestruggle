@@ -24,7 +24,7 @@ func LootDropSystem(engine *ecs.Engine, gs *gamestate.GameState, lootDropItem *e
 		// Items + Money + corpse
 		itemsToPlace := append(lootDrop.Entities, money, lootDropItem)
 
-		SpawnEntities(engine, gs, position, itemsToPlace)
+		DropEntities(engine, gs, position, itemsToPlace)
 
 		lootDropItem.RemoveComponent(constants.LootDrop)
 	}
@@ -32,7 +32,7 @@ func LootDropSystem(engine *ecs.Engine, gs *gamestate.GameState, lootDropItem *e
 }
 
 // Spawn entities around a position randomly. If it can't find a suitable position around, it uses the same.
-func SpawnEntities(engine *ecs.Engine, gs *gamestate.GameState, position state.PositionComponent, itemsToPlace ecs.EntityList) {
+func DropEntities(engine *ecs.Engine, gs *gamestate.GameState, position state.PositionComponent, itemsToPlace ecs.EntityList) {
 	// Spawn the items and money around the corpse, not in the same position
 	for _, item := range itemsToPlace {
 		// Find a free position around the corpse

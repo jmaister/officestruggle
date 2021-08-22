@@ -107,15 +107,15 @@ func getSlotElementName(e constants.EquipSlot) string {
 func getSlotChar(e constants.EquipSlot) rune {
 	switch e {
 	case constants.EquipHead:
-		return '^'
+		return ']'
 	case constants.EquipShield:
-		return ')'
+		return ']'
 	case constants.EquipWeapon:
 		return '/'
 	case constants.EquipBoots:
-		return ')'
+		return ']'
 	case constants.EquipArmor:
-		return ')'
+		return ']'
 	default:
 		return '¿'
 	}
@@ -124,16 +124,16 @@ func getSlotChar(e constants.EquipSlot) rune {
 func getSlotColor(e constants.EquipSlot) color.Color {
 	switch e {
 	case constants.EquipHead:
-		return palette.PColor(palette.Green, 0.6)
+		return palette.PColor(palette.Sepia, 0.4)
 	case constants.EquipShield:
-		return palette.PColor(palette.Green, 0.6)
+		return palette.PColor(palette.Sepia, 0.4)
 	case constants.EquipWeapon:
-		return palette.PColor(palette.Blue, 0.6)
+		return palette.PColor(palette.Cyan, 0.6)
 	case constants.EquipBoots:
-		return palette.PColor(palette.Sepia, 0.6)
+		return palette.PColor(palette.Sepia, 0.4)
 	case constants.EquipArmor:
-		return palette.PColor(palette.Green, 0.6)
+		return palette.PColor(palette.Sepia, 0.4)
 	default:
-		return palette.PColor(palette.Pink, 0.6)
+		return palette.PColor(palette.Pink, 0.4)
 	}
 }

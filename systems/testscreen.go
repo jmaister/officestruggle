@@ -36,8 +36,6 @@ func RenderTestScreen(engine *ecs.Engine, gs *gamestate.GameState, screen *ebite
 	// Draw palette of colors
 	y := 12
 	for _, hue := range palette.Hues {
-		//for i := 0; i <= 360; i = i + 10 {
-		//hue := i
 		for x := 0; x <= 10; x++ {
 			cl := palette.PColor(hue, float64(x)/10.0)
 

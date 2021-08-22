@@ -143,7 +143,10 @@ func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
 
 	if isEquipable {
 		isLevelCorrect := leveling.CurrentLevel >= equipable.Level
-		if isLevelCorrect {
+		if isItemEquipped(gs, item) {
+			gs.Log(constants.Warn, fmt.Sprintf("Item %s is already equipped.", state.GetLongDescription(item)))
+
+		} else if isLevelCorrect {
 			// Remove from inventory
 			removed := inventory.RemoveItem(item)
 			if removed {
@@ -153,17 +156,25 @@ func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
 			// Remove position if came from the floor
 			item.RemoveComponent(constants.Position)
 
-			// Add to equip
+			// Remove current item, and put it into the inventory
 			equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
 			current, ok := equipment.Items[equipable.EquipSlot]
+			inventoryOk := true
 			if ok {
-				inventory.AddItem(current)
+				inventoryOk = inventory.AddItem(current)
 				player.ReplaceComponent(inventory)
 			}
-			equipment.Items[equipable.EquipSlot] = item
-			player.ReplaceComponent(equipment)
+			if inventoryOk {
+				// Add to equip
+				equipment.Items[equipable.EquipSlot] = item
+				player.ReplaceComponent(equipment)
 
-			gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
+				gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
+			} else {
+				gs.Log(constants.Warn, fmt.Sprintf("Inventory is full. Dropping equipped %s to the floor.", state.GetLongDescription(item)))
+				playerPosition := player.GetComponent(constants.Position).(state.PositionComponent)
+				DropEntities(gs.Engine, gs, playerPosition, ecs.EntityList{item})
+			}
 
 		} else {
 			gs.Log(constants.Warn, fmt.Sprintf("%s can't be equiped. You must be at least level %d.", state.GetDescription(item), equipable.Level))
@@ -172,6 +183,17 @@ func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
 	} else {
 		gs.Log(constants.Warn, state.GetDescription(item)+" can't be equiped.")
 	}
+}
+
+func isItemEquipped(gs *gamestate.GameState, equipable *ecs.Entity) bool {
+	player := gs.Player
+	equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
+	for _, item := range equipment.Items {
+		if item != nil && item.Id == equipable.Id {
+			return true
+		}
+	}
+	return false
 }
 
 func InventoryUnequip(gs *gamestate.GameState) {
