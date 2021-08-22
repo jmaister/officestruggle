@@ -103,21 +103,17 @@ func InventoryDrop(gs *gamestate.GameState) {
 	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
 	position := player.GetComponent(constants.Position).(state.PositionComponent)
 
-	invetoryItem, ok := getCurrentInventoryItem(gs)
+	inventoryItem, ok := getCurrentInventoryItem(gs)
 	if ok {
-		gs.Log(constants.Info, "You dropped "+state.GetLongDescription(invetoryItem))
+		gs.Log(constants.Info, "You dropped "+state.GetLongDescription(inventoryItem))
 
 		// Remove from inventory
-		inventory.RemoveItem(invetoryItem)
+		inventory.RemoveItem(inventoryItem)
 		player.ReplaceComponent(inventory)
 
 		// Set new position
-		invetoryItem.AddComponent(state.PositionComponent{
-			X: position.X,
-			Y: position.Y,
-			Z: position.Z,
-		})
-		invetoryItem.AddComponent(state.IsPickupComponent{})
+		DropEntities(gs.Engine, gs, position, ecs.EntityList{inventoryItem})
+		inventoryItem.AddComponent(state.IsPickupComponent{})
 
 		updateInventorySelection(gs, 0)
 	} else {
@@ -212,8 +208,14 @@ func InventoryUnequip(gs *gamestate.GameState) {
 		// Add to inventory
 		// TODO: check if there is space in the inventory
 		inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
-		inventory.AddItem(item)
-		player.ReplaceComponent(inventory)
+		inventoryOk := inventory.AddItem(item)
+		if inventoryOk {
+			player.ReplaceComponent(inventory)
+		} else {
+			gs.Log(constants.Warn, fmt.Sprintf("Inventory is full. Dropping equipped %s to the floor.", state.GetLongDescription(item)))
+			playerPosition := player.GetComponent(constants.Position).(state.PositionComponent)
+			DropEntities(gs.Engine, gs, playerPosition, ecs.EntityList{item})
+		}
 
 		updateInventorySelection(gs, 0)
 	} else {

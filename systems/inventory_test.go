@@ -1,6 +1,7 @@
 package systems_test
 
 import (
+	"math/rand"
 	"strings"
 	"testing"
 
@@ -93,4 +94,24 @@ func TestEquipEntityReplaceEquipmentWithFullInventory(t *testing.T) {
 	lastlog := gs.GetLogLines(1)
 	assert.Equal(t, 1, len(lastlog))
 	assert.Assert(t, strings.Contains(lastlog[0].Msg, "Inventory is full"))
+}
+
+func TestPickupMoney(t *testing.T) {
+	engine := ecs.NewEngine()
+	gs := game.NewGameState(engine)
+
+	inventory := gs.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
+	assert.Equal(t, 0, inventory.Coins)
+
+	money := state.NewMoneyAmount(engine.NewEntity(), 7)
+	systems.PickupEntity(gs, money)
+	inventory2 := gs.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
+	assert.Equal(t, 7, inventory2.Coins)
+
+	randomMoney := rand.Intn(1000000)
+	money2 := state.NewMoneyAmount(engine.NewEntity(), randomMoney)
+	systems.PickupEntity(gs, money2)
+	inventory3 := gs.Player.GetComponent(constants.Inventory).(state.InventoryComponent)
+	assert.Equal(t, 7+randomMoney, inventory3.Coins)
+
 }
