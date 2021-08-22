@@ -54,7 +54,7 @@ func ColorBlend(ca color.Color, cb color.Color, mix float64) color.Color {
 	b2 := float64(bb)
 
 	return color.RGBA{
-		R: uint8((r1*mix + r2*(1-mix)) / 256),
+		R: uint8((r1*mix + r2*(1-mix)) / 255),
 		G: uint8((g1*mix + g2*(1-mix)) / 255),
 		B: uint8((b1*mix + b2*(1-mix)) / 255),
 		A: uint8(255),

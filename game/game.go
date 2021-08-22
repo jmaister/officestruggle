@@ -19,11 +19,12 @@ type Game struct {
 
 func NewGame() *Game {
 	engine := ecs.NewEngine()
+	gs := NewGameState(engine)
 
 	return &Game{
 		// ECS engine
 		Engine:    engine,
-		GameState: NewGameState(engine),
+		GameState: gs,
 	}
 }
 
@@ -202,6 +203,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else if g.GameState.ScreenState == gamestate.ActionDialog {
 		// Render the screen
 		systems.Render(g.Engine, g.GameState, screen)
+		systems.EffectInfoSystem(g.Engine, g.GameState, screen)
 		if g.GameState.ScreenState == gamestate.ActionDialog {
 			systems.DrawActionDialog(g.Engine, g.GameState, screen)
 		}

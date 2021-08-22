@@ -130,93 +130,11 @@ func InventoryEquip(gs *gamestate.GameState) {
 	}
 }
 
-func EquipEntity(gs *gamestate.GameState, item *ecs.Entity) {
-	player := gs.Player
-	inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
-	leveling, _ := player.GetComponent(constants.Leveling).(state.LevelingComponent)
-
-	equipable, isEquipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
-
-	if isEquipable {
-		isLevelCorrect := leveling.CurrentLevel >= equipable.Level
-		if isItemEquipped(gs, item) {
-			gs.Log(constants.Warn, fmt.Sprintf("Item %s is already equipped.", state.GetLongDescription(item)))
-
-		} else if isLevelCorrect {
-			// Remove from inventory
-			removed := inventory.RemoveItem(item)
-			if removed {
-				player.ReplaceComponent(inventory)
-			}
-
-			// Remove position if came from the floor
-			item.RemoveComponent(constants.Position)
-
-			// Remove current item, and put it into the inventory
-			equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
-			current, ok := equipment.Items[equipable.EquipSlot]
-			inventoryOk := true
-			if ok {
-				inventoryOk = inventory.AddItem(current)
-				player.ReplaceComponent(inventory)
-			}
-			if inventoryOk {
-				// Add to equip
-				equipment.Items[equipable.EquipSlot] = item
-				player.ReplaceComponent(equipment)
-
-				gs.Log(constants.Info, "You equipped "+state.GetLongDescription(item))
-			} else {
-				gs.Log(constants.Warn, fmt.Sprintf("Inventory is full. Dropping equipped %s to the floor.", state.GetLongDescription(item)))
-				playerPosition := player.GetComponent(constants.Position).(state.PositionComponent)
-				DropEntities(gs.Engine, gs, playerPosition, ecs.EntityList{item})
-			}
-
-		} else {
-			gs.Log(constants.Warn, fmt.Sprintf("%s can't be equiped. You must be at least level %d.", state.GetDescription(item), equipable.Level))
-		}
-
-	} else {
-		gs.Log(constants.Warn, state.GetDescription(item)+" can't be equiped.")
-	}
-}
-
-func isItemEquipped(gs *gamestate.GameState, equipable *ecs.Entity) bool {
-	player := gs.Player
-	equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
-	for _, item := range equipment.Items {
-		if item != nil && item.Id == equipable.Id {
-			return true
-		}
-	}
-	return false
-}
-
 func InventoryUnequip(gs *gamestate.GameState) {
-	player := gs.Player
 
 	item, ok := getCurrentEquipmentItem(gs)
 	if ok {
-		gs.Log(constants.Info, "You unequipped "+state.GetLongDescription(item))
-
-		// Remove from equipment
-		equipable := item.GetComponent(constants.Equipable).(state.EquipableComponent)
-		equipment := player.GetComponent(constants.Equipment).(state.EquipmentComponent)
-		delete(equipment.Items, equipable.EquipSlot)
-		player.ReplaceComponent(equipment)
-
-		// Add to inventory
-		// TODO: check if there is space in the inventory
-		inventory, _ := player.GetComponent(constants.Inventory).(state.InventoryComponent)
-		inventoryOk := inventory.AddItem(item)
-		if inventoryOk {
-			player.ReplaceComponent(inventory)
-		} else {
-			gs.Log(constants.Warn, fmt.Sprintf("Inventory is full. Dropping equipped %s to the floor.", state.GetLongDescription(item)))
-			playerPosition := player.GetComponent(constants.Position).(state.PositionComponent)
-			DropEntities(gs.Engine, gs, playerPosition, ecs.EntityList{item})
-		}
-
+		UnequipItem(gs, item)
 		updateInventorySelection(gs, 0)
 	} else {
 		gs.Log(constants.Warn, "No items to unequip.")
