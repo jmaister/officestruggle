@@ -23,7 +23,6 @@ func MplusFont(size float64) font.Face {
 	}
 	fnt, ok := mplusFontCached[size]
 	if !ok {
-		// tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
 		tt, err := opentype.Parse(fonts.PressStart2P_ttf)
 		if err != nil {
 			panic(err)
@@ -53,11 +52,11 @@ func LoadFontCached(size float64) font.Face {
 
 func loadFont(size float64) font.Face {
 	//fontFile := "fonts/NotCourierSans.ttf"
-	// fontFile := "fonts/DejaVuSansMono-Bold.ttf"
-	//fontFile := "fonts/SLC_.ttf"
+	//fontFile := "fonts/DejaVuSansMono-Bold.ttf"
 	//fontFile := "fonts/FreeMono.ttf"
+	//fontFile := "fonts/unifont-13.0.06.ttf"
+	fontFile := "fonts/SLC_.ttf"
 
-	fontFile := "fonts/unifont-13.0.06.ttf"
 	fontBytes, err := Data.ReadFile(fontFile)
 
 	if err != nil {
