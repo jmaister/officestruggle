@@ -1,9 +1,6 @@
 package systems_test
 
 import (
-	"image"
-	"image/png"
-	"os"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -26,30 +23,6 @@ func TestRender(t *testing.T) {
 	screen := ebiten.NewImage(gs.ScreenWidth, gs.ScreenHeight)
 
 	systems.Render(engine, gs, screen)
-
-	imgToSave := image.NewRGBA(image.Rectangle{
-		Min: image.Point{
-			X: 0,
-			Y: 0,
-		},
-		Max: image.Point{
-			X: gs.ScreenWidth,
-			Y: gs.ScreenHeight,
-		},
-	})
-	for x := 0; x < gs.ScreenWidth; x++ {
-		for y := 0; y < gs.ScreenHeight; y++ {
-			cl := screen.At(x, y)
-			imgToSave.Set(x, y, cl)
-		}
-	}
-
-	f, err := os.Create("img.png")
-	if err != nil {
-		panic(err)
-	}
-	png.Encode(f, imgToSave)
-
 }
 
 func BenchmarkRender(b *testing.B) {
@@ -64,6 +37,5 @@ func BenchmarkRender(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		systems.Render(engine, gs, screen)
-
 	}
 }
