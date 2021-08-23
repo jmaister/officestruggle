@@ -19,9 +19,11 @@ clean:
 	rm ${BINARY_NAME}
 
 deps:
+	sudo apt install graphviz
 	go install
 
 profile: build
-	${BINARY_NAME} -cpuprofile profile/cpu.prof -memprofile profile/mem.prof
-	go tool pprof --pdf ${BINARY_NAME} profile/cpu.prof > profile/cpu.pdf
-	go tool pprof --pdf ${BINARY_NAME} profile/mem.prof > profile/mem.pdf
+	mkdir -p profile
+	./${BINARY_NAME} -cpuprofile profile/cpu.prof -memprofile profile/mem.prof
+	go tool pprof -png ${BINARY_NAME} profile/cpu.prof > profile/cpu.png
+	go tool pprof -png ${BINARY_NAME} profile/mem.prof > profile/mem.png

@@ -151,7 +151,7 @@ func (entity *Entity) HasComponents(componentTypes []string) bool {
 	containsAll := true
 	if entity != nil {
 		for i := 0; i < len(componentTypes); i++ {
-			if !entity.HasComponent(componentTypes[i]) {
+			if _, ok := entity.Components[componentTypes[i]]; !ok {
 				containsAll = false
 				break
 			}
