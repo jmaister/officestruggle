@@ -101,7 +101,7 @@ func (engine *Engine) SetEntityList(entityList EntityList) {
  * Entity
  */
 
-func (entity *Entity) String() string {
+func (entity Entity) String() string {
 	var str = "Entity " + strconv.Itoa(entity.Id) + "["
 	for _, c := range entity.Components {
 		str += c.ComponentType() + ","
@@ -138,7 +138,7 @@ func (entity *Entity) ReplaceComponent(newComponent Component) {
 	entity.AddComponent(newComponent)
 }
 
-func (entity *Entity) HasComponent(componentType string) bool {
+func (entity Entity) HasComponent(componentType string) bool {
 	if _, ok := entity.Components[componentType]; ok {
 		return true
 	} else {
@@ -146,23 +146,19 @@ func (entity *Entity) HasComponent(componentType string) bool {
 	}
 }
 
-func (entity *Entity) HasComponents(componentTypes []string) bool {
+func (entity Entity) HasComponents(componentTypes []string) bool {
 	// Check to see if the entity has the given components
 	containsAll := true
-	if entity != nil {
-		for i := 0; i < len(componentTypes); i++ {
-			if _, ok := entity.Components[componentTypes[i]]; !ok {
-				containsAll = false
-				break
-			}
+	for i := 0; i < len(componentTypes); i++ {
+		if _, ok := entity.Components[componentTypes[i]]; !ok {
+			containsAll = false
+			break
 		}
-	} else {
-		return false
 	}
 	return containsAll
 }
 
-func (entity *Entity) GetComponent(componentType string) Component {
+func (entity Entity) GetComponent(componentType string) Component {
 	if cmp, ok := entity.Components[componentType]; ok {
 		return cmp
 	} else {
@@ -175,9 +171,9 @@ func (entity *Entity) GetComponent(componentType string) Component {
  */
 
 // TODO: move to GameState to allow queries with values, ie Z=1
-func (entityList *EntityList) GetEntities(types []string) EntityList {
+func (entityList EntityList) GetEntities(types []string) EntityList {
 	found := EntityList{}
-	for _, entity := range *entityList {
+	for _, entity := range entityList {
 		if entity.HasComponents(types) {
 			found = append(found, entity)
 		}
@@ -186,7 +182,7 @@ func (entityList *EntityList) GetEntities(types []string) EntityList {
 }
 
 // Only one Entity expected, nil if not
-func (entityList *EntityList) GetEntity(types []string) *Entity {
+func (entityList EntityList) GetEntity(types []string) *Entity {
 	found := entityList.GetEntities(types)
 	if len(found) == 1 {
 		return found[0]
@@ -206,8 +202,8 @@ func (entityList *EntityList) RemoveEntity(entity *Entity) EntityList {
 	return old
 }
 
-func (entityList *EntityList) Concat(other EntityList) EntityList {
-	return append(*entityList, other...)
+func (entityList EntityList) Concat(other EntityList) EntityList {
+	return append(entityList, other...)
 }
 
 /**
