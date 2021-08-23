@@ -177,21 +177,16 @@ func drawInfo(screen *ebiten.Image, engine *ecs.Engine, gs *gamestate.GameState,
 	fontSize := 12
 	font := assets.MplusFont(float64(fontSize))
 
-	visibleEntities = engine.Entities.GetEntities([]string{constants.Position, constants.Apparence})
-	visibleEntities = visibleEntities.RemoveEntity(gs.Player)
-	visibleEntities = FilterNot(visibleEntities, constants.Visitable)
-	visibleEntities = FilterZ(visibleEntities, gs.CurrentZ)
-	visibleEntities = FilterFunc(visibleEntities, func(e *ecs.Entity) bool {
-		entPos := state.GetPosition(e)
-		return gs.Fov.IsVisible(entPos.X, entPos.Y)
-	})
-
 	position := gs.Grid.InfoBar
 
 	plPos := state.GetPosition(gs.Player)
+	playerId := gs.Player.Id
 
 	y := position.Y
 	for _, entity := range visibleEntities {
+		if entity.Id == playerId {
+			continue
+		}
 		entPos := state.GetPosition(entity)
 		isOnPlayerTile := plPos.X == entPos.X && plPos.Y == entPos.Y
 		var cl color.Color = color.White
