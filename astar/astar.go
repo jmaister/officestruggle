@@ -1,7 +1,7 @@
 package astar
 
 import (
-	"math"
+	"container/heap"
 	"reflect"
 )
 
@@ -13,8 +13,10 @@ type Node interface {
 
 type NodeSet map[Node]bool
 type GScore map[Node]int
-type FScore map[Node]int
+type FScore PriorityQueue
 type CameFrom map[Node]*Node
+
+// TODO: extract to a library
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 //
@@ -37,12 +39,16 @@ func AStar(start Node, goal Node) ([]*Node, bool) {
 	}
 	// For node n, fScore[n] := gScore[n] + h(n). fScore[n] represents our current best guess as to
 	// how short a path from start to finish can be if it goes through n.
-	fScore := FScore{
-		start: start.H(goal),
-	}
+	fScore := &PriorityQueue{}
+	heap.Push(fScore, NodeFScore{
+		Node:   &start,
+		FScore: start.H(goal),
+	})
 
 	for len(openSet) > 0 {
-		current := lowestFScore(openSet, fScore)
+		// current := lowestFScore(openSet, fScore)
+		currentFScoreNode := fScore.Pop().(*NodeFScore)
+		current := *currentFScoreNode.Node
 
 		if reflect.DeepEqual(current, goal) {
 			return reconstructPath(cameFrom, &current), true
@@ -58,7 +64,9 @@ func AStar(start Node, goal Node) ([]*Node, bool) {
 				// This path to neighbor is better than any previous one. Record it!
 				cameFrom[neighbor] = &current
 				gScore[neighbor] = tentativeGScore
-				fScore[neighbor] = gScore[neighbor] + neighbor.H(goal)
+				newFScore := gScore[neighbor] + neighbor.H(goal)
+				fScore.Update(currentFScoreNode, &current, newFScore)
+
 				if _, ok := openSet[neighbor]; !ok {
 					openSet[neighbor] = true
 				}
@@ -85,6 +93,7 @@ func reconstructPath(cameFrom CameFrom, current *Node) []*Node {
 	return totalPath
 }
 
+/*
 func lowestFScore(set NodeSet, fScore FScore) Node {
 	lowestScore := math.MaxInt32
 	var lowestNode Node
@@ -97,3 +106,4 @@ func lowestFScore(set NodeSet, fScore FScore) Node {
 	}
 	return lowestNode
 }
+*/

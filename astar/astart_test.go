@@ -34,6 +34,7 @@ var DIRECTIONS = []Dir{
 }
 
 func (t *Tile) GetNeighbors() []astar.Node {
+	//	neighbors := make([]astar.Node, len(DIRECTIONS))
 	neighbors := []astar.Node{}
 
 	for _, d := range DIRECTIONS {
@@ -122,32 +123,32 @@ func TestAStarWithBlock(t *testing.T) {
 	assert.Equal(t, 7, len(path))
 }
 
-func constructMap(width int, height int) (TheMap, Tile, Tile) {
+func constructDiagonalMap(side int) (TheMap, Tile, Tile) {
 	theMap := TheMap{
 		Tiles: []*Tile{},
 	}
 
-	var from Tile
-	var to Tile
-
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
+	for x := 0; x < side; x++ {
+		for y := 0; y < side; y++ {
 			blocked := false
-			if x == y && x > 2 && x < 4 {
+			if x+y == side && x >= 1 && y > 1 && x < side-1 && y < side-1 {
 				blocked = true
 			}
-			if x == 2 && y == 3 {
-				blocked = true
-			}
+
 			tile := Tile{x, y, blocked, &theMap}
 			theMap.Tiles = append(theMap.Tiles, &tile)
-			if x == 1 && y == 1 {
-				from = tile
-			}
-			if x == width-1 && y == height-1 {
-				to = tile
-			}
 		}
+	}
+
+	from := Tile{
+		X:      0,
+		Y:      0,
+		TheMap: &theMap,
+	}
+	to := Tile{
+		X:      side - 1,
+		Y:      side - 1,
+		TheMap: &theMap,
 	}
 
 	return theMap, from, to
@@ -155,19 +156,19 @@ func constructMap(width int, height int) (TheMap, Tile, Tile) {
 
 func TestAStarBig(t *testing.T) {
 
-	_, from, to := constructMap(50, 50)
+	_, from, to := constructDiagonalMap(50)
 
 	path, found := astar.AStar(&from, &to)
 	assert.Equal(t, true, found)
-	assert.Equal(t, 97, len(path))
+	assert.Equal(t, 99, len(path))
 }
 
 func calculate() {
-	_, from, to := constructMap(50, 50)
+	_, from, to := constructDiagonalMap(50)
 	astar.AStar(&from, &to)
 }
 
-func Benchmark(b *testing.B) {
+func BenchmarkAstar(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		calculate()
 	}

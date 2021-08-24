@@ -139,11 +139,8 @@ func (entity *Entity) ReplaceComponent(newComponent Component) {
 }
 
 func (entity Entity) HasComponent(componentType string) bool {
-	if _, ok := entity.Components[componentType]; ok {
-		return true
-	} else {
-		return false
-	}
+	_, ok := entity.Components[componentType]
+	return ok
 }
 
 func (entity Entity) HasComponents(componentTypes []string) bool {
@@ -173,12 +170,28 @@ func (entity Entity) GetComponent(componentType string) Component {
 // TODO: move to GameState to allow queries with values, ie Z=1
 func (entityList EntityList) GetEntities(types []string) EntityList {
 	found := EntityList{}
+	onlyOneType := len(types) == 1
 	for _, entity := range entityList {
-		if entity.HasComponents(types) {
+		if !onlyOneType && entity.HasComponents(types) {
+			found = append(found, entity)
+		}
+		if onlyOneType && entity.HasComponent(types[0]) {
 			found = append(found, entity)
 		}
 	}
 	return found
+}
+
+func (entityList EntityList) GetEntitiesWithFilter(fn func(*Entity) bool) EntityList {
+	result := []*Entity{}
+
+	for _, entity := range entityList {
+		if fn(entity) {
+			result = append(result, entity)
+		}
+	}
+
+	return result
 }
 
 // Only one Entity expected, nil if not
