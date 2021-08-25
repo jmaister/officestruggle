@@ -139,11 +139,8 @@ func (entity *Entity) ReplaceComponent(newComponent Component) {
 }
 
 func (entity Entity) HasComponent(componentType string) bool {
-	if _, ok := entity.Components[componentType]; ok {
-		return true
-	} else {
-		return false
-	}
+	_, ok := entity.Components[componentType]
+	return ok
 }
 
 func (entity Entity) HasComponents(componentTypes []string) bool {
@@ -179,6 +176,18 @@ func (entityList EntityList) GetEntities(types []string) EntityList {
 		}
 	}
 	return found
+}
+
+func (entityList EntityList) GetEntitiesWithFilter(fn func(*Entity) bool) EntityList {
+	result := []*Entity{}
+
+	for _, entity := range entityList {
+		if fn(entity) {
+			result = append(result, entity)
+		}
+	}
+
+	return result
 }
 
 // Only one Entity expected, nil if not

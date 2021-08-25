@@ -1,6 +1,7 @@
 package systems_test
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -26,6 +27,7 @@ func TestRender(t *testing.T) {
 }
 
 func BenchmarkRender(b *testing.B) {
+	rand.Seed(100)
 	engine := ecs.NewEngine()
 	gs := game.NewGameState(engine)
 

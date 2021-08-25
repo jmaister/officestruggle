@@ -37,11 +37,16 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 	layers := []string{constants.Layer100, constants.Layer300, constants.Layer400, constants.Layer500}
 
 	// Reset visibility
-	visitables := engine.Entities.GetEntities([]string{constants.Visitable})
-	visitables = FilterZ(visitables, gameState.CurrentZ)
+	visitables := engine.Entities.GetEntitiesWithFilter(func(e *ecs.Entity) bool {
+		if e.HasComponent(constants.Visitable) {
+			pos, ok := e.GetComponent(constants.Position).(state.PositionComponent)
+			return ok && pos.Z == gameState.CurrentZ
+		}
+		return false
+	})
 	setVisibleEntities(visitables, false)
 
-	// Update visibility
+	// Update visibility based on player's FOV
 	for _, visitable := range visitables {
 		pos := state.GetPosition(visitable)
 		if gameState.Fov.IsVisible(pos.X, pos.Y) {
