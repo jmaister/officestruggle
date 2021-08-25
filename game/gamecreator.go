@@ -71,6 +71,9 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			Height: 1,
 		},
 	}
+
+	gameCamera := &gamestate.Camera{X: 1, Y: 1, Width: g.Map.Width, Height: g.Map.Height}
+
 	dungeonTiles, startingTile, goingUp, goingDown := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
@@ -173,6 +176,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		Engine:      engine,
 		Fov:         fov.New(),
 		Grid:        &g,
+		Camera:      gameCamera,
 		Player:      player,
 		CurrentZ:    0,
 		ScreenState: gamestate.WelcomeScreen,

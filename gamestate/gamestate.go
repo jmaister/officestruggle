@@ -52,6 +52,7 @@ type GameState struct {
 	Engine               *ecs.Engine
 	Fov                  *fov.View
 	Grid                 *grid.Grid
+	Camera               *Camera
 	Player               *ecs.Entity
 	CurrentZ             int
 	ScreenState          ScreenState
