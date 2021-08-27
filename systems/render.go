@@ -140,6 +140,8 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 
 		if shouldDraw {
 			cameraX, cameraY := gameState.Camera.ToCameraCoordinates(position.X, position.Y)
+			cameraX += gameState.Grid.Camera.X
+			cameraY += gameState.Grid.Camera.Y
 			DrawChar(screen, gameState, cameraX, cameraY, fnt, ch, fg, bg)
 		}
 	}
