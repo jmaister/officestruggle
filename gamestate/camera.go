@@ -3,9 +3,9 @@ package gamestate
 // https://jeremyceri.se/post/sidenote-1-cameras/
 
 type Camera struct {
-	X      int
+	X      int // Keep track of where the camera currently starts its viewport from
 	Y      int
-	Width  int
+	Width  int // Its width and height
 	Height int
 }
 

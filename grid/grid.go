@@ -164,6 +164,7 @@ type Grid struct {
 	Height        int
 	Levels        int
 	Map           Rect
+	Camera        Rect
 	MessageLog    Rect
 	PlayerHud     Rect
 	InfoBar       Rect

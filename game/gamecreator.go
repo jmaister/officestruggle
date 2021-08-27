@@ -22,11 +22,17 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		Width:  80,
 		Height: 34,
 		Levels: 2,
-		Map: grid.Rect{
+		Camera: grid.Rect{
 			X:      16,
 			Y:      9,
 			Width:  74,
 			Height: 30,
+		},
+		Map: grid.Rect{
+			X:      0,
+			Y:      0,
+			Width:  60,
+			Height: 60,
 		},
 		MessageLog: grid.Rect{
 			X:      0,
@@ -72,8 +78,6 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		},
 	}
 
-	gameCamera := &gamestate.Camera{X: 1, Y: 1, Width: g.Map.Width, Height: g.Map.Height}
-
 	dungeonTiles, startingTile, goingUp, goingDown := dungeon.CreateDungeon(g.Map, dungeon.DungeonOptions{
 		MinRoomSize:  6,
 		MaxRoomSize:  12,
@@ -99,6 +103,11 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 	player := state.NewPlayer(engine.NewEntity())
 	state.ApplyPosition(player, startingTile.X, startingTile.Y, startingTile.Z)
 
+	// Camera, after the player is created
+	gameCamera := &gamestate.Camera{X: g.Camera.X, Y: g.Camera.Y, Width: g.Camera.Width, Height: g.Camera.Height}
+	gameCamera.MoveCamera(startingTile.X, startingTile.Y, g.Map.Width, g.Map.Width)
+
+	// Create levels
 	for level := 0; level < g.Levels; level++ {
 		visitables := engine.Entities.GetEntities([]string{constants.IsFloor})
 		visitables = systems.FilterZ(visitables, level)

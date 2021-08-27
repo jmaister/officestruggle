@@ -67,7 +67,7 @@ func Render(engine *ecs.Engine, gameState *gamestate.GameState, screen *ebiten.I
 
 		visibleEntities = append(visibleEntities, v...)
 	}
-	DrawGridRect(screen, gameState, gameState.Grid.Map, color.White)
+	DrawGridRect(screen, gameState, gameState.Grid.Camera, color.White)
 
 	drawMessageLog(screen, gameState)
 	drawPlayerHud(screen, gameState)
@@ -115,28 +115,32 @@ func renderEntities(entities []*ecs.Entity, gameState *gamestate.GameState, scre
 		}
 		ch := string(apparence.Char)
 
+		shouldDraw := false
 		if isVisitable {
 			// Walls and floor
 			if visitable.Visible {
-				bgColor := bg
 				if entity.HasComponent(constants.IsBlocking) {
 					distance := CalcDistance(position.X, position.Y, plPos.X, plPos.Y)
 					mix := (float64(plStats.Fov) - float64(distance)) / float64(plStats.Fov)
-					bgColor = ColorBlend(lightColor, bgColor, mix)
+					bg = ColorBlend(lightColor, bg, mix)
 				}
-
-				DrawChar(screen, gameState, position.X, position.Y, fnt, ch, fg, bgColor)
+				shouldDraw = true
 			} else if visitable.Explored {
-				bgColor := color.Black
-				fgColor := palette.PColor(palette.Gray, 0.3)
-				DrawChar(screen, gameState, position.X, position.Y, fnt, ch, fgColor, bgColor)
+				bg = color.Black
+				fg = palette.PColor(palette.Gray, 0.3)
+				shouldDraw = true
 			}
 		} else {
 			if gameState.Fov.IsVisible(position.X, position.Y) {
-				DrawChar(screen, gameState, position.X, position.Y, fnt, ch, fg, bg)
+				shouldDraw = true
 
 				visibleEntities = append(visibleEntities, entity)
 			}
+		}
+
+		if shouldDraw {
+			cameraX, cameraY := gameState.Camera.ToCameraCoordinates(position.X, position.Y)
+			DrawChar(screen, gameState, cameraX, cameraY, fnt, ch, fg, bg)
 		}
 	}
 	return visibleEntities
