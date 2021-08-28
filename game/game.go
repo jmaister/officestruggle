@@ -161,7 +161,7 @@ func (g *Game) Update() error {
 		if hasPressedKeys {
 			fmt.Println(keys)
 		}
-	} else if g.GameState.ScreenState == gamestate.GameoverScreen {
+	} else if g.GameState.ScreenState == gamestate.GameoverScreen || g.GameState.ScreenState == gamestate.GameWinScreen {
 		if hasPressedKeys {
 			if keys[0] == ebiten.KeyEnter {
 				engine := ecs.NewEngine()
@@ -226,6 +226,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		systems.DrawText(screen, g.GameState, 10, 10, assets.LoadFontCached(40), "Game Over!", color.White, color.Black)
 		systems.DrawText(screen, g.GameState, 10, 20, assets.LoadFontCached(20), "You have been defeated.", color.White, color.Black)
 		systems.DrawText(screen, g.GameState, 10, 30, assets.LoadFontCached(20), "Press [ENTER] to continue.", color.White, color.Black)
+	} else if g.GameState.ScreenState == gamestate.GameWinScreen {
+		systems.RenderWinScreen(g.Engine, g.GameState, screen)
 	}
 
 }

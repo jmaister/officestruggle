@@ -85,6 +85,45 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 	return entity
 }
 
+func NewDragon(entity *ecs.Entity) *ecs.Entity {
+	entity.AddComponent(WinGameComponent{})
+	entity.AddComponent(AIComponent{})
+	entity.AddComponent(DescriptionComponent{Name: "Dragon - Final Boss"})
+	entity.AddComponent(IsBlockingComponent{})
+	entity.AddComponent(ApparenceComponent{Color: palette.PColor(palette.Green, 0.3), Char: 'D'})
+	entity.AddComponent(Layer400Component{})
+	entity.AddComponent(StatsComponent{
+		StatsValues: &StatsValues{
+			Health:     200,
+			MaxHealth:  200,
+			Defense:    1,
+			MaxDefense: 10,
+			Power:      8,
+			MaxPower:   10,
+			Fov:        10,
+			MaxFov:     10,
+		},
+	})
+	entity.AddComponent(ConsumableComponent{
+		StatsValues: &StatsValues{
+			Health:     -3,
+			MaxHealth:  0,
+			Defense:    0,
+			MaxDefense: 0,
+			Power:      1,
+			MaxPower:   1,
+			Fov:        0,
+			MaxFov:     0,
+		},
+	})
+	entity.AddComponent(XPGiverComponent{
+		XPBase:     10,
+		XPPerLevel: 20,
+		Level:      1,
+	})
+	return entity
+}
+
 func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(IsPickupComponent{})
 	entity.AddComponent(ConsumableComponent{

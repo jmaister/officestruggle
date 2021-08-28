@@ -27,7 +27,11 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 				// Damage calculation and attack
 				damage := aStats.Power - bStats.Defense
 				if damage >= 0 {
-					gs.Log(constants.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
+					t := constants.Danger
+					if attacker == gs.Player {
+						t = constants.Good
+					}
+					gs.Log(t, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" with "+strconv.Itoa(damage)+" damage points.")
 					newHealth := bStats.Health - damage
 
 					aPos := state.GetPosition(attacker)
@@ -47,7 +51,11 @@ func Attack(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, b
 						blocker.ReplaceComponent(bStats)
 					}
 				} else {
-					gs.Log(constants.Danger, state.GetDescription(blocker)+" blocked attack from "+state.GetDescription(attacker)+".")
+					t := constants.Danger
+					if blocker == gs.Player {
+						t = constants.Good
+					}
+					gs.Log(t, state.GetDescription(blocker)+" blocked attack from "+state.GetDescription(attacker)+".")
 				}
 			} else if blocker.HasComponent(constants.Visitable) {
 				gs.Log(constants.Warn, state.GetDescription(attacker)+" hits a "+state.GetDescription(blocker))
@@ -65,7 +73,11 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 		// Damage calculation and attack
 		damage := damage - bStats.Defense
 		if damage >= 0 {
-			gs.Log(constants.Danger, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" using "+state.GetDescription(entityUsed)+" with "+strconv.Itoa(damage)+" damage points.")
+			t := constants.Danger
+			if attacker == gs.Player {
+				t = constants.Good
+			}
+			gs.Log(t, state.GetDescription(attacker)+" attacks "+state.GetDescription(blocker)+" using "+state.GetDescription(entityUsed)+" with "+strconv.Itoa(damage)+" damage points.")
 			newHealth := bStats.Health - damage
 
 			if newHealth <= 0 {
@@ -75,7 +87,11 @@ func AttackWithItem(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.E
 				blocker.ReplaceComponent(bStats)
 			}
 		} else {
-			gs.Log(constants.Danger, state.GetDescription(blocker)+" blocked attack from "+state.GetDescription(attacker)+".")
+			t := constants.Danger
+			if blocker == gs.Player {
+				t = constants.Good
+			}
+			gs.Log(t, state.GetDescription(blocker)+" blocked attack from "+state.GetDescription(attacker)+".")
 		}
 	} else if blocker.HasComponent(constants.Visitable) {
 		gs.Log(constants.Warn, state.GetDescription(attacker)+" hits a "+state.GetDescription(blocker))
@@ -105,6 +121,11 @@ func Kill(engine *ecs.Engine, gs *gamestate.GameState, attacker *ecs.Entity, ent
 		gs.ScreenState = gamestate.GameoverScreen
 	} else if attacker == gs.Player {
 		GiveXP(gs, gs.Player, entity)
+	}
+
+	// Win the game killed entity has a "WinGame" component
+	if entity.HasComponent(constants.WinGame) {
+		gs.ScreenState = gamestate.GameWinScreen
 	}
 
 	// Default XP for eating a corpse

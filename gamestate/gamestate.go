@@ -22,6 +22,7 @@ const (
 	InventoryScreen ScreenState = "inventory"
 	LoadingScreen   ScreenState = "loading"
 	GameoverScreen  ScreenState = "gameover"
+	GameWinScreen   ScreenState = "gamewin"
 	ActionDialog    ScreenState = "actiondialog"
 	TestScreen      ScreenState = "test"
 )
