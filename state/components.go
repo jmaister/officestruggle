@@ -420,3 +420,12 @@ type MoneyComponent struct {
 func (a MoneyComponent) ComponentType() string {
 	return constants.Money
 }
+
+// Player wins the game when the entity is killed or consumed
+type WinGameComponent struct {
+	Coins int
+}
+
+func (a WinGameComponent) ComponentType() string {
+	return constants.WinGame
+}

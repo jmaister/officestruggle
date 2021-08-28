@@ -73,6 +73,7 @@ func registerGob() {
 	gob.Register(state.PositionComponent{})
 	gob.Register(state.VisitableComponent{})
 	gob.Register(state.XPGiverComponent{})
+	gob.Register(state.WinGameComponent{})
 
 	gob.Register(FallingCharAnimation{})
 	gob.Register(HealthPotionAnimation{})

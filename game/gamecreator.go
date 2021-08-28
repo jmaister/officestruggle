@@ -179,6 +179,15 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			money := state.NewMoneyAmount(engine.NewEntity(), rand.Intn(100))
 			state.ApplyPosition(money, pos.X, pos.Y, pos.Z)
 		}
+
+		// Final Boss, place the final boss randomly on the last level
+		if level+1 == g.Levels {
+			v := visitables[currentV]
+			currentV++
+			pos := state.GetPosition(v)
+			finalBoss := state.NewDragon(engine.NewEntity())
+			state.ApplyPosition(finalBoss, pos.X, pos.Y, pos.Z)
+		}
 	}
 
 	return &gamestate.GameState{

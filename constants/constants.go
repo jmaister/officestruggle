@@ -35,6 +35,7 @@ const (
 	XPGiver       = "xpGiver"
 	LootDrop      = "lootDrop"
 	Money         = "money"
+	WinGame       = "winGame"
 )
 
 type LogType string
