@@ -59,13 +59,22 @@ func Movement(engine *ecs.Engine, gs *gamestate.GameState, g *grid.Grid) {
 			entity.ReplaceComponent(newPosition)
 		}
 
-		// Player changes level
-		if entity == gs.Player && newPosition.Z != gs.CurrentZ {
-			gs.Log(constants.Good, fmt.Sprintf("Moving to floor %d.", newPosition.Z+1))
-			gs.CurrentZ = newPosition.Z
+		if entity == gs.Player {
+			// Move camera
+			mapWidth := gs.Grid.Map.Width
+			mapHeight := gs.Grid.Map.Height
+			gs.Camera.MoveCamera(newPosition.X, newPosition.Y, mapWidth, mapHeight)
 
-			ComputeFov(engine, gs)
+			// Player changes level
+			if newPosition.Z != gs.CurrentZ {
+				gs.Log(constants.Good, fmt.Sprintf("Moving to floor %d.", newPosition.Z+1))
+				gs.CurrentZ = newPosition.Z
+
+				ComputeFov(engine, gs)
+			}
+
 		}
+
 	}
 
 }
