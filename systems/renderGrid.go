@@ -53,11 +53,27 @@ func DrawChar(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font 
 
 }
 
+type ColoredText struct {
+	Text    string
+	FgColor color.Color
+	BgColor color.Color
+}
+
 func DrawText(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font font.Face, str string, fgColor color.Color, bgColor color.Color) {
 	// TODO: handle line breaks
 	for i := 0; i < len(str); i++ {
 		s := string(str[i])
 		DrawChar(screen, gs, x+i, y, font, s, fgColor, bgColor)
+	}
+}
+
+func DrawStrings(screen *ebiten.Image, gs *gamestate.GameState, startX int, startY int, font font.Face, strings []ColoredText) {
+	x := startX
+	y := startY
+	for i := 0; i < len(strings); i++ {
+		s := strings[i]
+		DrawChar(screen, gs, x, y, font, s.Text, s.FgColor, s.BgColor)
+		x = x + len(s.Text)
 	}
 }
 

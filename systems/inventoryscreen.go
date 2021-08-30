@@ -93,10 +93,10 @@ func drawEquipDiff(screen *ebiten.Image, gs *gamestate.GameState, candidate *ecs
 		DrawText(screen, gs, x, y+1, fnt, candidateEquipable.SetName, setColor, color.Black)
 	}
 	DrawText(screen, gs, x, y+2, fnt, fmt.Sprintf("Level %d", candidateEquipable.Level), levelColor, color.Black)
-	drawStatImprovement(screen, gs, x, y+3, "Health", candidateStats.Health, candidateStats.MaxHealth, equippedStats.Health, equippedStats.MaxHealth)
-	drawStatImprovement(screen, gs, x, y+4, "Def   ", candidateStats.Defense, candidateStats.MaxDefense, equippedStats.Defense, equippedStats.MaxDefense)
-	drawStatImprovement(screen, gs, x, y+5, "Power ", candidateStats.Power, candidateStats.MaxPower, equippedStats.Power, equippedStats.MaxPower)
-	drawStatImprovement(screen, gs, x, y+6, "FOV   ", candidateStats.Fov, candidateStats.MaxFov, equippedStats.Fov, equippedStats.MaxFov)
+	drawStatImprovementMax(screen, gs, x, y+3, "Health", candidateStats.Health, candidateStats.MaxHealth, equippedStats.Health, equippedStats.MaxHealth)
+	drawStatImprovement(screen, gs, x, y+4, "Def   ", candidateStats.Defense, equippedStats.Defense)
+	drawStatImprovement(screen, gs, x, y+5, "Power ", candidateStats.Power, equippedStats.Power)
+	drawStatImprovement(screen, gs, x, y+6, "FOV   ", candidateStats.Fov, equippedStats.Fov)
 
 	if equipped != nil {
 		DrawText(screen, gs, x+d, y, fnt, state.GetDescription(equipped), color.White, color.Black)
@@ -104,15 +104,15 @@ func drawEquipDiff(screen *ebiten.Image, gs *gamestate.GameState, candidate *ecs
 			DrawText(screen, gs, x+d, y+1, fnt, equippedEquipable.SetName, setColor, color.Black)
 		}
 		DrawText(screen, gs, x+d, y+2, fnt, fmt.Sprintf("Level %d", equippedEquipable.Level), color.White, color.Black)
-		drawStatImprovement(screen, gs, x+d, y+3, "Health", equippedStats.Health, equippedStats.MaxHealth, candidateStats.Health, candidateStats.MaxHealth)
-		drawStatImprovement(screen, gs, x+d, y+4, "Def   ", equippedStats.Defense, equippedStats.MaxDefense, candidateStats.Defense, candidateStats.MaxDefense)
-		drawStatImprovement(screen, gs, x+d, y+5, "Power ", equippedStats.Power, equippedStats.MaxPower, candidateStats.Power, candidateStats.MaxPower)
-		drawStatImprovement(screen, gs, x+d, y+6, "FOV   ", equippedStats.Fov, equippedStats.MaxFov, candidateStats.Fov, candidateStats.MaxFov)
+		drawStatImprovementMax(screen, gs, x+d, y+3, "Health", equippedStats.Health, equippedStats.MaxHealth, candidateStats.Health, candidateStats.MaxHealth)
+		drawStatImprovement(screen, gs, x+d, y+4, "Def   ", equippedStats.Defense, candidateStats.Defense)
+		drawStatImprovement(screen, gs, x+d, y+5, "Power ", equippedStats.Power, candidateStats.Power)
+		drawStatImprovement(screen, gs, x+d, y+6, "FOV   ", equippedStats.Fov, candidateStats.Fov)
 
 	}
 }
 
-func drawStatImprovement(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, name string, itemValue int, itemValueMax int, valueCompared int, valueComparedMax int) {
+func drawStatImprovementMax(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, name string, itemValue int, itemValueMax int, valueCompared int, valueComparedMax int) {
 	var cl color.Color = color.White
 	if (itemValue > valueCompared || itemValueMax > valueComparedMax) && valueCompared != -1 {
 		cl = palette.PColor(palette.Green, 0.6)
@@ -120,6 +120,16 @@ func drawStatImprovement(screen *ebiten.Image, gs *gamestate.GameState, x int, y
 		cl = palette.PColor(palette.Orange, 0.6)
 	}
 	DrawText(screen, gs, x, y, fnt, fmt.Sprintf("%s +%d/+%d", name, itemValue, itemValueMax), cl, color.Black)
+}
+
+func drawStatImprovement(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, name string, itemValue int, valueCompared int) {
+	var cl color.Color = color.White
+	if (itemValue > valueCompared) && valueCompared != -1 {
+		cl = palette.PColor(palette.Green, 0.6)
+	} else if itemValue < valueCompared {
+		cl = palette.PColor(palette.Orange, 0.6)
+	}
+	DrawText(screen, gs, x, y, fnt, fmt.Sprintf("%s +%d", name, itemValue), cl, color.Black)
 }
 
 func Coins(coins int) (int, int, int) {
