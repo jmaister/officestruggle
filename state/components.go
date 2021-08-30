@@ -162,22 +162,19 @@ func (a AIComponent) ComponentType() string {
 }
 
 type StatsValues struct {
-	Health     int
-	MaxHealth  int
-	Defense    int
-	MaxDefense int
-	Power      int
-	MaxPower   int
-	Fov        int
-	MaxFov     int
+	Health    int
+	MaxHealth int
+	Defense   int
+	Power     int
+	Fov       int
 }
 
 func (a StatsValues) String() string {
 	s := ""
-	s += statDiff("Health", a.Health, a.MaxHealth)
-	s += statDiff("Pow", a.Power, a.MaxPower)
-	s += statDiff("Def", a.Defense, a.MaxDefense)
-	s += statDiff("FOV", a.Fov, a.MaxFov)
+	s += statStrMax("Health", a.Health, a.MaxHealth)
+	s += statStr("Pow", a.Power)
+	s += statStr("Def", a.Defense)
+	s += statStr("FOV", a.Fov)
 	return strings.Trim(s, " ")
 }
 
@@ -186,12 +183,9 @@ func (plStats StatsValues) Merge(other StatsValues) StatsValues {
 
 	plStats.MaxHealth += other.MaxHealth
 	plStats.Health = increase(plStats.Health, plStats.MaxHealth, other.Health)
-	plStats.MaxDefense += other.MaxDefense
-	plStats.Defense = increase(plStats.Defense, plStats.MaxDefense, other.Defense)
-	plStats.MaxPower += other.MaxPower
-	plStats.Power = increase(plStats.Power, plStats.MaxPower, other.Power)
-	plStats.MaxFov += other.MaxFov
-	plStats.Fov = increase(plStats.Fov, plStats.MaxFov, other.Fov)
+	plStats.Defense += other.Defense
+	plStats.Power += other.Power
+	plStats.Fov += other.Fov
 
 	return plStats
 }
@@ -211,9 +205,16 @@ func addSign(i int) string {
 	return strconv.Itoa(i)
 }
 
-func statDiff(name string, value int, max int) string {
+func statStrMax(name string, value int, max int) string {
 	if value != 0 || max != 0 {
 		return name + " " + addSign(value) + "/" + addSign(max) + " "
+	}
+	return ""
+}
+
+func statStr(name string, value int) string {
+	if value != 0 {
+		return fmt.Sprintf("%s %d ", name, value)
 	}
 	return ""
 }

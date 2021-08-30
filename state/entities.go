@@ -22,14 +22,11 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 	})
 	entity.AddComponent(EquipmentComponent{
 		Base: StatsValues{
-			Health:     10,
-			MaxHealth:  10,
-			Defense:    3,
-			MaxDefense: 10,
-			Power:      4,
-			MaxPower:   10,
-			Fov:        10,
-			MaxFov:     20,
+			Health:    10,
+			MaxHealth: 10,
+			Defense:   3,
+			Power:     4,
+			Fov:       10,
 		},
 		Items: map[constants.EquipSlot]*ecs.Entity{},
 	})
@@ -55,26 +52,20 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Layer400Component{})
 	entity.AddComponent(StatsComponent{
 		StatsValues: &StatsValues{
-			Health:     4,
-			MaxHealth:  10,
-			Defense:    1,
-			MaxDefense: 10,
-			Power:      4,
-			MaxPower:   10,
-			Fov:        6,
-			MaxFov:     6,
+			Health:    4,
+			MaxHealth: 10,
+			Defense:   1,
+			Power:     4,
+			Fov:       6,
 		},
 	})
 	entity.AddComponent(ConsumableComponent{
 		StatsValues: &StatsValues{
-			Health:     -3,
-			MaxHealth:  0,
-			Defense:    0,
-			MaxDefense: 0,
-			Power:      1,
-			MaxPower:   1,
-			Fov:        0,
-			MaxFov:     0,
+			Health:    -3,
+			MaxHealth: 0,
+			Defense:   0,
+			Power:     1,
+			Fov:       0,
 		},
 	})
 	entity.AddComponent(XPGiverComponent{
@@ -94,26 +85,20 @@ func NewDragon(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Layer400Component{})
 	entity.AddComponent(StatsComponent{
 		StatsValues: &StatsValues{
-			Health:     200,
-			MaxHealth:  200,
-			Defense:    1,
-			MaxDefense: 10,
-			Power:      8,
-			MaxPower:   10,
-			Fov:        10,
-			MaxFov:     10,
+			Health:    200,
+			MaxHealth: 200,
+			Defense:   1,
+			Power:     8,
+			Fov:       10,
 		},
 	})
 	entity.AddComponent(ConsumableComponent{
 		StatsValues: &StatsValues{
-			Health:     -3,
-			MaxHealth:  0,
-			Defense:    0,
-			MaxDefense: 0,
-			Power:      1,
-			MaxPower:   1,
-			Fov:        0,
-			MaxFov:     0,
+			Health:    -3,
+			MaxHealth: 0,
+			Defense:   0,
+			Power:     1,
+			Fov:       0,
 		},
 	})
 	entity.AddComponent(XPGiverComponent{
@@ -128,14 +113,11 @@ func NewHealthPotion(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(IsPickupComponent{})
 	entity.AddComponent(ConsumableComponent{
 		StatsValues: &StatsValues{
-			Health:     5,
-			MaxHealth:  1,
-			Defense:    0,
-			MaxDefense: 0,
-			Power:      0,
-			MaxPower:   0,
-			Fov:        0,
-			MaxFov:     0,
+			Health:    5,
+			MaxHealth: 1,
+			Defense:   0,
+			Power:     0,
+			Fov:       0,
 		},
 	})
 	entity.AddComponent(DescriptionComponent{Name: "Health Potion"})
@@ -154,14 +136,11 @@ func NewSword(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(EquipableComponent{
 		EquipSlot: constants.EquipWeapon,
 		StatsValues: &StatsValues{
-			Health:     0,
-			MaxHealth:  1,
-			Defense:    0,
-			MaxDefense: 0,
-			Power:      5,
-			MaxPower:   5,
-			Fov:        1,
-			MaxFov:     1,
+			Health:    0,
+			MaxHealth: 1,
+			Defense:   0,
+			Power:     5,
+			Fov:       1,
 		},
 	})
 	entity.AddComponent(DescriptionComponent{Name: "Sword"})

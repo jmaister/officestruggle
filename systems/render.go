@@ -167,19 +167,32 @@ func drawMessageLog(screen *ebiten.Image, gs *gamestate.GameState) {
 
 func drawPlayerHud(screen *ebiten.Image, gs *gamestate.GameState) {
 
+	msgColor := palette.PColor(palette.Lime, 0.6)
+
 	position := gs.Grid.PlayerHud
 
 	player := gs.Player
-	stats, ok := player.GetComponent(constants.Stats).(state.StatsComponent)
-	if ok {
-		msg := fmt.Sprintf("Player: %s - Floor: %d of %d", stats.String(), gs.CurrentZ+1, gs.Grid.Levels)
-		DrawText(screen, gs, position.X, position.Y, fnt, msg, ParseHexColorFast("#00AA00"), color.Black)
+	stats, _ := player.GetComponent(constants.Stats).(state.StatsComponent)
+	floorStr := fmt.Sprintf("%d of %d", gs.CurrentZ+1, gs.Grid.Levels)
+
+	strings := []ColoredText{
+		{"Player:", color.White, color.Black},
+		{stats.String(), msgColor, color.Black},
+		{"Floor: ", color.White, color.Black},
+		{floorStr, msgColor, color.Black},
 	}
-	lvl, ok := player.GetComponent(constants.Leveling).(state.LevelingComponent)
-	if ok {
-		msg := fmt.Sprintf("Current level: %d - XP: %d of %d", lvl.CurrentLevel, lvl.CurrentXP, lvl.GetNextLevelXP())
-		DrawText(screen, gs, position.X, position.Y+1, fnt, msg, ParseHexColorFast("#00AA00"), color.Black)
+	DrawStrings(screen, gs, position.X, position.Y, fnt, strings)
+
+	lvl, _ := player.GetComponent(constants.Leveling).(state.LevelingComponent)
+	strings2 := []ColoredText{
+		{"Lvl:", color.White, color.Black},
+		{strconv.Itoa(lvl.CurrentLevel), msgColor, color.Black},
+		{" XP:", color.White, color.Black},
+		{strconv.Itoa(lvl.CurrentXP), msgColor, color.Black},
+		{" of ", color.White, color.Black},
+		{strconv.Itoa(lvl.GetNextLevelXP()), msgColor, color.Black},
 	}
+	DrawStrings(screen, gs, position.X, position.Y+1, fnt, strings2)
 
 	DrawGridRect(screen, gs, position, color.White)
 }
