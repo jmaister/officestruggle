@@ -60,7 +60,6 @@ type EquipSlot string
 
 const (
 	EquipHead   EquipSlot = "head"
-	EquipShield EquipSlot = "shield"
 	EquipWeapon EquipSlot = "weapon"
 	EquipBoots  EquipSlot = "boot"
 	EquipArmor  EquipSlot = "armor"
@@ -68,7 +67,6 @@ const (
 
 var EquipmentSlots = []EquipSlot{
 	EquipHead,
-	EquipShield,
 	EquipWeapon,
 	EquipBoots,
 	EquipArmor,

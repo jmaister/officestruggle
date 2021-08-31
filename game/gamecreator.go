@@ -115,13 +115,6 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 
 		rand.Shuffle(len(visitables), func(i, j int) { visitables[i], visitables[j] = visitables[j], visitables[i] })
 
-		lootPool := ecs.EntityList{}
-		lootPool = lootPool.Concat(state.GenerateEquipables(engine, level+1))
-		lootPool = lootPool.Concat(state.GenerateEquipables(engine, level+1))
-		currentLoot := 0
-
-		rand.Shuffle(len(lootPool), func(i, j int) { lootPool[i], lootPool[j] = lootPool[j], lootPool[i] })
-
 		// Enemies
 		for i := 0; i < 10; i++ {
 			v := visitables[currentV]
@@ -131,24 +124,24 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			state.ApplyPosition(goblin, pos.X, pos.Y, pos.Z)
 			goblin.AddComponent(state.LootDropComponent{
 				Entities: []*ecs.Entity{
-					lootPool[currentLoot],
+					state.CreateRandomItem(engine, level+1),
+					state.CreateRandomItem(engine, level+1),
+					state.CreateRandomItem(engine, level+1),
 				},
 				Coins: rand.Intn(1000) + 1000,
 			})
-			currentLoot++
-
 		}
 		// Health potions
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 5; i++ {
 			v := visitables[currentV]
 			currentV++
 			pos := state.GetPosition(v)
 			potion := state.NewHealthPotion(engine.NewEntity())
 			state.ApplyPosition(potion, pos.X, pos.Y, pos.Z)
 		}
-		// Items
+		// Items: create one set of the current level and one set of the next
 		for i := 0; i < 2; i++ {
-			for _, item := range state.GenerateEquipables(engine, i+1) {
+			for _, item := range state.GenerateEquipables(engine, level+1+i) {
 				v := visitables[currentV]
 				currentV++
 				pos := state.GetPosition(v)
@@ -156,7 +149,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			}
 		}
 		// Lightning Scroll
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 5; i++ {
 			v := visitables[currentV]
 			currentV++
 			pos := state.GetPosition(v)
@@ -164,7 +157,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
 		}
 		// Paralize Scroll
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 5; i++ {
 			v := visitables[currentV]
 			currentV++
 			pos := state.GetPosition(v)
@@ -172,7 +165,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			state.ApplyPosition(scroll, pos.X, pos.Y, pos.Z)
 		}
 		// Money
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 5; i++ {
 			v := visitables[currentV]
 			currentV++
 			pos := state.GetPosition(v)

@@ -198,6 +198,20 @@ func increase(current int, max int, incr int) int {
 	return current
 }
 
+func (plStats StatsValues) ApplyMultiplier(other StatsValues) StatsValues {
+	plStats.Health = applyMultiplier(plStats.Health, other.Health)
+	plStats.MaxHealth = applyMultiplier(plStats.MaxHealth, other.MaxHealth)
+	plStats.Defense = applyMultiplier(plStats.Defense, other.Defense)
+	plStats.Power = applyMultiplier(plStats.Power, other.Power)
+	plStats.Fov = applyMultiplier(plStats.Fov, other.Fov)
+
+	return plStats
+}
+
+func applyMultiplier(value int, pct int) int {
+	return int(float64(value) * (float64(pct) / 100.0))
+}
+
 func addSign(i int) string {
 	if i >= 0 {
 		return "+" + strconv.Itoa(i)
@@ -282,6 +296,7 @@ type EquipableComponent struct {
 
 	EquipSlot constants.EquipSlot
 	Level     int
+	Tier      int
 	SetName   string
 }
 
