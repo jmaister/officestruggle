@@ -32,9 +32,9 @@ func createSlotDistribution() DistributedRandom {
 
 func createTierDistribution() DistributedRandom {
 	tierDistribution := NewDistributedRandom()
-	tierDistribution.SetNumber(1, 0.9)  // Common
-	tierDistribution.SetNumber(2, 0.5)  // Uncommon
-	tierDistribution.SetNumber(3, 0.1)  // Rare
+	tierDistribution.SetNumber(1, 0.84) // Common
+	tierDistribution.SetNumber(2, 0.10) // Uncommon
+	tierDistribution.SetNumber(3, 0.05) // Rare
 	tierDistribution.SetNumber(4, 0.01) // Mythic
 	return tierDistribution
 }

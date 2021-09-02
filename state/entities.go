@@ -21,13 +21,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 		MaxItems: 10,
 	})
 	entity.AddComponent(EquipmentComponent{
-		Base: StatsValues{
-			Health:    10,
-			MaxHealth: 10,
-			Defense:   3,
-			Power:     4,
-			Fov:       10,
-		},
+		Base:  CalculatePlayerStats(1),
 		Items: map[constants.EquipSlot]*ecs.Entity{},
 	})
 	entity.AddComponent(LevelingComponent{

@@ -25,8 +25,12 @@ func GiveXP(gs *gamestate.GameState, target *ecs.Entity, fromEntity *ecs.Entity)
 				gs.Log(constants.Good, fmt.Sprintf("You gained %d experience points.", xpIncrease))
 			}
 			if hasIncreasedLevel {
-				// TODO: Update players stats current and max
-				gs.Log(constants.Good, fmt.Sprintf("You advance to level %d.", newLevelingCmp.CurrentLevel))
+				// Update player current stats
+				equipment := target.GetComponent(constants.Equipment).(state.EquipmentComponent)
+				equipment.Base = state.CalculatePlayerStats(newLevelingCmp.CurrentLevel)
+				target.ReplaceComponent(equipment)
+				gs.Log(constants.Good, fmt.Sprintf("You advance to level %d. Your stats are increased.", newLevelingCmp.CurrentLevel))
+
 				// Trigger level increase animation
 				pos := state.GetPosition(target)
 				target.AddComponent(state.AnimatedComponent{
