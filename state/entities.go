@@ -21,13 +21,7 @@ func NewPlayer(entity *ecs.Entity) *ecs.Entity {
 		MaxItems: 10,
 	})
 	entity.AddComponent(EquipmentComponent{
-		Base: StatsValues{
-			Health:    10,
-			MaxHealth: 10,
-			Defense:   3,
-			Power:     4,
-			Fov:       10,
-		},
+		Base:  CalculatePlayerStats(1),
 		Items: map[constants.EquipSlot]*ecs.Entity{},
 	})
 	entity.AddComponent(LevelingComponent{
@@ -52,10 +46,10 @@ func NewGlobin(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(Layer400Component{})
 	entity.AddComponent(StatsComponent{
 		StatsValues: &StatsValues{
-			Health:    4,
-			MaxHealth: 10,
-			Defense:   1,
-			Power:     4,
+			Health:    12,
+			MaxHealth: 12,
+			Defense:   2,
+			Power:     6,
 			Fov:       6,
 		},
 	})
@@ -87,8 +81,8 @@ func NewDragon(entity *ecs.Entity) *ecs.Entity {
 		StatsValues: &StatsValues{
 			Health:    200,
 			MaxHealth: 200,
-			Defense:   1,
-			Power:     8,
+			Defense:   20,
+			Power:     15,
 			Fov:       10,
 		},
 	})

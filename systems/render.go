@@ -220,6 +220,8 @@ func drawInfo(screen *ebiten.Image, engine *ecs.Engine, gs *gamestate.GameState,
 			onSameTile = "*"
 		}
 
+		// TODO: change colors for Equipable based on tiers
+		// TODO: print entity char and color
 		str := fmt.Sprintf("%s%s", onSameTile, state.GetLongDescription(entity))
 		DrawText(screen, gs, position.X, y, font, str, cl, color.Black)
 		y++

@@ -49,6 +49,7 @@ func RenderInventoryScreen(engine *ecs.Engine, gs *gamestate.GameState, screen *
 		}
 	}
 	DrawSelectionList(screen, gs, &gs.InventoryScreenState.EquipmentState, equipStrItems, gs.Grid.Equipment, equipmentTitle)
+	// TODO: show equipped item stats
 
 	if gs.InventoryScreenState.InventoryState.Selected < len(inventory.Items) {
 		candidate := inventory.Items[gs.InventoryScreenState.InventoryState.Selected]
