@@ -68,6 +68,7 @@ func DrawText(screen *ebiten.Image, gs *gamestate.GameState, x int, y int, font 
 }
 
 func DrawStrings(screen *ebiten.Image, gs *gamestate.GameState, startX int, startY int, font font.Face, strings []ColoredText) {
+	// TODO: handle line breaks
 	x := startX
 	y := startY
 	for i := 0; i < len(strings); i++ {

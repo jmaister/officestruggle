@@ -64,7 +64,10 @@ func (a DamageAnimation) GetAnimationInfo() interfaces.AnimationInfo {
 }
 func (a DamageAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
 	pos := a.Target
-	x, y := toPixel(gs, pos.X+a.Direction.X, pos.Y+a.Direction.Y)
+	camX, camY := gs.Camera.ToCameraCoordinates(pos.X, pos.Y)
+	camX += gs.Grid.Camera.X
+	camY += gs.Grid.Camera.Y
+	x, y := toPixel(gs, camX+a.Direction.X, camY+a.Direction.Y)
 
 	x = x + int(float64(3*gs.TileWidth)*(percent))*a.Direction.X
 	y = y + int(float64(3*gs.TileHeight)*(percent))*a.Direction.Y
@@ -165,7 +168,10 @@ func (a FallingCharAnimation) Update(percent float64, gs *gamestate.GameState, s
 		current = len(line) - 1
 	}
 
-	x, y := toPixel(gs, line[current].X, line[current].Y)
+	camX, camY := gs.Camera.ToCameraCoordinates(line[current].X, line[current].Y)
+	camX += gs.Grid.Camera.X
+	camY += gs.Grid.Camera.Y
+	x, y := toPixel(gs, camX, camY)
 
 	x = x + randInt(-5, 5)
 	y = y + randInt(-5, 5)
@@ -212,7 +218,11 @@ func (a LevelUpAnimation) Update(percent float64, gs *gamestate.GameState, scree
 	}, radius)
 	for _, tile := range circle {
 		cl := palette.PColor(palette.Yellow, rand.Float64())
-		DrawTile(screen, gs, tile.X, tile.Y, cl)
+
+		camX, camY := gs.Camera.ToCameraCoordinates(tile.X, tile.Y)
+		camX += gs.Grid.Camera.X
+		camY += gs.Grid.Camera.Y
+		DrawTile(screen, gs, camX, camY, cl)
 	}
 }
 func (a LevelUpAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
