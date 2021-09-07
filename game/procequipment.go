@@ -1,28 +1,31 @@
-package state
+package game
 
 import (
 	"fmt"
 	"image/color"
 	"math"
 	"math/rand"
+	"strings"
 
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/palette"
+	"jordiburgos.com/officestruggle/state"
+	"jordiburgos.com/officestruggle/systems"
 )
 
 type EquipmentSet struct {
 	Name          string
 	ItemLevel     int
-	ImprovedStats StatsValues
+	ImprovedStats state.StatsValues
 }
 
 var slotDistribution = createSlotDistribution()
 var tierDistribution = createTierDistribution()
 var itemTypeDistribution = createItemTypeDistribution()
 
-func createSlotDistribution() DistributedRandom {
-	slotDistribution := NewDistributedRandom()
+func createSlotDistribution() state.DistributedRandom {
+	slotDistribution := state.NewDistributedRandom()
 	prob := 1.0 / float64(len(constants.EquipmentSlots))
 	for i := range constants.EquipmentSlots {
 		slotDistribution.SetNumber(i, prob)
@@ -30,8 +33,8 @@ func createSlotDistribution() DistributedRandom {
 	return slotDistribution
 }
 
-func createTierDistribution() DistributedRandom {
-	tierDistribution := NewDistributedRandom()
+func createTierDistribution() state.DistributedRandom {
+	tierDistribution := state.NewDistributedRandom()
 	tierDistribution.SetNumber(1, 0.84) // Common
 	tierDistribution.SetNumber(2, 0.10) // Uncommon
 	tierDistribution.SetNumber(3, 0.05) // Rare
@@ -39,8 +42,8 @@ func createTierDistribution() DistributedRandom {
 	return tierDistribution
 }
 
-func createItemTypeDistribution() DistributedRandom {
-	typeDistribution := NewDistributedRandom()
+func createItemTypeDistribution() state.DistributedRandom {
+	typeDistribution := state.NewDistributedRandom()
 	typeDistribution.SetNumber(1, 0.63) // Item
 	typeDistribution.SetNumber(2, 0.1)  // Health
 	typeDistribution.SetNumber(3, 0.09) // Lightning Scroll
@@ -58,15 +61,13 @@ func CreateRandomItem(engine *ecs.Engine, level int) *ecs.Entity {
 		tier := tierDistribution.GetDistributedRandom()
 		return createEquipable(engine, equipmentSet, level, slot, tier)
 	case 2:
-		return NewHealthPotion(engine.NewEntity())
+		return state.NewHealthPotion(engine.NewEntity())
 	case 3:
-		// TODO: return NewLightningScroll(engine.NewEntity())
-		return NewHealthPotion(engine.NewEntity())
+		return systems.NewLightningScroll(engine.NewEntity())
 	case 4:
-		// TODO: return NewParalizeScroll(engine.NewEntity())
-		return NewHealthPotion(engine.NewEntity())
+		return systems.NewParalizeScroll(engine.NewEntity())
 	case 5:
-		return NewMoneyAmount(engine.NewEntity(), 1000+rand.Intn(1000))
+		return state.NewMoneyAmount(engine.NewEntity(), 1000+rand.Intn(1000))
 	default:
 		return nil
 	}
@@ -78,7 +79,7 @@ func createEquipmentSet(level int) EquipmentSet {
 	return EquipmentSet{
 		Name:      fmt.Sprintf("Level %d %s", equipmentLevel, itemLevelSet(equipmentLevel)),
 		ItemLevel: equipmentLevel,
-		ImprovedStats: StatsValues{
+		ImprovedStats: state.StatsValues{
 			Health:    int(float64(0.25) * float64(equipmentLevel)),
 			MaxHealth: int(float64(0.5) * float64(equipmentLevel)),
 			Defense:   int(float64(1.5) * float64(equipmentLevel)),
@@ -104,15 +105,16 @@ func GenerateEquipables(engine *ecs.Engine, level int) ecs.EntityList {
 }
 
 func createEquipable(engine *ecs.Engine, equipmentSet EquipmentSet, level int, slot constants.EquipSlot, tier int) *ecs.Entity {
-	name := fmt.Sprintf("%s %s T%d", equipmentSet.Name, getSlotElementName(slot), tier)
+	name := fmt.Sprintf("%s %s %s", getItemTierStr(tier), equipmentSet.Name, getSlotElementName(slot))
+	name = strings.Trim(name, " ")
 	char := getSlotChar(slot)
 	clr := getSlotColor(slot)
 
 	entity := engine.NewEntity()
-	entity.AddComponent(IsPickupComponent{})
-	entity.AddComponent(Layer300Component{})
+	entity.AddComponent(state.IsPickupComponent{})
+	entity.AddComponent(state.Layer300Component{})
 
-	statValues := StatsValues{
+	statValues := state.StatsValues{
 		Health:    (1 + equipmentSet.ImprovedStats.Health) * equipmentSet.ItemLevel,
 		MaxHealth: (1 + equipmentSet.ImprovedStats.MaxHealth) * equipmentSet.ItemLevel,
 		Defense:   (1 + equipmentSet.ImprovedStats.Defense) * equipmentSet.ItemLevel,
@@ -124,15 +126,15 @@ func createEquipable(engine *ecs.Engine, equipmentSet EquipmentSet, level int, s
 
 	statValues = statValues.ApplyMultiplier(getTierMultiplier(tier))
 
-	entity.AddComponent(EquipableComponent{
+	entity.AddComponent(state.EquipableComponent{
 		EquipSlot:   slot,
 		Level:       equipmentSet.ItemLevel,
 		Tier:        tier,
 		SetName:     equipmentSet.Name,
 		StatsValues: &statValues,
 	})
-	entity.AddComponent(DescriptionComponent{Name: name})
-	entity.AddComponent(ApparenceComponent{Color: clr, Char: char})
+	entity.AddComponent(state.DescriptionComponent{Name: name})
+	entity.AddComponent(state.ApparenceComponent{Color: clr, Char: char})
 
 	return entity
 }
@@ -184,10 +186,10 @@ func getSlotColor(e constants.EquipSlot) color.Color {
 }
 
 // Multipliers by slot. 100 means keep the same: (value * 1.00)
-func getSlotMultiplier(e constants.EquipSlot) StatsValues {
+func getSlotMultiplier(e constants.EquipSlot) state.StatsValues {
 	switch e {
 	case constants.EquipHead:
-		return StatsValues{
+		return state.StatsValues{
 			Health:    100,
 			MaxHealth: 100,
 			Defense:   150,
@@ -195,7 +197,7 @@ func getSlotMultiplier(e constants.EquipSlot) StatsValues {
 			Fov:       200,
 		}
 	case constants.EquipWeapon:
-		return StatsValues{
+		return state.StatsValues{
 			Health:    100,
 			MaxHealth: 100,
 			Defense:   100,
@@ -203,7 +205,7 @@ func getSlotMultiplier(e constants.EquipSlot) StatsValues {
 			Fov:       100,
 		}
 	case constants.EquipBoots:
-		return StatsValues{
+		return state.StatsValues{
 			Health:    100,
 			MaxHealth: 100,
 			Defense:   200,
@@ -211,7 +213,7 @@ func getSlotMultiplier(e constants.EquipSlot) StatsValues {
 			Fov:       100,
 		}
 	case constants.EquipArmor:
-		return StatsValues{
+		return state.StatsValues{
 			Health:    200,
 			MaxHealth: 200,
 			Defense:   300,
@@ -219,7 +221,7 @@ func getSlotMultiplier(e constants.EquipSlot) StatsValues {
 			Fov:       100,
 		}
 	default:
-		return StatsValues{
+		return state.StatsValues{
 			Health:    100,
 			MaxHealth: 100,
 			Defense:   100,
@@ -229,8 +231,8 @@ func getSlotMultiplier(e constants.EquipSlot) StatsValues {
 	}
 }
 
-func getTierMultiplier(tier int) StatsValues {
-	return StatsValues{
+func getTierMultiplier(tier int) state.StatsValues {
+	return state.StatsValues{
 		Health:    100 + (100 * (tier - 1)),
 		MaxHealth: 100 + (100 * (tier - 1)),
 		Defense:   100 + (100 * (tier - 1)),
@@ -254,5 +256,19 @@ func itemLevelSet(equipmentLevel int) string {
 	default:
 		return "¿UnKnOwN¿"
 	}
+}
 
+func getItemTierStr(tier int) string {
+	switch tier {
+	case 1:
+		return "Common"
+	case 2:
+		return "Uncommon"
+	case 3:
+		return "Rare"
+	case 4:
+		return "Mythic"
+	default:
+		return "??UnkNown??"
+	}
 }

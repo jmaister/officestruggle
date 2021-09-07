@@ -124,9 +124,9 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 			state.ApplyPosition(goblin, pos.X, pos.Y, pos.Z)
 			goblin.AddComponent(state.LootDropComponent{
 				Entities: []*ecs.Entity{
-					state.CreateRandomItem(engine, level+1),
-					state.CreateRandomItem(engine, level+1),
-					state.CreateRandomItem(engine, level+1),
+					CreateRandomItem(engine, level+1),
+					CreateRandomItem(engine, level+1),
+					CreateRandomItem(engine, level+1),
 				},
 				Coins: rand.Intn(1000) + 1000,
 			})
@@ -141,7 +141,7 @@ func NewGameState(engine *ecs.Engine) *gamestate.GameState {
 		}
 		// Items: create one set of the current level and one set of the next
 		for i := 0; i < 2; i++ {
-			for _, item := range state.GenerateEquipables(engine, level+1+i) {
+			for _, item := range GenerateEquipables(engine, level+1+i) {
 				v := visitables[currentV]
 				currentV++
 				pos := state.GetPosition(v)
