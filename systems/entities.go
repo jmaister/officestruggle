@@ -53,7 +53,7 @@ func FilterFunc(entitylist ecs.EntityList, fn func(*ecs.Entity) bool) ecs.Entity
 func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(state.IsPickupComponent{})
 	entity.AddComponent(state.DescriptionComponent{Name: "Lightning Scroll"})
-	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Orange, 0.6), Char: '♪'})
+	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Orange, 0.6), Char: '~'})
 	entity.AddComponent(state.Layer300Component{})
 	entity.AddComponent(state.ConsumeEffectComponent{
 		Targeting:   gamestate.RandomAcquisitionType,
@@ -65,7 +65,7 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 				Duration:  750 * time.Millisecond,
 			},
 			Direction: grid.DOWN,
-			Char:      "♪",
+			Char:      "~",
 			Color:     palette.PColor(palette.Blue, 0.5),
 			Text:      "10",
 		},
@@ -85,7 +85,7 @@ func NewLightningScroll(entity *ecs.Entity) *ecs.Entity {
 func NewParalizeScroll(entity *ecs.Entity) *ecs.Entity {
 	entity.AddComponent(state.IsPickupComponent{})
 	entity.AddComponent(state.DescriptionComponent{Name: "Paralize Scroll"})
-	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Pink, 0.6), Char: '♪'})
+	entity.AddComponent(state.ApparenceComponent{Color: palette.PColor(palette.Pink, 0.6), Char: '~'})
 	entity.AddComponent(state.Layer300Component{})
 	entity.AddComponent(state.ConsumeEffectComponent{
 		// Targeting:   gamestate.ManualAcquisitionType,
@@ -98,7 +98,7 @@ func NewParalizeScroll(entity *ecs.Entity) *ecs.Entity {
 				Duration:  750 * time.Millisecond,
 			},
 			Direction: grid.DOWN,
-			Char:      "♪",
+			Char:      "~",
 			Color:     palette.PColor(palette.Orange, 0.7),
 			Text:      "Paralized",
 		},
