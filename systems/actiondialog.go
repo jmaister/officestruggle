@@ -14,6 +14,7 @@ func DrawActionDialog(engine *ecs.Engine, gs *gamestate.GameState, screen *ebite
 		findActionableEntities(engine, gs)
 	}
 
+	// TODO: draw in a better place
 	// TODO: if len(items) == 1, do the action automatically do not show the dialog
 	if len(gs.ActionScreenState.Items) > 0 {
 		title := "Available actions"
