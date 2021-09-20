@@ -24,7 +24,6 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 		animatedCmp, ok := entity.GetComponent(constants.Animated).(state.AnimatedComponent)
 		if ok {
 			animation := animatedCmp.Animation
-
 			now := time.Now()
 			start := animation.GetAnimationInfo().StartTime
 			end := start.Add(animation.GetAnimationInfo().Duration)
@@ -43,25 +42,25 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 
 }
 
-// Damage Animation
-
-type DamageAnimation struct {
+// LeavingStringAnimation Animation, this animation should be added to a dummy entity because it is destroyed when finished
+type LeavingStringAnimation struct {
 	interfaces.AnimationInfo
 
 	Direction grid.Direction
 	Damage    string
+	Hue       palette.Hue
 }
 
-func (a DamageAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
+func (a LeavingStringAnimation) Init(source *ecs.Entity, target *ecs.Entity) interfaces.Animation {
 	return a
 }
-func (a DamageAnimation) NeedsInit() bool {
+func (a LeavingStringAnimation) NeedsInit() bool {
 	return false
 }
-func (a DamageAnimation) GetAnimationInfo() interfaces.AnimationInfo {
+func (a LeavingStringAnimation) GetAnimationInfo() interfaces.AnimationInfo {
 	return a.AnimationInfo
 }
-func (a DamageAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
+func (a LeavingStringAnimation) Update(percent float64, gs *gamestate.GameState, screen *ebiten.Image) {
 	pos := a.Target
 	camX, camY := gs.Camera.ToCameraCoordinates(pos.X, pos.Y)
 	camX += gs.Grid.Camera.X
@@ -72,9 +71,9 @@ func (a DamageAnimation) Update(percent float64, gs *gamestate.GameState, screen
 	y = y + int(float64(3*gs.TileHeight)*(percent))*a.Direction.Y
 
 	fnt := assets.MplusFont(20)
-	text.Draw(screen, a.Damage, fnt, x, y, palette.PColor(palette.Red, percent))
+	text.Draw(screen, a.Damage, fnt, x, y, palette.PColor(a.Hue, percent))
 }
-func (a DamageAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
+func (a LeavingStringAnimation) End(engine *ecs.Engine, gs *gamestate.GameState, entity *ecs.Entity) {
 	engine.DestroyEntity(entity)
 }
 
