@@ -77,7 +77,7 @@ func registerGob() {
 
 	gob.Register(FallingCharAnimation{})
 	gob.Register(HealthPotionAnimation{})
-	gob.Register(DamageAnimation{})
+	gob.Register(LeavingStringAnimation{})
 
 	gob.Register(colorful.Color{})
 

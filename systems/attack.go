@@ -166,7 +166,7 @@ func CreateDamageAnimation(engine *ecs.Engine, source interfaces.Point, target i
 	}
 
 	animationEntity.AddComponent(state.AnimatedComponent{
-		Animation: DamageAnimation{
+		Animation: LeavingStringAnimation{
 			AnimationInfo: interfaces.AnimationInfo{
 				StartTime: time.Now(),
 				Duration:  750 * time.Millisecond,

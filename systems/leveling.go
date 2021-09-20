@@ -7,7 +7,9 @@ import (
 	"jordiburgos.com/officestruggle/constants"
 	"jordiburgos.com/officestruggle/ecs"
 	"jordiburgos.com/officestruggle/gamestate"
+	"jordiburgos.com/officestruggle/grid"
 	"jordiburgos.com/officestruggle/interfaces"
+	"jordiburgos.com/officestruggle/palette"
 	"jordiburgos.com/officestruggle/state"
 )
 
@@ -21,8 +23,23 @@ func GiveXP(gs *gamestate.GameState, target *ecs.Entity, fromEntity *ecs.Entity)
 			xpIncrease := xpGiver.Calculate()
 			newLevelingCmp, hasChanged, hasIncreasedLevel := calculateNewLevelingComponent(levelingComponent, xpIncrease)
 			if hasChanged {
-				// TODO: trigger xp animation
 				gs.Log(constants.Good, fmt.Sprintf("You gained %d experience points.", xpIncrease))
+
+				position := target.GetComponent(constants.Position).(state.PositionComponent)
+
+				e := gs.Engine.NewEntity()
+				e.AddComponent(state.AnimatedComponent{
+					Animation: LeavingStringAnimation{
+						AnimationInfo: interfaces.AnimationInfo{
+							StartTime: time.Now(),
+							Duration:  750 * time.Millisecond,
+							Source:    interfaces.Point{X: position.X, Y: position.Y},
+							Target:    interfaces.Point{X: position.X, Y: position.Y},
+						},
+						Direction: grid.UP,
+						Damage:    fmt.Sprintf("+%d", xpIncrease),
+						Hue:       palette.Lime,
+					}})
 			}
 			if hasIncreasedLevel {
 				// Update player current stats
