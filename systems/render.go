@@ -214,16 +214,25 @@ func drawInfo(screen *ebiten.Image, engine *ecs.Engine, gs *gamestate.GameState,
 		entPos := state.GetPosition(entity)
 		isOnPlayerTile := plPos.X == entPos.X && plPos.Y == entPos.Y
 		var cl color.Color = color.White
-		onSameTile := " "
+		onSameTile := "  "
 		if isOnPlayerTile {
 			cl = palette.PColor(palette.Green, 0.5)
-			onSameTile = "*"
+			onSameTile = ">>"
 		}
 
-		// TODO: change colors for Equipable based on tiers
-		// TODO: print entity char and color
-		str := fmt.Sprintf("%s%s", onSameTile, state.GetLongDescription(entity))
-		DrawText(screen, gs, position.X, y, font, str, cl, color.Black)
+		apparence := entity.GetComponent(constants.Apparence).(state.ApparenceComponent)
+		bg := apparence.Bg
+		if bg == nil {
+			bg = color.Black
+		}
+
+		strings := []ColoredText{
+			{onSameTile, cl, color.Black},
+			{string(apparence.Char), apparence.Color, bg},
+			{state.GetLongDescription(entity), cl, color.Black},
+		}
+		DrawStrings(screen, gs, position.X, y, font, strings)
+
 		y++
 	}
 	DrawGridRect(screen, gs, position, color.White)

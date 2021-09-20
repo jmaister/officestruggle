@@ -158,11 +158,11 @@ func getSlotElementName(e constants.EquipSlot) string {
 func getSlotChar(e constants.EquipSlot) rune {
 	switch e {
 	case constants.EquipHead:
-		return ']'
+		return '^'
 	case constants.EquipWeapon:
 		return '/'
 	case constants.EquipBoots:
-		return ']'
+		return ','
 	case constants.EquipArmor:
 		return ']'
 	default:

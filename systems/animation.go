@@ -32,7 +32,6 @@ func AnimationSystem(engine *ecs.Engine, gameState *gamestate.GameState, screen 
 			remaining := end.Sub(now).Milliseconds()
 			if remaining >= 0 {
 				percent := 1.0 - (float64(remaining) / float64(animation.GetAnimationInfo().Duration.Milliseconds()))
-				// TODO: update to use camera coordinates
 				animation.Update(percent, gameState, screen)
 			} else {
 				entity.RemoveComponent(constants.Animated)
